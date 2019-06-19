@@ -2100,19 +2100,182 @@ class App extends Component {
     // GTP Engines
 
     attachEngines(...engines) {
-        // TODO BUGOUT make some changes
+        let {attachedEngines} = this.state
+
+        if (helper.vertexEquals([...engines].reverse(), attachedEngines)) {
+            // Just swap engines
+
+            this.attachedEngineSyncers.reverse()
+
+            this.setState(({engineBusy, engineCommands}) => ({
+                engineCommands: engineCommands.reverse(),
+                engineBusy: engineBusy.reverse(),
+                attachedEngines: engines
+            }))
+
+            return
+        }
+
+        if (engines != null && engines.some(x => x != null)) {
+            // Only load the logger when actually attaching engines (not detaching):
+            // This is necessary since loadGameTrees() rotates to a new log, and
+            // we need to wait for the previous engines to finish logging
+
+            gtplogger.updatePath()
+        }
+
+        let quitTimeout = setting.get('gtp.engine_quit_timeout')
+
+        for (let i = 0; i < attachedEngines.length; i++) {
+            if (attachedEngines[i] === engines[i]) continue
+
+            if (this.attachedEngineSyncers[i]) {
+                this.attachedEngineSyncers[i].controller.stop(quitTimeout)
+            }
+
+            try {
+                let engine = engines[i]
+                let syncer = new EngineSyncer(engine)
+                this.attachedEngineSyncers[i] = syncer
+
+                syncer.on('busy-changed', () => {
+                    this.setState(({engineBusy}) => {
+                        let j = this.attachedEngineSyncers.indexOf(syncer)
+                        engineBusy[j] = syncer.busy
+
+                        return {engineBusy}
+                    })
+                })
+
+                syncer.controller.on('command-sent', evt => {
+                    gtplogger.write({
+                        type: 'stdin',
+                        message: gtp.Command.toString(evt.command),
+                        sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
+                        engine: engine.name
+                    })
+
+                    if (evt.command.name === 'list_commands') {
+                        evt.getResponse().then(response =>
+                            this.setState(({engineCommands}) => {
+                                let j = this.attachedEngineSyncers.indexOf(syncer)
+                                engineCommands[j] = response.content.split('\n')
+
+                                return {engineCommands}
+                            })
+                        ).catch(helper.noop)
+                    }
+
+                    this.handleCommandSent(Object.assign({syncer}, evt))
+                })
+
+                syncer.controller.on('stderr', ({content}) => {
+                    gtplogger.write({
+                        type: 'stderr',
+                        message: content,
+                        sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
+                        engine: engine.name
+                    })
+
+                    this.setState(({consoleLog}) => ({
+                        consoleLog: [...consoleLog, {
+                            sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
+                            name: engine.name,
+                            command: null,
+                            response: {content, internal: true}
+                        }]
+                    }))
+                })
+
+                syncer.controller.on('started', () => {
+                    gtplogger.write({
+                        type: 'meta',
+                        message: 'Engine Started',
+                        sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
+                        engine: engine.name
+                    })
+                })
+
+                syncer.controller.on('stopped', () => this.setState(({engineCommands}) => {
+                    gtplogger.write({
+                        type: 'meta',
+                        message: 'Engine Stopped',
+                        sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
+                        engine: engine.name
+                    })
+
+                    let j = this.attachedEngineSyncers.indexOf(syncer)
+                    engineCommands[j] = []
+
+                    return {engineCommands}
+                }))
+
+                syncer.controller.start()
+            } catch (err) {
+                this.attachedEngineSyncers[i] = null
+                engines[i] = null
+            }
+        }
+
+        this.setState({attachedEngines: engines})
     }
 
     detachEngines() {
+        this.attachEngines(null, null)
     }
 
     suspendEngines() {
+        for (let syncer of this.attachedEngineSyncers) {
+            if (syncer != null) {
+                gtplogger.write({
+                    type: 'meta',
+                    message: 'Engine Suspending',
+                    sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
+                    engine: syncer.engine.name
+                })
+
+                syncer.controller.kill()
+            }
+        }
+
+        this.stopGeneratingMoves()
+        this.hideInfoOverlay()
+        this.setBusy(false)
     }
 
     handleCommandSent({syncer, command, subscribe, getResponse}) {
     }
 
-    async syncEngines() {
+    async syncEngines({showErrorDialog = false} = {}) {
+        if (this.attachedEngineSyncers.every(x => x == null)) return
+        if (this.engineBusySyncing) return
+
+        let t = i18n.context('app.engine')
+        this.engineBusySyncing = true
+
+        try {
+            while (true) {
+                let {gameTrees, gameIndex, treePosition} = this.state
+                let tree = gameTrees[gameIndex]
+
+                await Promise.all(this.attachedEngineSyncers.map(syncer => {
+                    if (syncer == null) return
+                    return syncer.sync(tree, treePosition)
+                }))
+
+                if (treePosition === this.state.treePosition) break
+            }
+        } catch (err) {
+            this.engineBusySyncing = false
+
+            if (showErrorDialog) {
+                dialog.showMessageBox(t(err.message), 'warning')
+            } else {
+                throw err
+            }
+        }
+
+        this.engineBusySyncing = false
     }
 
     async startAnalysis({showWarning = true} = {}) {
@@ -2122,9 +2285,132 @@ class App extends Component {
     }
 
     async generateMove({firstMove = true, followUp = false} = {}) {
+        this.closeDrawer()
+
+        if (!firstMove && !this.state.generatingMoves) {
+            this.hideInfoOverlay()
+            return
+        } else if (firstMove) {
+            this.setState({generatingMoves: true})
+        }
+
+        let t = i18n.context('app.engine')
+        let {gameTrees, gameIndex} = this.state
+        let {currentPlayer} = this.inferredState
+        let tree = gameTrees[gameIndex]
+        let [color, opponent] = currentPlayer > 0 ? ['B', 'W'] : ['W', 'B']
+        let [playerIndex, otherIndex] = currentPlayer > 0 ? [0, 1] : [1, 0]
+        let playerSyncer = this.attachedEngineSyncers[playerIndex]
+        let otherSyncer = this.attachedEngineSyncers[otherIndex]
+
+        if (playerSyncer == null) {
+            if (otherSyncer != null) {
+                // Switch engines, so the attached engine can play
+
+                let engines = [...this.state.attachedEngines].reverse()
+                this.attachEngines(...engines)
+                ;[playerSyncer, otherSyncer] = [otherSyncer, playerSyncer]
+            } else {
+                return
+            }
+        }
+
+        this.setBusy(true)
+
+        try {
+            await this.syncEngines({showErrorDialog: true})
+        } catch (err) {
+            this.stopGeneratingMoves()
+            this.hideInfoOverlay()
+            this.setBusy(false)
+
+            return
+        }
+
+        if (firstMove && followUp && otherSyncer != null) {
+            this.flashInfoOverlay(t('Press Esc to stop playing'))
+        }
+
+        let {commands} = this.attachedEngineSyncers[playerIndex]
+        let commandName = ['genmove_analyze', 'lz-genmove_analyze', 'genmove'].find(x => commands.includes(x))
+        if (commandName == null) commandName = 'genmove'
+
+        let responseContent = await (
+            commandName === 'genmove'
+            ? playerSyncer.controller.sendCommand({name: commandName, args: [color]})
+                .then(res => res.content)
+            : new Promise((resolve, reject) => {
+                let interval = setting.get('board.analysis_interval').toString()
+
+                playerSyncer.controller.sendCommand(
+                    {name: commandName, args: [color, interval]},
+                    ({line}) => {
+                        if (line.indexOf('play ') !== 0) return
+                        resolve(line.slice('play '.length).trim())
+                    }
+                )
+                .then(() => resolve(null))
+                .catch(reject)
+            })
+        ).catch(() => null)
+
+        let sign = color === 'B' ? 1 : -1
+        let pass = true
+        let vertex = [-1, -1]
+        let board = gametree.getBoard(tree, tree.root.id)
+
+        if (responseContent == null) {
+            this.stopGeneratingMoves()
+            this.hideInfoOverlay()
+            this.setBusy(false)
+
+            return
+        } else if (responseContent.toLowerCase() !== 'pass') {
+            pass = false
+
+            if (responseContent.toLowerCase() === 'resign') {
+                dialog.showMessageBox(t(p => `${p.engineName} has resigned.`, {
+                    engineName: playerSyncer.engine.name
+                }))
+
+                this.stopGeneratingMoves()
+                this.hideInfoOverlay()
+                this.makeResign()
+                this.setBusy(false)
+
+                return
+            }
+
+            vertex = board.coord2vertex(responseContent)
+        }
+
+        let previousNode = tree.get(this.state.treePosition)
+        let previousPass = previousNode != null && ['W', 'B'].some(color =>
+            previousNode.data[color] != null
+            && !board.hasVertex(sgf.parseVertex(previousNode.data[color][0]))
+        )
+        let doublePass = previousPass && pass
+
+        this.makeMove(vertex, {player: sign})
+
+        if (followUp && otherSyncer != null && !doublePass) {
+            await helper.wait(setting.get('gtp.move_delay'))
+            this.generateMove({passPlayer: pass ? sign : null, firstMove: false, followUp})
+        } else {
+            this.stopGeneratingMoves()
+            this.hideInfoOverlay()
+        }
+
+        this.setBusy(false)
     }
 
     stopGeneratingMoves() {
+        if (!this.state.generatingMoves) return
+
+        let t = i18n.context('app.engine')
+
+        this.showInfoOverlay(t('Please wait…'))
+        this.setState({generatingMoves: false})
     }
 
     // Render
