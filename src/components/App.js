@@ -2244,6 +2244,108 @@ class App extends Component {
     }
 
     handleCommandSent({syncer, command, subscribe, getResponse}) {
+        let sign = 1 - this.attachedEngineSyncers.indexOf(syncer) * 2
+        if (sign > 1) sign = 0
+
+        let t = i18n.context('app.engine')
+        let {treePosition} = this.state
+        let entry = {sign, name: syncer.engine.name, command, waiting: true}
+        let maxLength = setting.get('console.max_history_count')
+
+        this.setState(({consoleLog}) => {
+            let newLog = consoleLog.slice(Math.max(consoleLog.length - maxLength + 1, 0))
+            newLog.push(entry)
+
+            return {consoleLog: newLog}
+        })
+
+        let updateEntry = update => {
+            Object.assign(entry, update)
+            this.setState(({consoleLog}) => ({consoleLog}))
+        }
+
+        subscribe(({line, response, end}) => {
+            updateEntry({
+                response: Object.assign({}, response),
+                waiting: !end
+            })
+
+            gtplogger.write({
+                type: 'stdout',
+                message: line,
+                sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
+                engine: syncer.engine.name
+            })
+
+            // Parse analysis info
+
+            if (line.slice(0, 5) === 'info ' && this.state.treePosition === treePosition) {
+                let tree = this.state.gameTrees[this.state.gameIndex]
+                let sign = this.getPlayer(tree, treePosition)
+                let board = gametree.getBoard(tree, treePosition)
+                let analysis = line
+                    .split(/\s*info\s+/).slice(1)
+                    .map(x => x.trim())
+                    .map(x => {
+                        let matchPV = x.match(/(pass|[A-Za-z]\d+)(\s+(pass|[A-Za-z]\d+))*\s*$/)
+                        if (matchPV == null)
+                            return null
+                        let matchPass = matchPV[0].match(/pass/)
+                        if (matchPass == null) {
+                            return [x.slice(0, matchPV.index), matchPV[0].split(/\s+/)]
+                        } else {
+                            return [x.slice(0, matchPV.index), matchPV[0].slice(0, matchPass.index).split(/\s+/)]
+                        }
+                    })
+                    .filter(x => x != null)
+                    .map(([x, y]) => [
+                        x.trim().split(/\s+/).slice(0, -1),
+                        y.filter(x => x.length >= 2)
+                    ])
+                    .map(([tokens, pv]) => {
+                        let keys = tokens.filter((_, i) => i % 2 === 0)
+                        let values = tokens.filter((_, i) => i % 2 === 1)
+
+                        keys.push('pv')
+                        values.push(pv)
+
+                        return keys.reduce((acc, x, i) => (acc[x] = values[i], acc), {})
+                    })
+                    .filter(({move}) => move.match(/^[A-Za-z]\d+$/))
+                    .map(({move, visits, winrate, pv}) => ({
+                        sign,
+                        vertex: board.coord2vertex(move),
+                        visits: +visits,
+                        win: +winrate / 100,
+                        variation: pv.map(x => board.coord2vertex(x))
+                    }))
+
+                let winrate = Math.max(...analysis.map(({win}) => win))
+                if (sign < 0) winrate = 100 - winrate
+
+                let newTree = tree.mutate(draft => {
+                    draft.updateProperty(treePosition, 'SBKV', [(Math.round(winrate * 100) / 100).toString()])
+                })
+
+                this.setState({analysis})
+                this.setCurrentTreePosition(newTree, treePosition)
+            }
+        })
+
+        getResponse()
+        .catch(_ => {
+            gtplogger.write({
+                type: 'meta',
+                message: 'Connection Failed',
+                sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
+                engine: syncer.engine.name
+            })
+
+            updateEntry({
+                response: {internal: true, content: t('connection failed')},
+                waiting: false
+            })
+        })
     }
 
     async syncEngines({showErrorDialog = false} = {}) {
