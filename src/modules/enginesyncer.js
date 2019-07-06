@@ -1,4 +1,6 @@
+console.log("Yes") // TODO BUGOUT we can't reach this line
 const EventEmitter = require('events')
+console.log("No") // TODO BUGOUT we can't reach this line
 const {dirname, resolve} = require('path')
 const gtp = require('@sabaki/gtp')
 const sgf = require('@sabaki/sgf')
@@ -30,6 +32,9 @@ class EngineSyncer extends EventEmitter {
         super()
 
         let {path, args, commands} = engine
+
+        // TODO
+        console.log(`Construct engine syncer for ${JSON.stringify(engine)}`)
 
         this._busy = false
         this.engine = engine

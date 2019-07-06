@@ -2132,6 +2132,7 @@ class App extends Component {
         let quitTimeout = setting.get('gtp.engine_quit_timeout')
 
         for (let i = 0; i < attachedEngines.length; i++) {
+            console.log(`attach ${JSON.stringify([i, attachedEngines[i],engines[i]])}`) // TODO
             if (attachedEngines[i] === engines[i]) continue
 
             if (this.attachedEngineSyncers[i]) {
@@ -2140,6 +2141,7 @@ class App extends Component {
 
             try {
                 let engine = engines[i]
+                console.log("try") // TODO
                 let syncer = new EngineSyncer(engine)
                 this.attachedEngineSyncers[i] = syncer
 
