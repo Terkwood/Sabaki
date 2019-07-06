@@ -33,7 +33,7 @@ class EngineSyncer extends EventEmitter {
 
         let {path, args, commands} = engine
 
-        // TODO
+        // TODO BUGOUT this is never invoked
         console.log(`Construct engine syncer for ${JSON.stringify(engine)}`)
 
         this._busy = false
