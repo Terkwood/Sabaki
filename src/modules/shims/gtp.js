@@ -20,7 +20,26 @@ class Controller extends EventEmitter {
     start() {
         if (this.process != null) return
 
-        console.log("BEEP")  // TODO BUGOUT
+        console.log("CONTROLLER START")  // TODO BUGOUT
+    }
+
+
+    async stop(timeout = 3000) {
+        if (this.process == null) return
+
+        return new Promise(() => console.log("CONTROLLER STOP"))  // TODO BUGOUT
+    }
+
+    kill() {
+        if (this.process == null) return
+
+        console.log("CONTROLLER KILL") // TODO BUGOUT
+    }
+
+    async sendCommand(command, subscriber = () => {}) {
+        if (this.process == null) this.start()
+
+        return await new Promise(() => console.log("CONTROLLER SEND COMMAND")) // TODO BUGOUT
     }
 }
 
