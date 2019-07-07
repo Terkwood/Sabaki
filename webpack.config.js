@@ -42,7 +42,7 @@ module.exports = (env, argv) => ({
             'rimraf': noopPath,
             'argv-split': noopPath,
             '@sabaki/gtp': emptyPath,
-            '../modules/enginesyncer': emptyPath,
+            '../modules/enginesyncer': emptyPath, // TODO BUGOUT what's this?
             '../modules/gtplogger': path.join(__dirname, 'src/modules/shims/gtplogger'),
             '../modules/treetransformer': emptyPath,
             './i18n': path.join(__dirname, 'src/modules/shims/i18n'),
