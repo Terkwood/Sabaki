@@ -1,4 +1,5 @@
 const EventEmitter = require('events')
+const Board = require('../board')
 
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {}) {
@@ -11,6 +12,8 @@ class Controller extends EventEmitter {
         this._wsController = null // TODO
         this.websocket = null
         this.commands = []
+
+        this.board = new Board(19,19)
     }
 
     get busy() {
@@ -50,14 +53,18 @@ class Controller extends EventEmitter {
         let promise = new Promise((resolve, reject) => {
             if (command.name == "play") {
                 console.log("!!! -- PLAY -- !!!") // TODO
+
+                let player = command.args[0] == "B" ? "BLACK" : "WHITE"
+                let vertex = this.board.coord2vertex(command.args[1])
+                console.log(`vertex ${JSON.stringify(vertex)}`)
                 this.websocket.send(
                     JSON.stringify(
                         {
                             "type":"MakeMove",
-                            "gameId":"6ff6253d-ddba-4221-b4ec-d658e860343d", // TODO
+                            "gameId":"9c9d51c0-d68a-4691-8cb3-9eeb0d1be3a5", // TODO
                             "reqId":"deadbeef-dead-beef-9999-beefbeefbeef", // TODO
-                            "player":"BLACK",  // TODO
-                            "coord": {"x":0,"y":0}
+                            "player":player,
+                            "coord": {"x":vertex[0],"y":vertex[1]}
                         })
                     )
                 resolve({}) // TODO
