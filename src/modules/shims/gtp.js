@@ -63,17 +63,13 @@ class Controller extends EventEmitter {
 class WebSocketController extends EventEmitter {
     constructor(webSocket) {
         super()
-        
-        console.log('ok1')
+
         this.webSocket = webSocket
-        console.log('ok2')
 
         this.webSocket.onmessage = event => {
             console.log("Websocket message") // TODO BUGOUT
             console.log(JSON.stringify(event))
         }
-
-        console.log('constructed 2')
     }
 
     async sendCommand(command, subscriber = () => {}) {
@@ -119,3 +115,21 @@ class WebSocketController extends EventEmitter {
 }
 
 exports.Controller = Controller
+
+exports.Command = { 
+    fromString: function(input) {
+        input = input.replace(/#.*?$/, '').trim()
+
+        let inputs = input.split(/\s+/)
+        let id = parseInt(inputs[0], 10)
+
+        if (!isNaN(id) && id + '' === inputs[0]) inputs.shift()
+        else id = null
+
+        let [name, ...args] = inputs
+        return {id, name, args}
+    },
+    toString: function({id = null, name, args = []}) {
+        return `${id != null ? id : ''} ${name} ${args.join(' ')}`.trim()
+    }
+}
