@@ -9,7 +9,6 @@ class Controller extends EventEmitter {
         this.args = args
         this.spawnOptions = spawnOptions
 
-        this._wsController = null // TODO
         this.websocket = null
         this.commands = []
 
@@ -17,7 +16,7 @@ class Controller extends EventEmitter {
     }
 
     get busy() {
-        return this._wsController != null && this._wsController.busy
+        return false // TODO
     }
 
     start() {
@@ -46,22 +45,26 @@ class Controller extends EventEmitter {
         this.websocket.close()  // TODO BUGOUT VERIFY THIS IS ENOUGH
     }
 
+    // TODO it's sending the same commands over and over and over again
+    // TODO it's sending the same commands over and over and over again
+    // TODO it's sending the same commands over and over and over again
     async sendCommand(command, subscriber = () => {}) {
         if (this.websocket == null) this.start()
 
         console.log(`send command ${JSON.stringify(command)}`)
         let promise = new Promise((resolve, reject) => {
             if (command.name == "play") {
-                console.log("!!! -- PLAY -- !!!") // TODO
-
                 let player = command.args[0] == "B" ? "BLACK" : "WHITE"
                 let vertex = this.board.coord2vertex(command.args[1])
-                console.log(`vertex ${JSON.stringify(vertex)}`)
+                
+                // TODO it's sending the same commands over and over and over again
+                // TODO it's sending the same commands over and over and over again
+                // TODO it's sending the same commands over and over and over again
                 this.websocket.send(
                     JSON.stringify(
                         {
                             "type":"MakeMove",
-                            "gameId":"9c9d51c0-d68a-4691-8cb3-9eeb0d1be3a5", // TODO
+                            "gameId":"01014543-02db-4823-b06c-9742fdfcf667", // TODO
                             "reqId":"deadbeef-dead-beef-9999-beefbeefbeef", // TODO
                             "player":player,
                             "coord": {"x":vertex[0],"y":vertex[1]}
@@ -71,6 +74,9 @@ class Controller extends EventEmitter {
             }
 
             resolve({}) // TODO
+            // TODO it's sending the same commands over and over and over again
+            // TODO it's sending the same commands over and over and over again
+            // TODO it's sending the same commands over and over and over again
         })
 
         return await promise
