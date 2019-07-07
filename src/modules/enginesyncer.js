@@ -59,8 +59,6 @@ class EngineSyncer extends EventEmitter {
                 )
             ]).catch(helper.noop)
         })
-        // TODO BUGOUT
-        console.log(`Construct engine syncer for ${JSON.stringify(engine)}`)
 
         this.controller.on('stopped', () => {
             this.state = JSON.parse(defaultStateJSON)
@@ -141,7 +139,6 @@ class EngineSyncer extends EventEmitter {
         this.controller.on('response-received', () => {
             this.busy = this.controller.busy
         })
-        
 }
 
     get busy() {
