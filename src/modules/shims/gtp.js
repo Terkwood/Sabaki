@@ -8,36 +8,36 @@ class Controller extends EventEmitter {
         this.args = args
         this.spawnOptions = spawnOptions
 
-        this._streamController = null
-        this.process = null
+        this._wsController = null
+        this.websocket = null
         this.commands = []
     }
 
     get busy() {
-        return this._streamController != null && this._streamController.busy
+        return this._wsController != null && this._wsController.busy
     }
 
     start() {
-        if (this.process != null) return
+        if (this.websocket != null) return
 
         console.log("CONTROLLER START")  // TODO BUGOUT
     }
 
 
     async stop(timeout = 3000) {
-        if (this.process == null) return
+        if (this.websocket == null) return
 
         return new Promise(() => console.log("CONTROLLER STOP"))  // TODO BUGOUT
     }
 
     kill() {
-        if (this.process == null) return
+        if (this.websocket == null) return
 
         console.log("CONTROLLER KILL") // TODO BUGOUT
     }
 
     async sendCommand(command, subscriber = () => {}) {
-        if (this.process == null) this.start()
+        if (this.websocket == null) this.start()
 
         return await new Promise(() => console.log("CONTROLLER SEND COMMAND")) // TODO BUGOUT
     }
