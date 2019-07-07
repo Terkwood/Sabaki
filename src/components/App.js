@@ -2139,7 +2139,6 @@ class App extends Component {
             try {
                 let engine = engines[i]
                 let syncer = new EngineSyncer(engine)
-                console.log("Success!") // TODO can't reach this
                 this.attachedEngineSyncers[i] = syncer
 
                 syncer.on('busy-changed', () => {
