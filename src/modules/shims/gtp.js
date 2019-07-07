@@ -19,6 +19,13 @@ class Controller extends EventEmitter {
 
     start() {
         if (this.websocket != null) return
+        
+        this.websocket = new WebSocket("ws://127.0.0.1:3012/")
+        console.log("CONNECTION NEEDS TO HAPPEN")
+        this.websocket.onmessage = event => {
+            console.log("Websocket message")
+            console.log(JSON.stringify(event))
+        }
 
         console.log("CONTROLLER START")  // TODO BUGOUT
     }
@@ -33,7 +40,7 @@ class Controller extends EventEmitter {
     kill() {
         if (this.websocket == null) return
 
-        console.log("CONTROLLER KILL") // TODO BUGOUT
+        this.websocket.close()
     }
 
     async sendCommand(command, subscriber = () => {}) {
