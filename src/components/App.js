@@ -2103,7 +2103,6 @@ class App extends Component {
     // GTP Engines
 
     attachEngines(...engines) {
-        
         let {attachedEngines} = this.state
 
         if (helper.vertexEquals([...engines].reverse(), attachedEngines)) {
