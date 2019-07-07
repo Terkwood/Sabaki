@@ -668,8 +668,7 @@ class App extends Component {
 
             // BUGOUT example of auto-attaching to an engine
             this.attachEngines(null,{"name":"gnugo","path":"/var/gnugo/gnugo","args":"--mode gtp"})
-            console.log("Attached")
-
+            
             this.setState({
                 representedFilename: null,
                 gameIndex: 0,
@@ -1043,10 +1042,10 @@ class App extends Component {
         // Emit event
 
         this.events.emit('moveMake', {pass, capture, suicide, ko, enterScoring})
-        console.log("Emit event") // TODO
+        
         if (sendToEngine && this.attachedEngineSyncers.some(x => x != null)) {
             // Send command to engine
-            console.log("Send to engine") // TODO
+        
             let passPlayer = pass ? player : null
             setTimeout(() => this.generateMove({passPlayer}), setting.get('gtp.move_delay'))
         }
@@ -2104,7 +2103,7 @@ class App extends Component {
     // GTP Engines
 
     attachEngines(...engines) {
-        console.log(`Try to attach ${JSON.stringify(engines)}`) // TODO
+        
         let {attachedEngines} = this.state
 
         if (helper.vertexEquals([...engines].reverse(), attachedEngines)) {
@@ -2224,8 +2223,6 @@ class App extends Component {
             }
         }
 
-        // TODO
-        console.log(`Setting state ${JSON.stringify({attachedEngines: engines})}`)
         this.setState({attachedEngines: engines})
     }
 

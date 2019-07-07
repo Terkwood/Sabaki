@@ -171,7 +171,6 @@ app.on('window-all-closed', () => {
 })
 
 app.on('ready', () => {
-    console.log("ready event received") // TODO no
     isReady = true
 
     if (!openfile && process.argv.length >= 2) {

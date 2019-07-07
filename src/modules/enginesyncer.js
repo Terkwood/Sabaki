@@ -31,7 +31,6 @@ class EngineSyncer extends EventEmitter {
 
         let {path, args, commands} = engine
 
-
         this._busy = false
         this.engine = engine
         this.commands = []
@@ -139,7 +138,7 @@ class EngineSyncer extends EventEmitter {
         this.controller.on('response-received', () => {
             this.busy = this.controller.busy
         })
-}
+    }
 
     get busy() {
         return this._busy
