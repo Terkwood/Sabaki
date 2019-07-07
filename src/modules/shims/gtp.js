@@ -8,7 +8,7 @@ class Controller extends EventEmitter {
         this.args = args
         this.spawnOptions = spawnOptions
 
-        this._wsController = null
+        this._wsController = null // TODO
         this.websocket = null
         this.commands = []
     }
@@ -20,10 +20,10 @@ class Controller extends EventEmitter {
     start() {
         if (this.websocket != null) return
         
-        this.websocket = new WebSocket("ws://127.0.0.1:3012/")
-        console.log("CONNECTION NEEDS TO HAPPEN")
+        this.websocket = new WebSocket("ws://localhost:3012/")
+        
         this.websocket.onmessage = event => {
-            console.log("Websocket message")
+            console.log("Websocket message") // TODO BUGOUT
             console.log(JSON.stringify(event))
         }
 
@@ -40,13 +40,33 @@ class Controller extends EventEmitter {
     kill() {
         if (this.websocket == null) return
 
-        this.websocket.close()
+        this.websocket.close()  // TODO BUGOUT VERIFY THIS IS ENOUGH
     }
 
     async sendCommand(command, subscriber = () => {}) {
         if (this.websocket == null) this.start()
 
-        return await new Promise(() => console.log("CONTROLLER SEND COMMAND")) // TODO BUGOUT
+        console.log(`send command ${JSON.stringify(command)}`)
+        let promise = new Promise((resolve, reject) => {
+            if (command.name == "play") {
+                console.log("!!! -- PLAY -- !!!") // TODO
+                this.websocket.send(
+                    JSON.stringify(
+                        {
+                            "type":"MakeMove",
+                            "gameId":"6ff6253d-ddba-4221-b4ec-d658e860343d", // TODO
+                            "reqId":"deadbeef-dead-beef-9999-beefbeefbeef", // TODO
+                            "player":"BLACK",  // TODO
+                            "coord": {"x":0,"y":0}
+                        })
+                    )
+                resolve({}) // TODO
+            }
+
+            resolve({}) // TODO
+        })
+
+        return await promise
     }
 }
 
