@@ -1,6 +1,4 @@
-console.log("Yes") // TODO BUGOUT we can't reach this line
 const EventEmitter = require('events')
-console.log("No") // TODO BUGOUT we can't reach this line
 const {dirname, resolve} = require('path')
 const gtp = require('@sabaki/gtp')
 const sgf = require('@sabaki/sgf')
@@ -33,8 +31,6 @@ class EngineSyncer extends EventEmitter {
 
         let {path, args, commands} = engine
 
-        // TODO BUGOUT this is never invoked
-        console.log(`Construct engine syncer for ${JSON.stringify(engine)}`)
 
         this._busy = false
         this.engine = engine
@@ -63,6 +59,8 @@ class EngineSyncer extends EventEmitter {
                 )
             ]).catch(helper.noop)
         })
+        // TODO BUGOUT
+        console.log(`Construct engine syncer for ${JSON.stringify(engine)}`)
 
         this.controller.on('stopped', () => {
             this.state = JSON.parse(defaultStateJSON)
@@ -143,7 +141,8 @@ class EngineSyncer extends EventEmitter {
         this.controller.on('response-received', () => {
             this.busy = this.controller.busy
         })
-    }
+        
+}
 
     get busy() {
         return this._busy
