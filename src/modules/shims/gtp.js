@@ -9,48 +9,74 @@ class Controller extends EventEmitter {
         this.args = args
         this.spawnOptions = spawnOptions
 
-        this.websocket = null
+        this._webSocketController = null
+        this.webSocket = null
         this.commands = []
-
+        console.log('constructed 1')
         this.board = new Board(19,19)
     }
 
     get busy() {
-        return false // TODO
+        return this._webSocketController != null && this._webSocketController.busy
     }
 
     start() {
-        if (this.websocket != null) return
+        if (this.webSocket != null) return
         
-        this.websocket = new WebSocket("ws://localhost:3012/")
-        
-        this.websocket.onmessage = event => {
-            console.log("Websocket message") // TODO BUGOUT
-            console.log(JSON.stringify(event))
-        }
+        this.webSocket = new WebSocket("ws://localhost:3012/")
+        console.log('make a websocket controller')
+        this._webSocketController = new WebSocketController(this.webSocket)
+        console.log('ok')
+        this._webSocketController.on('command-sent', evt => this.emit('command-sent', evt))
+        this._webSocketController.on('response-received', evt => this.emit('response-received', evt))
 
-        console.log("CONTROLLER START")  // TODO BUGOUT
+        // TODO BUGOUT
+        //this.commands = this._streamController.commands
+
+        this.emit('started')
+        console.log('started')
     }
 
 
     async stop(timeout = 3000) {
-        if (this.websocket == null) return
+        if (this.webSocket == null) return
 
         return new Promise(() => console.log("CONTROLLER STOP"))  // TODO BUGOUT
     }
 
     kill() {
-        if (this.websocket == null) return
+        if (this.webSocket == null) return
 
-        this.websocket.close()  // TODO BUGOUT VERIFY THIS IS ENOUGH
+        this.webSocket.close()
     }
 
     // TODO it's sending the same commands over and over and over again
     // TODO it's sending the same commands over and over and over again
     // TODO it's sending the same commands over and over and over again
     async sendCommand(command, subscriber = () => {}) {
-        if (this.websocket == null) this.start()
+        if (this.webSocket == null) this.start()
 
+        return await this._webSocketController.sendCommand(command, subscriber)
+    }
+}
+
+class WebSocketController extends EventEmitter {
+    constructor(webSocket) {
+        super()
+        
+        console.log('ok1')
+        this.webSocket = webSocket
+        console.log('ok2')
+
+        this.webSocket.onmessage = event => {
+            console.log("Websocket message") // TODO BUGOUT
+            console.log(JSON.stringify(event))
+        }
+
+        console.log('constructed 2')
+    }
+
+    async sendCommand(command, subscriber = () => {}) {
         console.log(`send command ${JSON.stringify(command)}`)
         let promise = new Promise((resolve, reject) => {
             if (command.name == "play") {
@@ -60,11 +86,11 @@ class Controller extends EventEmitter {
                 // TODO it's sending the same commands over and over and over again
                 // TODO it's sending the same commands over and over and over again
                 // TODO it's sending the same commands over and over and over again
-                this.websocket.send(
+                this.webSocket.send(
                     JSON.stringify(
                         {
                             "type":"MakeMove",
-                            "gameId":"01014543-02db-4823-b06c-9742fdfcf667", // TODO
+                            "gameId":"f154c2de-def7-4325-8ece-2fbfd342ceaf", // TODO
                             "reqId":"deadbeef-dead-beef-9999-beefbeefbeef", // TODO
                             "player":player,
                             "coord": {"x":vertex[0],"y":vertex[1]}
@@ -79,7 +105,16 @@ class Controller extends EventEmitter {
             // TODO it's sending the same commands over and over and over again
         })
 
-        return await promise
+        this.emit('command-sent', {
+            command,
+            subscribe: f => {
+                let g = subscriber
+                subscriber = x => (f(x), g(x))
+            },
+            getResponse: () => promise
+        })
+
+        return promise
     }
 }
 
