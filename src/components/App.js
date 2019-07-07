@@ -666,7 +666,7 @@ class App extends Component {
             this.detachEngines()
             this.clearConsole()
 
-            // BUGOUT example of auto-attaching to an engine
+            // BUGOUT example of auto-attaching to an engine to white
             this.attachEngines(null,{"name":"gnugo","path":"/var/gnugo/gnugo","args":"--mode gtp"})
             
             this.setState({
