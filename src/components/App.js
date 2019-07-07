@@ -1042,10 +1042,10 @@ class App extends Component {
         // Emit event
 
         this.events.emit('moveMake', {pass, capture, suicide, ko, enterScoring})
-        
+
         if (sendToEngine && this.attachedEngineSyncers.some(x => x != null)) {
             // Send command to engine
-        
+
             let passPlayer = pass ? player : null
             setTimeout(() => this.generateMove({passPlayer}), setting.get('gtp.move_delay'))
         }
@@ -2131,7 +2131,6 @@ class App extends Component {
         let quitTimeout = setting.get('gtp.engine_quit_timeout')
 
         for (let i = 0; i < attachedEngines.length; i++) {
-            console.log(`attach ${JSON.stringify([i, attachedEngines[i],engines[i]])}`) // TODO
             if (attachedEngines[i] === engines[i]) continue
 
             if (this.attachedEngineSyncers[i]) {
