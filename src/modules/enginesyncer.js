@@ -340,7 +340,6 @@ class EngineSyncer extends EventEmitter {
         if (engineBoard.getPositionHash() === board.getPositionHash()) {
             let result = await Promise.all(promises.map(x => x()))
             let success = result.every(x => x)
-            console.log(`is it success? ${JSON.stringify(result)} ${success}`)
             if (success) return
         }
 
