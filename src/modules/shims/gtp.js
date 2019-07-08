@@ -88,7 +88,7 @@ class WebSocketController extends EventEmitter {
                 let player = command.args[0] == "B" ? "BLACK" : "WHITE"
                 let vertex = this.board.coord2vertex(command.args[1])
 
-                const HARDCODED_GAME_ID = "464f7e80-1e76-41fc-8d35-08155f90a323"
+                const HARDCODED_GAME_ID = "b8a78f4d-0706-4587-8a65-512768f2a984"
                 let makeMove = {
                     "type":"MakeMove",
                     "gameId": HARDCODED_GAME_ID, // TODO
@@ -99,17 +99,19 @@ class WebSocketController extends EventEmitter {
 
 
                 this.webSocket.onmessage = event => {
-                    console.log(`websocket message ${JSON.stringify(event.data)}`)
+                    console.log(`websocket message ${event.data}`)
                     try {
                         let msg = JSON.parse(event.data)
                         if (msg.type && msg.type == "MoveMade") {
                             console.log(`MoveMade`)
+                            resolve({ok: true})
                         }
 
-                        console.log("past an if")
-                    } catch {
-                        console.log("tried and failed")
-                        resolve({ok: false}) // TODO BUGOUT
+                        // discard any other messages until we receive confirmation
+                        // from BUGOUT that the move was made
+                    } catch (err) {
+                        console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                        resolve({ok: false})
                     }
                 }
 
