@@ -30,7 +30,6 @@ class Controller extends EventEmitter {
         //this.commands = this._streamController.commands
 
         this.emit('started')
-        console.log('started')
     }
 
 
@@ -88,7 +87,7 @@ class WebSocketController extends EventEmitter {
                 let player = this.letterToPlayer(command.args[0])
                 let vertex = this.board.coord2vertex(command.args[1])
 
-                const HARDCODED_GAME_ID = "5b8bcd26-a1b8-4e43-a09d-ca0a5a99cc77"
+                const HARDCODED_GAME_ID = "1af3f2e3-6c8a-46fc-8bec-0922b9d57ca9"
                 const HARDCODED_REQ_ID = "deadbeef-dead-beef-9999-beefbeefbeef"
                 let makeMove = {
                     "type":"MakeMove",
@@ -116,10 +115,12 @@ class WebSocketController extends EventEmitter {
                 this.webSocket.send(JSON.stringify(makeMove))
             } else if (command.name === "genmove") {
                 this.webSocket.onmessage = event => {
+                    console.log(`genmove socket onmessage ${event.data}`)
                     try {
                         let msg = JSON.parse(event.data)
                         if (msg.type === "MoveMade" && msg.player === this.letterToPlayer(command.args[0])) {
                             let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
+                            console.log(`match with coord ${sabakiCoord}`)
                             resolve({"id":null,"content":sabakiCoord,"error":false})
                         }
 
