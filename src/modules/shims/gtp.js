@@ -83,13 +83,12 @@ class WebSocketController extends EventEmitter {
     letterToPlayer(letter) { return letter == "B" ? "BLACK" : "WHITE" }
 
     async sendCommand(command, subscriber = () => {}) {
-        console.log(`send command ${JSON.stringify(command)}`)
         let promise = new Promise((resolve, reject) => {
             if (command.name == "play") {
                 let player = this.letterToPlayer(command.args[0])
                 let vertex = this.board.coord2vertex(command.args[1])
 
-                const HARDCODED_GAME_ID = "b8a78f4d-0706-4587-8a65-512768f2a984"
+                const HARDCODED_GAME_ID = "5b8bcd26-a1b8-4e43-a09d-ca0a5a99cc77"
                 const HARDCODED_REQ_ID = "deadbeef-dead-beef-9999-beefbeefbeef"
                 let makeMove = {
                     "type":"MakeMove",
@@ -99,13 +98,11 @@ class WebSocketController extends EventEmitter {
                     "coord": {"x":vertex[0],"y":vertex[1]}
                 }
 
-
                 this.webSocket.onmessage = event => {
                     try {
                         let msg = JSON.parse(event.data)
                         if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
-                            console.log("MATCH")
-                            resolve({ok: true})
+                            resolve({id: null, error: false})
                         }
 
                         // discard any other messages until we receive confirmation
@@ -118,15 +115,12 @@ class WebSocketController extends EventEmitter {
 
                 this.webSocket.send(JSON.stringify(makeMove))
             } else if (command.name === "genmove") {
-                // TODO handoff to the other player
-                console.log("GENMOVE")
                 this.webSocket.onmessage = event => {
-                    console.log(`GENMOVE: websocket message ${event.data}`)
                     try {
                         let msg = JSON.parse(event.data)
                         if (msg.type === "MoveMade" && msg.player === this.letterToPlayer(command.args[0])) {
-                            console.log('done')
-                            resolve({ok: true})
+                            let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
+                            resolve({"id":null,"content":sabakiCoord,"error":false})
                         }
 
                         // discard any other messages until we receive confirmation
