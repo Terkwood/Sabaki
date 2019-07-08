@@ -48,9 +48,6 @@ class Controller extends EventEmitter {
         this.webSocket.close()
     }
 
-    // TODO it's sending the same commands over and over and over again
-    // TODO it's sending the same commands over and over and over again
-    // TODO it's sending the same commands over and over and over again
     async sendCommand(command, subscriber = () => {}) {
         if (this.webSocket == null) this.start()
 
