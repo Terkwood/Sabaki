@@ -22,9 +22,7 @@ class Controller extends EventEmitter {
         if (this.webSocket != null) return
         
         this.webSocket = new WebSocket("ws://localhost:3012/")
-        console.log('make a websocket controller')
         this._webSocketController = new WebSocketController(this.webSocket)
-        console.log('ok')
         this._webSocketController.on('command-sent', evt => this.emit('command-sent', evt))
         this._webSocketController.on('response-received', evt => this.emit('response-received', evt))
 
@@ -92,8 +90,6 @@ class WebSocketController extends EventEmitter {
                 let player = command.args[0] == "B" ? "BLACK" : "WHITE"
                 let vertex = this.board.coord2vertex(command.args[1])
 
-                console.log('WEBSOCKET SEND!!!')
-
                 const HARDCODED_GAME_ID = "c36723d8-da61-442c-978e-06c413b11558"
                 let makeMove = {
                     "type":"MakeMove",
@@ -110,7 +106,7 @@ class WebSocketController extends EventEmitter {
                     console.log(`websocket message ${JSON.stringify(event)}`)
                     resolve({ok: true}) // TODO BUGOUT
                 }                
-                console.log('hi')
+                
                 // TODO
             }
         })
