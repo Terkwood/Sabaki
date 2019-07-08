@@ -84,26 +84,25 @@ class WebSocketController extends EventEmitter {
         console.log(`send command ${JSON.stringify(command)}`)
         let promise = new Promise((resolve, reject) => {
             if (command.name == "play") {
-
                 let player = command.args[0] == "B" ? "BLACK" : "WHITE"
                 let vertex = this.board.coord2vertex(command.args[1])
 
                 const HARDCODED_GAME_ID = "b8a78f4d-0706-4587-8a65-512768f2a984"
+                const HARDCODED_REQ_ID = "deadbeef-dead-beef-9999-beefbeefbeef"
                 let makeMove = {
                     "type":"MakeMove",
                     "gameId": HARDCODED_GAME_ID, // TODO
-                    "reqId":"deadbeef-dead-beef-9999-beefbeefbeef", // TODO
+                    "reqId": HARDCODED_REQ_ID, // TODO
                     "player":player,
                     "coord": {"x":vertex[0],"y":vertex[1]}
                 }
 
 
                 this.webSocket.onmessage = event => {
-                    console.log(`websocket message ${event.data}`)
                     try {
                         let msg = JSON.parse(event.data)
-                        if (msg.type && msg.type == "MoveMade") {
-                            console.log(`MoveMade`)
+                        if (msg.type && msg.type == "MoveMade" && msg.replyTo === makeMove.reqId) {
+                            console.log("MATCH")
                             resolve({ok: true})
                         }
 
@@ -116,12 +115,24 @@ class WebSocketController extends EventEmitter {
                 }
 
                 this.webSocket.send(JSON.stringify(makeMove))
-          
-                
-                // TODO
             } else if (command.name == "genmove") {
                 // TODO handoff to the other player
                 console.log("GENMOVE")
+                this.webSocket.onmessage = event => {
+                    console.log(`GENMOVE: websocket message ${event.data}`)
+                    try {
+                        let msg = JSON.parse(event.data)
+                        if (msg.type && msg.type == "MoveMade") {
+                            resolve({ok: true})
+                        }
+
+                        // discard any other messages until we receive confirmation
+                        // from BUGOUT that the move was made
+                    } catch (err) {
+                        console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                        resolve({ok: false})
+                    }
+                }
 
              } else {
                  resolve(true)
