@@ -30,7 +30,6 @@ class Controller extends EventEmitter {
         //this.commands = this._streamController.commands
 
         this.emit('started')
-        console.log('started')
     }
 
 
@@ -80,35 +79,60 @@ class WebSocketController extends EventEmitter {
         this.webSocket = webSocket
     }
 
-    async sendCommand(command, subscriber = () => {}) {
-        console.log(`send command ${JSON.stringify(command)}`)
-        let promise = new Promise((resolve, reject) => {
-            if (["komi","boardsize", "clear_board"].includes(command.name)) {
-                resolve(true) // TODO BUGOUT
-            } else if (command.name == "play") {
+    letterToPlayer(letter) { return letter == "B" ? "BLACK" : "WHITE" }
 
-                let player = command.args[0] == "B" ? "BLACK" : "WHITE"
+    async sendCommand(command, subscriber = () => {}) {
+        let promise = new Promise((resolve, reject) => {
+            if (command.name == "play") {
+                let player = this.letterToPlayer(command.args[0])
                 let vertex = this.board.coord2vertex(command.args[1])
 
-                const HARDCODED_GAME_ID = "c36723d8-da61-442c-978e-06c413b11558"
+                const HARDCODED_GAME_ID = "0b3c35d8-d5bd-4367-b2c9-fab31bc6e7e5"
+                const HARDCODED_REQ_ID = "deadbeef-dead-beef-9999-beefbeefbeef"
                 let makeMove = {
                     "type":"MakeMove",
                     "gameId": HARDCODED_GAME_ID, // TODO
-                    "reqId":"deadbeef-dead-beef-9999-beefbeefbeef", // TODO
+                    "reqId": HARDCODED_REQ_ID, // TODO
                     "player":player,
                     "coord": {"x":vertex[0],"y":vertex[1]}
                 }
 
+                this.webSocket.onmessage = event => {
+                    try {
+                        let msg = JSON.parse(event.data)
+                        if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
+                            resolve({id: null, error: false})
+                        }
+
+                        // discard any other messages until we receive confirmation
+                        // from BUGOUT that the move was made
+                    } catch (err) {
+                        console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                        resolve({ok: false})
+                    }
+                }
 
                 this.webSocket.send(JSON.stringify(makeMove))
-
+            } else if (command.name === "genmove") {
                 this.webSocket.onmessage = event => {
-                    console.log(`websocket message ${JSON.stringify(event)}`)
-                    resolve({ok: true}) // TODO BUGOUT
-                }                
-                
-                // TODO
-            }
+                    try {
+                        let msg = JSON.parse(event.data)
+                        if (msg.type === "MoveMade" && msg.player === this.letterToPlayer(command.args[0])) {
+                            let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
+                            resolve({"id":null,"content":sabakiCoord,"error":false})
+                        }
+
+                        // discard any other messages until we receive confirmation
+                        // from BUGOUT that the move was made
+                    } catch (err) {
+                        console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                        resolve({ok: false})
+                    }
+                }
+
+             } else {
+                 resolve(true)
+             }
         })
 
         this.emit('command-sent', {
