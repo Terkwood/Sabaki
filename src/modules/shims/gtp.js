@@ -83,14 +83,12 @@ class WebSocketController extends EventEmitter {
     async sendCommand(command, subscriber = () => {}) {
         console.log(`send command ${JSON.stringify(command)}`)
         let promise = new Promise((resolve, reject) => {
-            if (["komi","boardsize", "clear_board"].includes(command.name)) {
-                resolve(true) // TODO BUGOUT
-            } else if (command.name == "play") {
+            if (command.name == "play") {
 
                 let player = command.args[0] == "B" ? "BLACK" : "WHITE"
                 let vertex = this.board.coord2vertex(command.args[1])
 
-                const HARDCODED_GAME_ID = "c36723d8-da61-442c-978e-06c413b11558"
+                const HARDCODED_GAME_ID = "464f7e80-1e76-41fc-8d35-08155f90a323"
                 let makeMove = {
                     "type":"MakeMove",
                     "gameId": HARDCODED_GAME_ID, // TODO
@@ -100,15 +98,32 @@ class WebSocketController extends EventEmitter {
                 }
 
 
-                this.webSocket.send(JSON.stringify(makeMove))
-
                 this.webSocket.onmessage = event => {
-                    console.log(`websocket message ${JSON.stringify(event)}`)
-                    resolve({ok: true}) // TODO BUGOUT
-                }                
+                    console.log(`websocket message ${JSON.stringify(event.data)}`)
+                    try {
+                        let msg = JSON.parse(event.data)
+                        if (msg.type && msg.type == "MoveMade") {
+                            console.log(`MoveMade`)
+                        }
+
+                        console.log("past an if")
+                    } catch {
+                        console.log("tried and failed")
+                        resolve({ok: false}) // TODO BUGOUT
+                    }
+                }
+
+                this.webSocket.send(JSON.stringify(makeMove))
+          
                 
                 // TODO
-            }
+            } else if (command.name == "genmove") {
+                // TODO handoff to the other player
+                console.log("GENMOVE")
+
+             } else {
+                 resolve(true)
+             }
         })
 
         this.emit('command-sent', {
