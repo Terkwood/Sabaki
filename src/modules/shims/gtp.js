@@ -80,11 +80,13 @@ class WebSocketController extends EventEmitter {
         this.webSocket = webSocket
     }
 
+    letterToPlayer(letter) { return letter == "B" ? "BLACK" : "WHITE" }
+
     async sendCommand(command, subscriber = () => {}) {
         console.log(`send command ${JSON.stringify(command)}`)
         let promise = new Promise((resolve, reject) => {
             if (command.name == "play") {
-                let player = command.args[0] == "B" ? "BLACK" : "WHITE"
+                let player = this.letterToPlayer(command.args[0])
                 let vertex = this.board.coord2vertex(command.args[1])
 
                 const HARDCODED_GAME_ID = "b8a78f4d-0706-4587-8a65-512768f2a984"
@@ -101,7 +103,7 @@ class WebSocketController extends EventEmitter {
                 this.webSocket.onmessage = event => {
                     try {
                         let msg = JSON.parse(event.data)
-                        if (msg.type && msg.type == "MoveMade" && msg.replyTo === makeMove.reqId) {
+                        if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
                             console.log("MATCH")
                             resolve({ok: true})
                         }
@@ -115,14 +117,15 @@ class WebSocketController extends EventEmitter {
                 }
 
                 this.webSocket.send(JSON.stringify(makeMove))
-            } else if (command.name == "genmove") {
+            } else if (command.name === "genmove") {
                 // TODO handoff to the other player
                 console.log("GENMOVE")
                 this.webSocket.onmessage = event => {
                     console.log(`GENMOVE: websocket message ${event.data}`)
                     try {
                         let msg = JSON.parse(event.data)
-                        if (msg.type && msg.type == "MoveMade") {
+                        if (msg.type === "MoveMade" && msg.player === this.letterToPlayer(command.args[0])) {
+                            console.log('done')
                             resolve({ok: true})
                         }
 
