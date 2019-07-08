@@ -12,8 +12,6 @@ class Controller extends EventEmitter {
         this._webSocketController = null
         this.webSocket = null
         this.commands = []
-        console.log('constructed 1')
-        this.board = new Board(19,19)
     }
 
     get busy() {
@@ -60,45 +58,64 @@ class Controller extends EventEmitter {
     }
 }
 
+const Command = { 
+    fromString: function(input) {
+        input = input.replace(/#.*?$/, '').trim()
+
+        let inputs = input.split(/\s+/)
+        let id = parseInt(inputs[0], 10)
+
+        if (!isNaN(id) && id + '' === inputs[0]) inputs.shift()
+        else id = null
+
+        let [name, ...args] = inputs
+        return {id, name, args}
+    },
+    toString: function({id = null, name, args = []}) {
+        return `${id != null ? id : ''} ${name} ${args.join(' ')}`.trim()
+    }
+}
+
 class WebSocketController extends EventEmitter {
     constructor(webSocket) {
         super()
 
+        // TODO BUGOUT don't hardcode this
+        this.board = new Board(19,19)
         this.webSocket = webSocket
-
-        this.webSocket.onmessage = event => {
-            console.log("Websocket message") // TODO BUGOUT
-            console.log(JSON.stringify(event))
-        }
     }
 
     async sendCommand(command, subscriber = () => {}) {
         console.log(`send command ${JSON.stringify(command)}`)
         let promise = new Promise((resolve, reject) => {
-            if (command.name == "play") {
+            if (["komi","boardsize", "clear_board"].includes(command.name)) {
+                resolve(true) // TODO BUGOUT
+            } else if (command.name == "play") {
+
                 let player = command.args[0] == "B" ? "BLACK" : "WHITE"
                 let vertex = this.board.coord2vertex(command.args[1])
-                
-                // TODO it's sending the same commands over and over and over again
-                // TODO it's sending the same commands over and over and over again
-                // TODO it's sending the same commands over and over and over again
-                this.webSocket.send(
-                    JSON.stringify(
-                        {
-                            "type":"MakeMove",
-                            "gameId":"f154c2de-def7-4325-8ece-2fbfd342ceaf", // TODO
-                            "reqId":"deadbeef-dead-beef-9999-beefbeefbeef", // TODO
-                            "player":player,
-                            "coord": {"x":vertex[0],"y":vertex[1]}
-                        })
-                    )
-                resolve({}) // TODO
-            }
 
-            resolve({}) // TODO
-            // TODO it's sending the same commands over and over and over again
-            // TODO it's sending the same commands over and over and over again
-            // TODO it's sending the same commands over and over and over again
+                console.log('WEBSOCKET SEND!!!')
+
+                const HARDCODED_GAME_ID = "c36723d8-da61-442c-978e-06c413b11558"
+                let makeMove = {
+                    "type":"MakeMove",
+                    "gameId": HARDCODED_GAME_ID, // TODO
+                    "reqId":"deadbeef-dead-beef-9999-beefbeefbeef", // TODO
+                    "player":player,
+                    "coord": {"x":vertex[0],"y":vertex[1]}
+                }
+
+
+                this.webSocket.send(JSON.stringify(makeMove))
+
+                this.webSocket.onmessage = event => {
+                    console.log(`websocket message ${JSON.stringify(event)}`)
+                    resolve({ok: true}) // TODO BUGOUT
+                }                
+                console.log('hi')
+                // TODO
+            }
         })
 
         this.emit('command-sent', {
@@ -116,20 +133,4 @@ class WebSocketController extends EventEmitter {
 
 exports.Controller = Controller
 
-exports.Command = { 
-    fromString: function(input) {
-        input = input.replace(/#.*?$/, '').trim()
-
-        let inputs = input.split(/\s+/)
-        let id = parseInt(inputs[0], 10)
-
-        if (!isNaN(id) && id + '' === inputs[0]) inputs.shift()
-        else id = null
-
-        let [name, ...args] = inputs
-        return {id, name, args}
-    },
-    toString: function({id = null, name, args = []}) {
-        return `${id != null ? id : ''} ${name} ${args.join(' ')}`.trim()
-    }
-}
+exports.Command = Command
