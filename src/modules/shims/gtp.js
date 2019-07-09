@@ -70,6 +70,8 @@ const Command = {
     }
 }
 
+const letterToPlayer = letter =>  letter == "B" ? "BLACK" : "WHITE"
+
 class WebSocketController extends EventEmitter {
     constructor(webSocket) {
         super()
@@ -79,12 +81,10 @@ class WebSocketController extends EventEmitter {
         this.webSocket = webSocket
     }
 
-    letterToPlayer(letter) { return letter == "B" ? "BLACK" : "WHITE" }
-
     async sendCommand(command, subscriber = () => {}) {
         let promise = new Promise((resolve, reject) => {
             if (command.name == "play") {
-                let player = this.letterToPlayer(command.args[0])
+                let player = letterToPlayer(command.args[0])
                 let vertex = this.board.coord2vertex(command.args[1])
 
                 const HARDCODED_GAME_ID = "0b3c35d8-d5bd-4367-b2c9-fab31bc6e7e5"
@@ -117,7 +117,7 @@ class WebSocketController extends EventEmitter {
                 this.webSocket.onmessage = event => {
                     try {
                         let msg = JSON.parse(event.data)
-                        if (msg.type === "MoveMade" && msg.player === this.letterToPlayer(command.args[0])) {
+                        if (msg.type === "MoveMade" && msg.player === letterToPlayer(command.args[0])) {
                             let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
                             resolve({"id":null,"content":sabakiCoord,"error":false})
                         }
@@ -149,5 +149,5 @@ class WebSocketController extends EventEmitter {
 }
 
 exports.Controller = Controller
-
 exports.Command = Command
+exports.letterToPlayer = letterToPlayer

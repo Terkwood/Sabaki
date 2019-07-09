@@ -666,9 +666,8 @@ class App extends Component {
             this.detachEngines()
             this.clearConsole()
 
-            // BUGOUT example of auto-attaching to an engine to white
-            this.attachEngines(null,{"name":"gnugo","path":"/var/gnugo/gnugo","args":"--mode gtp"})
-            
+            this.attachMultiplayer("BLACK")
+
             this.setState({
                 representedFilename: null,
                 gameIndex: 0,
@@ -2221,6 +2220,15 @@ class App extends Component {
         }
 
         this.setState({attachedEngines: engines})
+    }
+
+
+    attachMultiplayer(color, ...engines) {
+        if (color === "WHITE") {
+            this.attachEngines({"name":"Opponent","path":"/nothing","args":""}, null)
+        } else {
+            this.attachEngines(null,{"name":"Opponent","path":"/nothing","args":""})
+        }
     }
 
     detachEngines() {
