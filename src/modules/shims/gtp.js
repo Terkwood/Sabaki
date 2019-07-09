@@ -13,9 +13,6 @@ class Controller extends EventEmitter {
 
         this.path = path
         this.args = args
-        console.log(`controller args ${JSON.stringify(this.args)}`)
-        this.initWait = args && args.length > 0 && args[0] === "INIT_WAIT"
-        console.log(`initWait ${this.initWait}`)
         this.spawnOptions = spawnOptions
 
         this._webSocketController = null
@@ -31,7 +28,7 @@ class Controller extends EventEmitter {
         if (this.webSocket != null) return
         
         this.webSocket = new WebSocket("ws://localhost:3012/")
-        this._webSocketController = new WebSocketController(this.webSocket, this.initWait)
+        this._webSocketController = new WebSocketController(this.webSocket)
         this._webSocketController.on('command-sent', evt => this.emit('command-sent', evt))
         this._webSocketController.on('response-received', evt => this.emit('response-received', evt))
 
