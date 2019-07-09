@@ -36,6 +36,9 @@ const treetransformer = require('../modules/treetransformer')
 class App extends Component {
     constructor() {
         super()
+        // BUGOUT
+        this.bugoutPlayerColor = window.confirm("Cancel for white, OK for black") ? "BLACK" : "WHITE"
+
         window.sabaki = this
 
         let emptyTree = gametree.new()
@@ -666,6 +669,7 @@ class App extends Component {
             this.detachEngines()
             this.clearConsole()
 
+            // BUGOUT
             this.attachMultiplayer("BLACK")
 
             this.setState({

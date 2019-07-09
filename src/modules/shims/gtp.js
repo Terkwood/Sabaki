@@ -3,7 +3,7 @@ const Board = require('../board')
 const uuidv4 = require('uuid/v4')
 
 // TODO
-const HARDCODED_GAME_ID = "2a7ef576-5366-491a-9263-339f3a7be04c"
+const HARDCODED_GAME_ID = "b7e6f38f-d2fa-4b67-814e-5cadc1c404f6"
 
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {}) {
