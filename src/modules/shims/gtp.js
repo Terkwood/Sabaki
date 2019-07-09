@@ -1,5 +1,11 @@
+/// BUGOUT support for "gtp-like" multiplayer coordination
+
 const EventEmitter = require('events')
 const Board = require('../board')
+const uuidv4 = require('uuid/v4')
+
+// TODO
+const HARDCODED_GAME_ID = "ecf5a77f-ef50-4396-b9da-2cd907a62957"
 
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {}) {
@@ -25,9 +31,6 @@ class Controller extends EventEmitter {
         this._webSocketController = new WebSocketController(this.webSocket)
         this._webSocketController.on('command-sent', evt => this.emit('command-sent', evt))
         this._webSocketController.on('response-received', evt => this.emit('response-received', evt))
-
-        // TODO BUGOUT
-        //this.commands = this._streamController.commands
 
         this.emit('started')
     }
@@ -70,6 +73,8 @@ const Command = {
     }
 }
 
+const letterToPlayer = letter =>  letter == "B" ? "BLACK" : "WHITE"
+
 class WebSocketController extends EventEmitter {
     constructor(webSocket) {
         super()
@@ -79,20 +84,17 @@ class WebSocketController extends EventEmitter {
         this.webSocket = webSocket
     }
 
-    letterToPlayer(letter) { return letter == "B" ? "BLACK" : "WHITE" }
-
     async sendCommand(command, subscriber = () => {}) {
+        console.log(`GTP command ${JSON.stringify(command)}`)
         let promise = new Promise((resolve, reject) => {
             if (command.name == "play") {
-                let player = this.letterToPlayer(command.args[0])
+                let player = letterToPlayer(command.args[0])
                 let vertex = this.board.coord2vertex(command.args[1])
 
-                const HARDCODED_GAME_ID = "0b3c35d8-d5bd-4367-b2c9-fab31bc6e7e5"
-                const HARDCODED_REQ_ID = "deadbeef-dead-beef-9999-beefbeefbeef"
                 let makeMove = {
                     "type":"MakeMove",
                     "gameId": HARDCODED_GAME_ID, // TODO
-                    "reqId": HARDCODED_REQ_ID, // TODO
+                    "reqId": uuidv4(),
                     "player":player,
                     "coord": {"x":vertex[0],"y":vertex[1]}
                 }
@@ -117,16 +119,16 @@ class WebSocketController extends EventEmitter {
                 this.webSocket.onmessage = event => {
                     try {
                         let msg = JSON.parse(event.data)
-                        if (msg.type === "MoveMade" && msg.player === this.letterToPlayer(command.args[0])) {
+                        if (msg.type === "MoveMade" && msg.player === letterToPlayer(command.args[0])) {
                             let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
                             resolve({"id":null,"content":sabakiCoord,"error":false})
                         }
-
+        
                         // discard any other messages until we receive confirmation
                         // from BUGOUT that the move was made
                     } catch (err) {
                         console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
-                        resolve({ok: false})
+                        resolve({"id": null, "content": "", "error": true})
                     }
                 }
 
@@ -149,5 +151,5 @@ class WebSocketController extends EventEmitter {
 }
 
 exports.Controller = Controller
-
 exports.Command = Command
+exports.letterToPlayer = letterToPlayer

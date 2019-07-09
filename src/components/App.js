@@ -36,6 +36,9 @@ const treetransformer = require('../modules/treetransformer')
 class App extends Component {
     constructor() {
         super()
+        // BUGOUT
+        this.bugoutPlayerColor = window.confirm("Press Cancel for White, Press OK for Black") ? "B" : "W"
+
         window.sabaki = this
 
         let emptyTree = gametree.new()
@@ -666,9 +669,9 @@ class App extends Component {
             this.detachEngines()
             this.clearConsole()
 
-            // BUGOUT example of auto-attaching to an engine to white
-            this.attachEngines(null,{"name":"gnugo","path":"/var/gnugo/gnugo","args":"--mode gtp"})
-            
+            // BUGOUT
+            this.attachMultiplayer()
+
             this.setState({
                 representedFilename: null,
                 gameIndex: 0,
@@ -2221,6 +2224,15 @@ class App extends Component {
         }
 
         this.setState({attachedEngines: engines})
+    }
+
+    // BUGOUT
+    attachMultiplayer() {
+        if (this.bugoutPlayerColor === "W") {
+            this.attachEngines({"name":"Opponent", "path":"/bugout", "args": "INIT_WAIT"}, null)
+        } else {
+            this.attachEngines(null,{"name":"Opponent", "path":"/bugout", "args": ""})
+        }
     }
 
     detachEngines() {
