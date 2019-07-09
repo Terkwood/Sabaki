@@ -1,5 +1,9 @@
 const EventEmitter = require('events')
 const Board = require('../board')
+const uuidv4 = require('uuid/v4')
+
+// TODO
+const HARDCODED_GAME_ID = "2a7ef576-5366-491a-9263-339f3a7be04c"
 
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {}) {
@@ -87,12 +91,10 @@ class WebSocketController extends EventEmitter {
                 let player = letterToPlayer(command.args[0])
                 let vertex = this.board.coord2vertex(command.args[1])
 
-                const HARDCODED_GAME_ID = "0b3c35d8-d5bd-4367-b2c9-fab31bc6e7e5"
-                const HARDCODED_REQ_ID = "deadbeef-dead-beef-9999-beefbeefbeef"
                 let makeMove = {
                     "type":"MakeMove",
                     "gameId": HARDCODED_GAME_ID, // TODO
-                    "reqId": HARDCODED_REQ_ID, // TODO
+                    "reqId": uuidv4(),
                     "player":player,
                     "coord": {"x":vertex[0],"y":vertex[1]}
                 }
@@ -131,6 +133,7 @@ class WebSocketController extends EventEmitter {
                 }
 
              } else {
+                 console.log(`GTP command ${JSON.stringify(command)}`)
                  resolve(true)
              }
         })

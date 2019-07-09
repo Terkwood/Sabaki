@@ -2222,12 +2222,13 @@ class App extends Component {
         this.setState({attachedEngines: engines})
     }
 
-
-    attachMultiplayer(color, ...engines) {
+    // BUGOUT
+    attachMultiplayer(color) {
+        const engine = {"name":"Opponent","path":"/bugout","args":""}
         if (color === "WHITE") {
-            this.attachEngines({"name":"Opponent","path":"/nothing","args":""}, null)
+            this.attachEngines(engine, null)
         } else {
-            this.attachEngines(null,{"name":"Opponent","path":"/nothing","args":""})
+            this.attachEngines(null,engine)
         }
     }
 

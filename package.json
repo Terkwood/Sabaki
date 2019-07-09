@@ -73,7 +73,8 @@
     "pikaday": "^1.8.0",
     "preact": "^8.4.2",
     "react-markdown": "^3.6.0",
-    "remark-breaks": "^1.0.1"
+    "remark-breaks": "^1.0.1",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "http-server": "^0.11.1",
