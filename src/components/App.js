@@ -2229,7 +2229,7 @@ class App extends Component {
     // BUGOUT
     attachMultiplayer() {
         if (this.bugoutPlayerColor === "W") {
-            this.attachEngines({"name":"Opponent", "path":"/bugout", "args": "WAIT_BLACK"}, null)
+            this.attachEngines({"name":"Opponent", "path":"/bugout", "args": "INIT_WAIT"}, null)
         } else {
             this.attachEngines(null,{"name":"Opponent", "path":"/bugout", "args": ""})
         }

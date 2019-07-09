@@ -5,7 +5,7 @@ const Board = require('../board')
 const uuidv4 = require('uuid/v4')
 
 // TODO
-const HARDCODED_GAME_ID = "d4d13093-4633-4aee-ae49-684d14688254"
+const HARDCODED_GAME_ID = "ecf5a77f-ef50-4396-b9da-2cd907a62957"
 
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {}) {
@@ -13,6 +13,9 @@ class Controller extends EventEmitter {
 
         this.path = path
         this.args = args
+        console.log(`controller args ${JSON.stringify(this.args)}`)
+        this.initWait = args && args.length > 0 && args[0] === "INIT_WAIT"
+        console.log(`initWait ${this.initWait}`)
         this.spawnOptions = spawnOptions
 
         this._webSocketController = null
@@ -28,7 +31,7 @@ class Controller extends EventEmitter {
         if (this.webSocket != null) return
         
         this.webSocket = new WebSocket("ws://localhost:3012/")
-        this._webSocketController = new WebSocketController(this.webSocket)
+        this._webSocketController = new WebSocketController(this.webSocket, this.initWait)
         this._webSocketController.on('command-sent', evt => this.emit('command-sent', evt))
         this._webSocketController.on('response-received', evt => this.emit('response-received', evt))
 
@@ -85,6 +88,7 @@ class WebSocketController extends EventEmitter {
     }
 
     async sendCommand(command, subscriber = () => {}) {
+        console.log(`GTP command ${JSON.stringify(command)}`)
         let promise = new Promise((resolve, reject) => {
             if (command.name == "play") {
                 let player = letterToPlayer(command.args[0])
@@ -122,17 +126,16 @@ class WebSocketController extends EventEmitter {
                             let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
                             resolve({"id":null,"content":sabakiCoord,"error":false})
                         }
-
+        
                         // discard any other messages until we receive confirmation
                         // from BUGOUT that the move was made
                     } catch (err) {
                         console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
-                        resolve({ok: false})
+                        resolve({"id": null, "content": "", "error": true})
                     }
                 }
 
              } else {
-                 console.log(`GTP command ${JSON.stringify(command)}`)
                  resolve(true)
              }
         })

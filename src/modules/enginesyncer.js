@@ -30,7 +30,7 @@ class EngineSyncer extends EventEmitter {
         super()
 
         let {path, args, commands} = engine
-
+        console.log(`engine syncer args ${JSON.stringify(args)} ${JSON.stringify(argvsplit(args))}`)
         this._busy = false
         this.engine = engine
         this.commands = []
