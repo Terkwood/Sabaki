@@ -41,7 +41,7 @@ module.exports = (env, argv) => ({
             'recursive-copy': noopPath,
             'rimraf': noopPath,
             'argv-split': noopPath,
-            '@sabaki/gtp': path.join(__dirname, 'src/modules/shims/gtp'),
+            '@sabaki/gtp': path.join(__dirname, 'src/modules/shims/gtp'),  // BUGOUT
             '../modules/gtplogger': path.join(__dirname, 'src/modules/shims/gtplogger'),
             '../modules/treetransformer': emptyPath,
             './i18n': path.join(__dirname, 'src/modules/shims/i18n'),

@@ -1,9 +1,11 @@
+/// BUGOUT support for "gtp-like" multiplayer coordination
+
 const EventEmitter = require('events')
 const Board = require('../board')
 const uuidv4 = require('uuid/v4')
 
 // TODO
-const HARDCODED_GAME_ID = "b7e6f38f-d2fa-4b67-814e-5cadc1c404f6"
+const HARDCODED_GAME_ID = "d4d13093-4633-4aee-ae49-684d14688254"
 
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {}) {
@@ -29,9 +31,6 @@ class Controller extends EventEmitter {
         this._webSocketController = new WebSocketController(this.webSocket)
         this._webSocketController.on('command-sent', evt => this.emit('command-sent', evt))
         this._webSocketController.on('response-received', evt => this.emit('response-received', evt))
-
-        // TODO BUGOUT
-        //this.commands = this._streamController.commands
 
         this.emit('started')
     }

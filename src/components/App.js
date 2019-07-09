@@ -37,7 +37,7 @@ class App extends Component {
     constructor() {
         super()
         // BUGOUT
-        this.bugoutPlayerColor = window.confirm("Cancel for white, OK for black") ? "BLACK" : "WHITE"
+        this.bugoutPlayerColor = window.confirm("Press Cancel for White, Press OK for Black") ? "B" : "W"
 
         window.sabaki = this
 
@@ -670,7 +670,7 @@ class App extends Component {
             this.clearConsole()
 
             // BUGOUT
-            this.attachMultiplayer("BLACK")
+            this.attachMultiplayer()
 
             this.setState({
                 representedFilename: null,
@@ -2227,12 +2227,11 @@ class App extends Component {
     }
 
     // BUGOUT
-    attachMultiplayer(color) {
-        const engine = {"name":"Opponent","path":"/bugout","args":""}
-        if (color === "WHITE") {
-            this.attachEngines(engine, null)
+    attachMultiplayer() {
+        if (this.bugoutPlayerColor === "W") {
+            this.attachEngines({"name":"Opponent", "path":"/bugout", "args": "WAIT_BLACK"}, null)
         } else {
-            this.attachEngines(null,engine)
+            this.attachEngines(null,{"name":"Opponent", "path":"/bugout", "args": ""})
         }
     }
 
