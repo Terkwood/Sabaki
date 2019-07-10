@@ -4,8 +4,7 @@ const EventEmitter = require('events')
 const Board = require('../board')
 const uuidv4 = require('uuid/v4')
 
-// TODO
-const HARDCODED_GAME_ID = "ecf5a77f-ef50-4396-b9da-2cd907a62957"
+const HARDCODED_GAME_ID = "cee8112a-f2f8-471f-a5dc-1683d0dc3365"
 
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {}) {
@@ -17,7 +16,8 @@ class Controller extends EventEmitter {
 
         this._webSocketController = null
         this.webSocket = null
-        this.commands = []
+        
+        console.log(`this is game ${HARDCODED_GAME_ID}`)
     }
 
     get busy() {
@@ -46,6 +46,7 @@ class Controller extends EventEmitter {
         if (this.webSocket == null) return
 
         this.webSocket.close()
+        this._webSocketController.stop()
     }
 
     async sendCommand(command, subscriber = () => {}) {
@@ -82,6 +83,11 @@ class WebSocketController extends EventEmitter {
         // TODO BUGOUT don't hardcode this
         this.board = new Board(19,19)
         this.webSocket = webSocket
+
+        // manually ping the websocket every once in a while
+        this.beeping = true
+        this.beepTimeMs = 12625
+        setTimeout(() => this.beep(), this.beepTimeMs)
     }
 
     async sendCommand(command, subscriber = () => {}) {
@@ -147,6 +153,18 @@ class WebSocketController extends EventEmitter {
         })
 
         return promise
+    }
+
+    async beep() {
+        if (this.beeping) {
+            const pingMsg = { "type": "Beep" }
+            this.webSocket.send(JSON.stringify(pingMsg))
+            setTimeout(() => this.beep(), this.beepTimeMs)
+        }
+    }
+
+    stop() {
+        this.beeping = false
     }
 }
 
