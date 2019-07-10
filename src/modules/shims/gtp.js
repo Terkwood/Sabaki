@@ -4,7 +4,11 @@ const EventEmitter = require('events')
 const Board = require('../board')
 const uuidv4 = require('uuid/v4')
 
-const HARDCODED_GAME_ID = "cee8112a-f2f8-471f-a5dc-1683d0dc3365"
+const HARDCODED_GAME_ID = "62099e58-18e7-48a4-b0f3-f610363aca31"
+
+const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
+const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
+const GATEWAY_HOST = GATEWAY_HOST_REMOTE
 
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {}) {
@@ -15,7 +19,6 @@ class Controller extends EventEmitter {
         this.spawnOptions = spawnOptions
 
         this._webSocketController = null
-        this.webSocket = null
         
         console.log(`GAME ${HARDCODED_GAME_ID}`)
     }
@@ -25,10 +28,9 @@ class Controller extends EventEmitter {
     }
 
     start() {
-        if (this.webSocket != null) return
+        if (this._webSocketController != null) return
         
-        this.webSocket = new WebSocket("ws://localhost:3012/")
-        this._webSocketController = new WebSocketController(this.webSocket)
+        this._webSocketController = new WebSocketController(GATEWAY_HOST)
         this._webSocketController.on('command-sent', evt => this.emit('command-sent', evt))
         this._webSocketController.on('response-received', evt => this.emit('response-received', evt))
 
@@ -37,15 +39,17 @@ class Controller extends EventEmitter {
 
 
     async stop(timeout = 3000) {
-        if (this.webSocket == null) return
+        if (this._webSocketController == null) return
 
-        return new Promise(() => console.log("CONTROLLER STOP"))  // TODO BUGOUT
+        return new Promise(async resolve => {
+            this.kill()
+            resolve()
+        }, timeout)
     }
 
     kill() {
-        if (this.webSocket == null) return
+        if (this._webSocketController == null) return
 
-        this.webSocket.close()
         this._webSocketController.stop()
     }
 
@@ -77,17 +81,26 @@ const Command = {
 const letterToPlayer = letter =>  letter == "B" ? "BLACK" : "WHITE"
 
 class WebSocketController extends EventEmitter {
-    constructor(webSocket) {
+    constructor(webSocketAddress) {
         super()
 
         // TODO BUGOUT don't hardcode this
         this.board = new Board(19,19)
-        this.webSocket = webSocket
+        this.webSocketAddress = webSocketAddress
+        this.webSocket = new WebSocket(webSocketAddress)
 
         // manually ping the websocket every once in a while
         this.beeping = true
         this.beepTimeMs = 12625
         setTimeout(() => this.beep(), this.beepTimeMs)
+
+        this.webSocket.onclose = event => {
+            console.log("websocket closed")
+        }
+
+        this.webSocket.onerror = event => {
+            console.log(`websocket error ${JSON.stringify(event)}`)
+        }
     }
 
     async sendCommand(command, subscriber = () => {}) {
@@ -164,6 +177,8 @@ class WebSocketController extends EventEmitter {
     }
 
     stop() {
+        console.log("stop called by sabaki")
+        this.webSocket.close()
         this.beeping = false
     }
 }
