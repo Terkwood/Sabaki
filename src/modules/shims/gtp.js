@@ -17,7 +17,7 @@ class Controller extends EventEmitter {
         this._webSocketController = null
         this.webSocket = null
         
-        console.log(`this is game ${HARDCODED_GAME_ID}`)
+        console.log(`GAME ${HARDCODED_GAME_ID}`)
     }
 
     get busy() {
