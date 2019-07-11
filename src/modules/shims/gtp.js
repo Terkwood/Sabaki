@@ -177,7 +177,6 @@ class WebSocketController extends EventEmitter {
     }
 
     stop() {
-        console.log("stop called by sabaki")
         this.webSocket.close()
         this.beeping = false
     }
