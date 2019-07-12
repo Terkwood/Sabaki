@@ -4,7 +4,7 @@ const EventEmitter = require('events')
 const Board = require('../board')
 const uuidv4 = require('uuid/v4')
 
-const HARDCODED_GAME_ID = "62099e58-18e7-48a4-b0f3-f610363aca31"
+const HARDCODED_GAME_ID = "ab7e30cc-531f-488c-8002-78510f582bb5"
 
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
 const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
