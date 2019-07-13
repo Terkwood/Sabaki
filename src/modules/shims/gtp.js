@@ -99,9 +99,9 @@ class WebSocketController extends EventEmitter {
         }
 
         this.gameId = null
-        this.gatewayControl = new GatewayControl(this.webSocket)
+        this.gatewayConn = new GatewayConn(this.webSocket)
         this.webSocket.onopen = _event => {
-            this.gatewayControl.requestGameId()
+            this.gatewayConn.requestGameId()
             .then((reply, err) => {
                 if (!err) {
                     this.gameId = reply.gameId
@@ -197,7 +197,7 @@ class WebSocketController extends EventEmitter {
     }
 }
 
-class GatewayControl {
+class GatewayConn {
     constructor(webSocket) {
         this.webSocket = webSocket
     }
