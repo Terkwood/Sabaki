@@ -4,8 +4,6 @@ const EventEmitter = require('events')
 const Board = require('../board')
 const uuidv4 = require('uuid/v4')
 
-const HARDCODED_GAME_ID = "62099e58-18e7-48a4-b0f3-f610363aca31"
-
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
 const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
 const GATEWAY_HOST = GATEWAY_HOST_REMOTE
@@ -19,8 +17,6 @@ class Controller extends EventEmitter {
         this.spawnOptions = spawnOptions
 
         this._webSocketController = null
-        
-        console.log(`GAME ${HARDCODED_GAME_ID}`)
     }
 
     get busy() {
@@ -101,18 +97,37 @@ class WebSocketController extends EventEmitter {
         this.webSocket.onerror = event => {
             console.log(`websocket error ${JSON.stringify(event)}`)
         }
+
+        this.gameId = null
+        this.gatewayConn = new GatewayConn(this.webSocket)
+        this.webSocket.onopen = _event => {
+            this.gatewayConn.requestGameId()
+            .then((reply, err) => {
+                if (!err) {
+                    this.gameId = reply.gameId
+                } else {
+                    console.log('FATAL ERROR - WE DO NOT HAVE A GAME ID')
+                }
+            })
+        }
+            
     }
 
     async sendCommand(command, subscriber = () => {}) {
         console.log(`GTP command ${JSON.stringify(command)}`)
         let promise = new Promise((resolve, reject) => {
+            if (!this.gameId) {
+                console.log('no game id')
+                reject({id: null, error: true})
+            }
+
             if (command.name == "play") {
                 let player = letterToPlayer(command.args[0])
                 let vertex = this.board.coord2vertex(command.args[1])
 
                 let makeMove = {
                     "type":"MakeMove",
-                    "gameId": HARDCODED_GAME_ID, // TODO
+                    "gameId": this.gameId,
                     "reqId": uuidv4(),
                     "player":player,
                     "coord": {"x":vertex[0],"y":vertex[1]}
@@ -179,6 +194,37 @@ class WebSocketController extends EventEmitter {
     stop() {
         this.webSocket.close()
         this.beeping = false
+    }
+}
+
+class GatewayConn {
+    constructor(webSocket) {
+        this.webSocket = webSocket
+    }
+
+    async requestGameId() {
+        return new Promise((resolve, reject) => {
+            let requestGameId = {
+                "type":"RequestOpenGame",
+                "reqId": uuidv4()
+            }
+
+            this.webSocket.onmessage = event => {
+                try {
+                    let msg = JSON.parse(event.data)
+                    console.log(`incoming data ${event.data}`)
+                    if (msg.type === "OpenGameReply" && msg.replyTo === requestGameId.reqId) {
+                        resolve({gameId: msg.gameId})
+                    }
+                    // discard any other messages
+                } catch (err) {
+                    console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                    reject()
+                }
+            }
+
+            this.webSocket.send(JSON.stringify(requestGameId))
+        })
     }
 }
 
