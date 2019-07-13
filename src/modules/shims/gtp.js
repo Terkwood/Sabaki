@@ -127,7 +127,7 @@ class WebSocketController extends EventEmitter {
 
                 let makeMove = {
                     "type":"MakeMove",
-                    "gameId": this.gameId, // TODO
+                    "gameId": this.gameId,
                     "reqId": uuidv4(),
                     "player":player,
                     "coord": {"x":vertex[0],"y":vertex[1]}
@@ -205,7 +205,7 @@ class GatewayConn {
     async requestGameId() {
         return new Promise((resolve, reject) => {
             let requestGameId = {
-                "type":"RequestOpenGame", // TODO check this name out
+                "type":"RequestOpenGame",
                 "reqId": uuidv4()
             }
 
