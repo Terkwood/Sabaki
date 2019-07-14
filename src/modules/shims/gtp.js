@@ -92,11 +92,11 @@ class WebSocketController extends EventEmitter {
         setTimeout(() => this.beep(), this.beepTimeMs)
 
         this.webSocket.addEventListener('close', event => {
-            console.log("websocket closed")
+            console.log("WebSocket closed.")
         })
 
         this.webSocket.addEventListener('error',event => {
-            console.log(`websocket error ${JSON.stringify(event)}`)
+            console.log(`WebSocket error ${JSON.stringify(event)}`)
         })
 
         this.gameId = null
@@ -108,7 +108,6 @@ class WebSocketController extends EventEmitter {
                     .then((reply, err) => {
                         if (!err) {
                             this.gameId = reply.gameId
-                            console.log(`game id ${this.gameId}`)
                         } else {
                             console.log('FATAL ERROR - WE DO NOT HAVE A GAME ID')
                         }
@@ -117,14 +116,14 @@ class WebSocketController extends EventEmitter {
                 this.gatewayConn
                     .reconnect(this.gameId, this.resolveMoveMade)
                     .then((rc, err) => {
-                        console.log("apparently we reconnected")
+                        console.log("Reconnected!")
                     })
             }
         })
 
         // reconnect event
         this.webSocket.addEventListener('connecting', () => {
-            console.log('reconnecting......')
+            console.log('Reconnecting...')
         })
             
     }
