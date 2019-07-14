@@ -2,6 +2,7 @@
 
 const EventEmitter = require('events')
 const Board = require('../board')
+const RobustWebSocket = require('robust-websocket')
 const uuidv4 = require('uuid/v4')
 
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
@@ -83,33 +84,48 @@ class WebSocketController extends EventEmitter {
         // TODO BUGOUT don't hardcode this
         this.board = new Board(19,19)
         this.webSocketAddress = webSocketAddress
-        this.webSocket = new WebSocket(webSocketAddress)
+        this.webSocket = new RobustWebSocket(webSocketAddress)
 
         // manually ping the websocket every once in a while
         this.beeping = true
         this.beepTimeMs = 12625
         setTimeout(() => this.beep(), this.beepTimeMs)
 
-        this.webSocket.onclose = event => {
+        this.webSocket.addEventListener('close', event => {
             console.log("websocket closed")
-        }
+        })
 
-        this.webSocket.onerror = event => {
+        this.webSocket.addEventListener('error',event => {
             console.log(`websocket error ${JSON.stringify(event)}`)
-        }
+        })
 
         this.gameId = null
         this.gatewayConn = new GatewayConn(this.webSocket)
-        this.webSocket.onopen = _event => {
-            this.gatewayConn.requestGameId()
-            .then((reply, err) => {
-                if (!err) {
-                    this.gameId = reply.gameId
-                } else {
-                    console.log('FATAL ERROR - WE DO NOT HAVE A GAME ID')
-                }
-            })
-        }
+        this.webSocket.addEventListener('open', () => {
+            if (!this.gameId) {
+                this.gatewayConn
+                    .requestGameId()
+                    .then((reply, err) => {
+                        if (!err) {
+                            this.gameId = reply.gameId
+                            console.log(`game id ${this.gameId}`)
+                        } else {
+                            console.log('FATAL ERROR - WE DO NOT HAVE A GAME ID')
+                        }
+                })
+            } else {
+                this.gatewayConn
+                    .reconnect(this.gameId, this.resolveMoveMade)
+                    .then((rc, err) => {
+                        console.log("apparently we reconnected")
+                    })
+            }
+        })
+
+        // reconnect event
+        this.webSocket.addEventListener('connecting', () => {
+            console.log('reconnecting......')
+        })
             
     }
 
@@ -133,10 +149,12 @@ class WebSocketController extends EventEmitter {
                     "coord": {"x":vertex[0],"y":vertex[1]}
                 }
 
-                this.webSocket.onmessage = event => {
+
+                this.webSocket.addEventListener('message', event => {
                     try {
                         let msg = JSON.parse(event.data)
                         if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
+                            this.resolveMoveMade = undefined
                             resolve({id: null, error: false})
                         }
 
@@ -146,11 +164,12 @@ class WebSocketController extends EventEmitter {
                         console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
                         resolve({ok: false})
                     }
-                }
+                })
 
                 this.webSocket.send(JSON.stringify(makeMove))
             } else if (command.name === "genmove") {
-                this.webSocket.onmessage = event => {
+                this.resolveMoveMade = resolve
+                this.webSocket.addEventListener('message', event => {
                     try {
                         let msg = JSON.parse(event.data)
                         if (msg.type === "MoveMade" && msg.player === letterToPlayer(command.args[0])) {
@@ -164,7 +183,7 @@ class WebSocketController extends EventEmitter {
                         console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
                         resolve({"id": null, "content": "", "error": true})
                     }
-                }
+                })
 
              } else {
                  resolve(true)
@@ -202,6 +221,48 @@ class GatewayConn {
         this.webSocket = webSocket
     }
 
+
+    async reconnect(gameId, resolveMoveMade) {
+        console.log("gatewayconn reconnect")
+        return new Promise((resolve, reject) => {
+            try { 
+                let reconnectCommand = {
+                    "type":"Reconnect",
+                    "gameId": gameId,
+                    "reqId": uuidv4()
+                }
+
+                console.log(`sending ${JSON.stringify(reconnectCommand)}`)
+                this.webSocket.onmessage = event => {
+                    try {
+                        let msg = JSON.parse(event.data)
+                        console.log(`message after reconnect: ${event.data}`)
+                        if (msg.type === "Reconnected") {
+                            resolve()
+                        }
+
+                        if (resolveMoveMade && msg.type == "MoveMade") {
+                            // TODO hardcoded
+                            let sabakiCoord = new Board(19,19).vertex2coord([msg.coord.x, msg.coord.y])
+                            console.log("MOVE MADE ON RECONNECT")
+                            resolveMoveMade({"id":null,"content":sabakiCoord,"error":false})
+                        }
+
+                        // discard any other messages until we receive confirmation
+                        // from BUGOUT that the move was made
+                    } catch (err) {
+                        console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                        resolve({error: true})
+                    }
+                }
+                this.webSocket.send(JSON.stringify(reconnectCommand))
+                resolve()
+            } catch (err) {
+                reject(err)
+            }
+        })
+    }
+
     async requestGameId() {
         return new Promise((resolve, reject) => {
             let requestGameId = {
@@ -209,7 +270,7 @@ class GatewayConn {
                 "reqId": uuidv4()
             }
 
-            this.webSocket.onmessage = event => {
+            this.webSocket.addEventListener('message', event => {
                 try {
                     let msg = JSON.parse(event.data)
                     console.log(`incoming data ${event.data}`)
@@ -221,7 +282,7 @@ class GatewayConn {
                     console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
                     reject()
                 }
-            }
+            })
 
             this.webSocket.send(JSON.stringify(requestGameId))
         })
