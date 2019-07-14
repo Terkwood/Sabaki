@@ -114,7 +114,7 @@ class WebSocketController extends EventEmitter {
                 })
             } else {
                 this.gatewayConn
-                    .reconnect(this.gameId, this.resolveMoveMade)
+                    .reconnect(this.gameId, this.resolveMoveMade, this.board)
                     .then((rc, err) => {
                         console.log("Reconnected!")
                     })
@@ -221,7 +221,7 @@ class GatewayConn {
     }
 
 
-    async reconnect(gameId, resolveMoveMade) {
+    async reconnect(gameId, resolveMoveMade, board) {
         console.log("gatewayconn reconnect")
         return new Promise((resolve, reject) => {
             try { 
@@ -241,14 +241,12 @@ class GatewayConn {
                         }
 
                         if (resolveMoveMade && msg.type == "MoveMade") {
-                            // TODO hardcoded
-                            let sabakiCoord = new Board(19,19).vertex2coord([msg.coord.x, msg.coord.y])
+                            let sabakiCoord = board.vertex2coord([msg.coord.x, msg.coord.y])
                             console.log("MOVE MADE ON RECONNECT")
                             resolveMoveMade({"id":null,"content":sabakiCoord,"error":false})
                         }
 
-                        // discard any other messages until we receive confirmation
-                        // from BUGOUT that the move was made
+                        // discard any other messages
                     } catch (err) {
                         console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
                         resolve({error: true})
