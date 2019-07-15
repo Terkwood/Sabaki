@@ -297,9 +297,16 @@ class GatewayConn {
 class DeadlockMonitor extends EventEmitter {
     constructor() {
         super()
-        this.on('we-moved', evt => console.log(`we moved ${JSON.stringify(evt)}`))
-        this.on('they-moved', evt => console.log(`they moved ${JSON.stringify(evt)}`))
-        this.on('waiting', evt => console.log(`waiting ${JSON.stringify(evt)}`))
+
+        this.playerUp = "BLACK"
+        this.on('we-moved', evt => this.playerUp = evt.playerUp)
+        this.on('they-moved', evt => this.playerUp = evt.playerUp)
+        this.on('waiting', evt => this.playerUp = evt.playerUp)
+        this.on('reconnected', evt => {
+            if (evt.playerUp !== this.playerUp) {
+                alert("⚰️ DEADLOCK... ☠️ ...GAMEOVER ⚰️")
+            }
+        })
     }
 }
 
