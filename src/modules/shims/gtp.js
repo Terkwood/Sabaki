@@ -9,7 +9,7 @@ const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
 const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
 const GATEWAY_HOST = GATEWAY_HOST_LOCAL
 
-const GATEWAY_BEEP_TIMEOUT_MS = 5000
+const GATEWAY_BEEP_TIMEOUT_MS = 13333
 
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {}) {
@@ -77,20 +77,23 @@ const Command = {
     }
 }
 
-const letterToPlayer = letter =>  letter == "B" ? "BLACK" : "WHITE"
+const letterToPlayer = letter =>  letter === "B" ? "BLACK" : "WHITE"
+const otherPlayer = p => p[0] === "B" ? "WHITE" : "BLACK"
 
 class WebSocketController extends EventEmitter {
     constructor(webSocketAddress) {
         super()
-
         // TODO BUGOUT don't hardcode this
         this.board = new Board(19,19)
-        this.webSocketAddress = webSocketAddress
-        this.webSocket = new RobustWebSocket(webSocketAddress)
+        this.gameId = null
+        this.deadlockMonitor = new DeadlockMonitor()
 
-        // manually ping the websocket every once in a while
         this.beeping = true
         setTimeout(() => this.beep(), GATEWAY_BEEP_TIMEOUT_MS)
+
+        this.webSocketAddress = webSocketAddress
+        this.webSocket = new RobustWebSocket(webSocketAddress)
+        this.gatewayConn = new GatewayConn(this.webSocket)
 
         this.webSocket.addEventListener('close', event => {
             console.log("WebSocket closed.")
@@ -100,8 +103,6 @@ class WebSocketController extends EventEmitter {
             console.log(`WebSocket error ${JSON.stringify(event)}`)
         })
 
-        this.gameId = null
-        this.gatewayConn = new GatewayConn(this.webSocket)
         this.webSocket.addEventListener('open', () => {
             if (!this.gameId) {
                 this.gatewayConn
@@ -117,7 +118,8 @@ class WebSocketController extends EventEmitter {
                 this.gatewayConn
                     .reconnect(this.gameId, this.resolveMoveMade, this.board)
                     .then((rc, err) => {
-                        console.log("Reconnected!")
+                        console.log(`Reconnected! playerUp: ${rc.playerUp}`)
+                        this.deadlockMonitor.emit('reconnected', { playerUp: rc.playerUp })
                     })
             }
         })
@@ -126,9 +128,6 @@ class WebSocketController extends EventEmitter {
         this.webSocket.addEventListener('connecting', () => {
             console.log('Reconnecting...')
         })
-        
-
-        //this.deadlockMonitor = new DeadlockMonitor()
     }
 
     async sendCommand(command, subscriber = () => {}) {
@@ -158,7 +157,7 @@ class WebSocketController extends EventEmitter {
                         if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
                             this.resolveMoveMade = undefined
                             resolve({id: null, error: false})
-                            //this.deadlockMonitor.emit('we-moved')
+                            this.deadlockMonitor.emit('we-moved', { playerUp: otherPlayer(player) })
                         }
 
                         // discard any other messages until we receive confirmation
@@ -172,13 +171,17 @@ class WebSocketController extends EventEmitter {
                 this.webSocket.send(JSON.stringify(makeMove))
             } else if (command.name === "genmove") {
                 this.resolveMoveMade = resolve
+                let waitPlayer = letterToPlayer(command.args[0])
                 this.webSocket.addEventListener('message', event => {
                     try {
                         let msg = JSON.parse(event.data)
-                        if (msg.type === "MoveMade" && msg.player === letterToPlayer(command.args[0])) {
+                        if (msg.type === "MoveMade" && msg.player === waitPlayer) {
                             let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
                             resolve({"id":null,"content":sabakiCoord,"error":false})
-                            //this.deadlockMonitor.emit('they-moved')
+                            this.deadlockMonitor.emit(
+                                'they-moved', 
+                                { playerUp: otherPlayer(waitPlayer) }
+                            )
                         }
         
                         // discard any other messages until we receive confirmation
@@ -188,7 +191,7 @@ class WebSocketController extends EventEmitter {
                         resolve({"id": null, "content": "", "error": true})
                     }
                 })
-                //this.deadlockMonitor.emit('waiting')
+                this.deadlockMonitor.emit('waiting', { playerUp: waitPlayer })
 
              } else {
                  resolve(true)
@@ -243,7 +246,7 @@ class GatewayConn {
                         let msg = JSON.parse(event.data)
                         console.log(`message after reconnect: ${event.data}`)
                         if (msg.type === "Reconnected") {
-                            resolve()
+                            resolve({ playerUp: msg.playerUp })
                         }
 
                         if (resolveMoveMade && msg.type == "MoveMade") {
@@ -259,7 +262,6 @@ class GatewayConn {
                     }
                 }
                 this.webSocket.send(JSON.stringify(reconnectCommand))
-                resolve()
             } catch (err) {
                 reject(err)
             }
@@ -294,9 +296,10 @@ class GatewayConn {
 
 class DeadlockMonitor extends EventEmitter {
     constructor() {
-        this.on('we-moved', evt => console.log('we moved'))
-        this.on('they-moved', evt => console.log('they moved'))
-        this.on('waiting', evt => console.log('waiting'))
+        super()
+        this.on('we-moved', evt => console.log(`we moved ${JSON.stringify(evt)}`))
+        this.on('they-moved', evt => console.log(`they moved ${JSON.stringify(evt)}`))
+        this.on('waiting', evt => console.log(`waiting ${JSON.stringify(evt)}`))
     }
 }
 
