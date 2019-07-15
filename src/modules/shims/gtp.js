@@ -7,7 +7,9 @@ const uuidv4 = require('uuid/v4')
 
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
 const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
-const GATEWAY_HOST = GATEWAY_HOST_REMOTE
+const GATEWAY_HOST = GATEWAY_HOST_LOCAL
+
+const GATEWAY_BEEP_TIMEOUT_MS = 5000
 
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {}) {
@@ -88,8 +90,7 @@ class WebSocketController extends EventEmitter {
 
         // manually ping the websocket every once in a while
         this.beeping = true
-        this.beepTimeMs = 12625
-        setTimeout(() => this.beep(), this.beepTimeMs)
+        setTimeout(() => this.beep(), GATEWAY_BEEP_TIMEOUT_MS)
 
         this.webSocket.addEventListener('close', event => {
             console.log("WebSocket closed.")
@@ -125,7 +126,9 @@ class WebSocketController extends EventEmitter {
         this.webSocket.addEventListener('connecting', () => {
             console.log('Reconnecting...')
         })
-            
+        
+
+        this.deadlockMonitor = new DeadlockMonitor()
     }
 
     async sendCommand(command, subscriber = () => {}) {
@@ -155,6 +158,7 @@ class WebSocketController extends EventEmitter {
                         if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
                             this.resolveMoveMade = undefined
                             resolve({id: null, error: false})
+                            this.deadlockMonitor.emit('we-moved')
                         }
 
                         // discard any other messages until we receive confirmation
@@ -174,6 +178,7 @@ class WebSocketController extends EventEmitter {
                         if (msg.type === "MoveMade" && msg.player === letterToPlayer(command.args[0])) {
                             let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
                             resolve({"id":null,"content":sabakiCoord,"error":false})
+                            this.deadlockMonitor.emit('they-moved')
                         }
         
                         // discard any other messages until we receive confirmation
@@ -183,6 +188,7 @@ class WebSocketController extends EventEmitter {
                         resolve({"id": null, "content": "", "error": true})
                     }
                 })
+                this.deadlockMonitor.emit('waiting')
 
              } else {
                  resolve(true)
@@ -205,7 +211,7 @@ class WebSocketController extends EventEmitter {
         if (this.beeping) {
             const pingMsg = { "type": "Beep" }
             this.webSocket.send(JSON.stringify(pingMsg))
-            setTimeout(() => this.beep(), this.beepTimeMs)
+            setTimeout(() => this.beep(), GATEWAY_BEEP_TIMEOUT_MS)
         }
     }
 
@@ -283,6 +289,14 @@ class GatewayConn {
 
             this.webSocket.send(JSON.stringify(requestGameId))
         })
+    }
+}
+
+class DeadlockMonitor extends EventEmitter {
+    constructor() {
+        this.on('we-moved', evt => console.log('we moved'))
+        this.on('they-moved', evt => console.log('they moved'))
+        this.on('waiting', evt => console.log('waiting'))
     }
 }
 
