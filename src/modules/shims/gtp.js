@@ -128,7 +128,7 @@ class WebSocketController extends EventEmitter {
         })
         
 
-        this.deadlockMonitor = new DeadlockMonitor()
+        //this.deadlockMonitor = new DeadlockMonitor()
     }
 
     async sendCommand(command, subscriber = () => {}) {
@@ -158,7 +158,7 @@ class WebSocketController extends EventEmitter {
                         if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
                             this.resolveMoveMade = undefined
                             resolve({id: null, error: false})
-                            this.deadlockMonitor.emit('we-moved')
+                            //this.deadlockMonitor.emit('we-moved')
                         }
 
                         // discard any other messages until we receive confirmation
@@ -178,7 +178,7 @@ class WebSocketController extends EventEmitter {
                         if (msg.type === "MoveMade" && msg.player === letterToPlayer(command.args[0])) {
                             let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
                             resolve({"id":null,"content":sabakiCoord,"error":false})
-                            this.deadlockMonitor.emit('they-moved')
+                            //this.deadlockMonitor.emit('they-moved')
                         }
         
                         // discard any other messages until we receive confirmation
@@ -188,7 +188,7 @@ class WebSocketController extends EventEmitter {
                         resolve({"id": null, "content": "", "error": true})
                     }
                 })
-                this.deadlockMonitor.emit('waiting')
+                //this.deadlockMonitor.emit('waiting')
 
              } else {
                  resolve(true)
