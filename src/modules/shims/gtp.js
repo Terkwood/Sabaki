@@ -29,7 +29,7 @@ class Controller extends EventEmitter {
     start() {
         if (this._webSocketController != null) return
         
-        this._webSocketController = new WebSocketController(GATEWAY_HOST, args)
+        this._webSocketController = new WebSocketController(GATEWAY_HOST, this.args)
         this._webSocketController.on('command-sent', evt => this.emit('command-sent', evt))
         this._webSocketController.on('response-received', evt => this.emit('response-received', evt))
 
@@ -83,8 +83,9 @@ const otherPlayer = p => p[0] === "B" ? "WHITE" : "BLACK"
 class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, args) {
         super()
+        console.log("mey")
         this.waitForBlack = args && args.length > 0 && args[0] === "WAIT_FOR_BLACK"
-
+        console.log('eh')
         // TODO BUGOUT don't hardcode this
         this.board = new Board(19,19)
         this.gameId = null
@@ -130,6 +131,30 @@ class WebSocketController extends EventEmitter {
         this.webSocket.addEventListener('connecting', () => {
             console.log('Reconnecting...')
         })
+    }
+
+    listenForMove(opponent, resolve) {
+        this.resolveMoveMade = resolve
+        this.webSocket.addEventListener('message', event => {
+            try {
+                let msg = JSON.parse(event.data)
+                if (msg.type === "MoveMade" && msg.player === opponent) {
+                    let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
+                    resolve({"id":null,"content":sabakiCoord,"error":false})
+                    this.deadlockMonitor.emit(
+                        'they-moved', 
+                        { playerUp: otherPlayer(opponent) }
+                    )
+                }
+
+                // discard any other messages until we receive confirmation
+                // from BUGOUT that the move was made
+            } catch (err) {
+                console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                resolve({"id": null, "content": "", "error": true})
+            }
+        })
+        this.deadlockMonitor.emit('waiting', { playerUp: opponent })
     }
 
     async sendCommand(command, subscriber = () => {}) {
@@ -188,30 +213,6 @@ class WebSocketController extends EventEmitter {
         })
 
         return promise
-    }
-
-    listenForMove(opponent, resolve) {
-        this.resolveMoveMade = resolve
-        this.webSocket.addEventListener('message', event => {
-            try {
-                let msg = JSON.parse(event.data)
-                if (msg.type === "MoveMade" && msg.player === opponent) {
-                    let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
-                    resolve({"id":null,"content":sabakiCoord,"error":false})
-                    this.deadlockMonitor.emit(
-                        'they-moved', 
-                        { playerUp: otherPlayer(opponent) }
-                    )
-                }
-
-                // discard any other messages until we receive confirmation
-                // from BUGOUT that the move was made
-            } catch (err) {
-                console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
-                resolve({"id": null, "content": "", "error": true})
-            }
-        })
-        this.deadlockMonitor.emit('waiting', { playerUp: opponent })
     }
 
     async beep() {
