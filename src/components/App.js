@@ -2388,7 +2388,6 @@ class App extends Component {
                 
                 await Promise.all(this.attachedEngineSyncers.map(syncer => {
                     if (syncer == null) return
-
                     return syncer.sync(tree, treePosition)
                 }))
 
@@ -2397,7 +2396,7 @@ class App extends Component {
         } catch (err) {
             this.engineBusySyncing = false
 
-            if (showErrorDialog) { // BUGOUT this shows as 'undefined'
+            if (showErrorDialog) {
                 dialog.showMessageBox(t(err.message), 'warning')
             } else {
                 throw err
@@ -2445,7 +2444,7 @@ class App extends Component {
         }
 
         this.setBusy(true)
-      
+
         try {
             await this.syncEngines({showErrorDialog: true})
         } catch (err) {
