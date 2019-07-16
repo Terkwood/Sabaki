@@ -670,7 +670,7 @@ class App extends Component {
             this.clearConsole()
 
             // 🐛 BUGOUT 🐞
-            this.attachMultiplayer()
+            this.attachBugout()
 
             this.setState({
                 representedFilename: null,
@@ -2227,7 +2227,7 @@ class App extends Component {
     }
 
     // 🐛 BUGOUT 🐞 BELOW 🕷
-    attachMultiplayer() {
+    attachBugout() {
         if (this.bugoutPlayerColor === "W") {
             this.attachEngines({"name":"Opponent", "path":"/bugout", "args": "INIT_WAIT"}, null)
         } else {
