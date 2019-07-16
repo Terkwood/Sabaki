@@ -1841,44 +1841,7 @@ class App extends Component {
         this.setCurrentTreePosition(newTree, treePosition)
     }
 
-    removeNode(tree, treePosition, {suppressConfirmation = false} = {}) {
-        let t = i18n.context('app.node')
-        let node = tree.get(treePosition)
-
-        if (node.parentId == null) {
-            dialog.showMessageBox(t('The root node cannot be removed.'), 'warning')
-            return
-        }
-
-        if (
-            suppressConfirmation !== true
-            && setting.get('edit.show_removenode_warning')
-            && dialog.showMessageBox(
-                t('Do you really want to remove this node?'),
-                'warning',
-                [t('Remove Node'), t('Cancel')], 1
-            ) === 1
-        ) return
-
-        this.closeDrawer()
-        this.setMode('play')
-
-        // Remove node
-
-        let newTree = tree.mutate(draft => {
-            draft.removeNode(treePosition)
-        })
-
-        this.setState(({gameCurrents, gameIndex}) => {
-            if (gameCurrents[gameIndex][node.parentId] === node.id)  {
-                delete gameCurrents[gameIndex][node.parentId]
-            }
-
-            return {gameCurrents}
-        })
-
-        this.setCurrentTreePosition(newTree, node.parentId)
-    }
+    removeNode(tree, treePosition, {suppressConfirmation = false} = {}) {}
 
     removeOtherVariations(tree, treePosition, {suppressConfirmation = false} = {}) {
         let t = i18n.context('app.node')
