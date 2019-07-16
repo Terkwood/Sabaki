@@ -56,6 +56,11 @@ class PlayBar extends Component {
                     click: () => toggleSetting('view.show_coordinates')
                 },
                 {
+                    label: t('Show Move Numbers'),
+                    checked: setting.get('view.show_move_numbers'),
+                    click: () => toggleSetting('view.show_move_numbers')
+                },
+                {
                     label: t('Show Move Colori&zation'),
                     checked: setting.get('view.show_move_colorization'),
                     click: () => toggleSetting('view.show_move_colorization')

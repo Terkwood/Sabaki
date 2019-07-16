@@ -72,7 +72,7 @@ class App extends Component {
             playVariation: null,
             showCoordinates: null,
             showMoveColorization: null,
-            showMoveNumbers: null,
+            showMoveNumbers: setting.get('view.show_move_numbers'), // 😇BUGOUT😇
             showNextMoves: null,
             showSiblings: null,
             fuzzyStonePlacement: null,
@@ -83,9 +83,9 @@ class App extends Component {
             consoleLog: [],
             showConsole: setting.get('view.show_leftsidebar'),
             leftSidebarWidth: setting.get('view.leftsidebar_width'),
-            showGameGraph: setting.get('view.show_graph'),
+            showGameGraph: false, // 😇BUGOUT😇
             showCommentBox: setting.get('view.show_comments'),
-            sidebarWidth: setting.get('view.sidebar_width'),
+            sidebarWidth: 120, // 😇BUGOUT😇
             graphGridSize: null,
             graphNodeSize: null,
 
