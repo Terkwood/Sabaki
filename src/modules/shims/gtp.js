@@ -201,7 +201,8 @@ class WebSocketController extends EventEmitter {
                 let opponent = letterToPlayer(command.args[0])
                 this.listenForMove(opponent, resolve)
              } else {
-                 resolve(true)
+                 console.log(`catchall command in controller ${command.name}`)
+                 resolve({id: null, err: false})
              }
         })
 

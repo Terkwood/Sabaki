@@ -112,8 +112,6 @@ class EngineSyncer extends EventEmitter {
                     'genmove_analyze'
                 ].includes(command.name) && command.args.length >= 1
             ) {
-                // BUGOUT
-                console.log("🐛 engine syncer heard .*genmove.*")
                 let sign = command.args[0][0].toLowerCase() === 'w' ? -1 : 1
                 let coord = !command.name.includes('analyze')
                     ? res.content.trim()
@@ -169,17 +167,26 @@ class EngineSyncer extends EventEmitter {
 
         let komi = +gametree.getRootProperty(tree, 'KM', 0)
 
+        console.log('🐛 HEY GUYS 0')
         if (komi !== this.state.komi) {
+            console.log('ehhh')
             let {error} = await controller.sendCommand({name: 'komi', args: [komi]})
+            console.log(`komi ${error}`)
             if (error) throw new Error('Komi is not supported by engine.')
         }
 
         // Update board size
 
+        console.log('🐛 HEY GUYS 1')
         if (this.state.dirty || board.width !== this.state.size) {
+
+        console.log('🐛 HEY GUYS 2')
             let {error} = await controller.sendCommand({name: 'boardsize', args: [board.width]})
+           
+        console.log('🐛 HEY GUYS 3')
             if (error) throw new Error('Board size is not supported by engine.')
 
+            console.log('🐛 HEY GUYS 4')
             this.state.dirty = true
         }
 

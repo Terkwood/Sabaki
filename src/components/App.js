@@ -273,7 +273,7 @@ class App extends Component {
             evt.returnValue = ' '
         })
 
-        this.newFile().then(_n => this.setPlayerBugout())
+        this.newFile().then(_n => this.startBugout())
     }
 
     componentDidUpdate(_, prevState = {}) {
@@ -2242,10 +2242,12 @@ class App extends Component {
             this.bugoutPlayerColor === "W" ? -1 : 1)
     }
     startBugout() {
+        console.log('eh..')
         this.setPlayerBugout()
+        console.log('eh?')
         if (this.bugoutPlayerColor === "W") {
             console.log("🐛 black to move")
-            this.syncEngines()
+            this.generateMove({ firstMove: true }).then(() => console.log("HALP ANY HALP"))
         }
     }
     // 🐛 BUGOUT 🐞 ABOVE 🕷
@@ -2388,19 +2390,24 @@ class App extends Component {
         try {
             while (true) {
                 let {gameTrees, gameIndex, treePosition} = this.state
+
                 let tree = gameTrees[gameIndex]
+                console.log(`🐛 tree ${JSON.stringify(tree)}`)
 
                 await Promise.all(this.attachedEngineSyncers.map(syncer => {
                     if (syncer == null) return
+
                     return syncer.sync(tree, treePosition)
                 }))
 
                 if (treePosition === this.state.treePosition) break
             }
         } catch (err) {
+            console.log("🐛 catch")
+
             this.engineBusySyncing = false
 
-            if (showErrorDialog) {
+            if (showErrorDialog) { // BUGOUT this shows as 'undefined'
                 dialog.showMessageBox(t(err.message), 'warning')
             } else {
                 throw err
@@ -2448,7 +2455,7 @@ class App extends Component {
         }
 
         this.setBusy(true)
-
+      
         try {
             await this.syncEngines({showErrorDialog: true})
         } catch (err) {
