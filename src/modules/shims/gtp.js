@@ -83,9 +83,8 @@ const otherPlayer = p => p[0] === "B" ? "WHITE" : "BLACK"
 class WebSocketController extends EventEmitter {
     constructor(webSocketAddress) {
         super()
-        
-        // TODO BUGOUT don't hardcode this
-        this.board = new Board(19,19)
+
+        this.board = new Board(19,19) // TODO BUGOUT don't hardcode this
         this.gameId = null
         this.deadlockMonitor = new DeadlockMonitor()
 
