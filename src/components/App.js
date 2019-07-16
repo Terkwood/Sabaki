@@ -2229,7 +2229,7 @@ class App extends Component {
     // 🐛 BUGOUT 🐞 BELOW 🕷
     attachBugout() {
         if (this.bugoutPlayerColor === "W") {
-            this.attachEngines({"name":"Opponent", "path":"/bugout", "args": "INIT_WAIT"}, null)
+            this.attachEngines({"name":"Opponent", "path":"/bugout", "args": "WAIT_FOR_BLACK"}, null)
         } else {
             this.attachEngines(null,{"name":"Opponent", "path":"/bugout", "args": ""})
         }

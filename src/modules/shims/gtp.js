@@ -7,7 +7,7 @@ const uuidv4 = require('uuid/v4')
 
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
 const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
-const GATEWAY_HOST = GATEWAY_HOST_REMOTE
+const GATEWAY_HOST = GATEWAY_HOST_LOCAL
 
 const GATEWAY_BEEP_TIMEOUT_MS = 13333
 
@@ -29,7 +29,7 @@ class Controller extends EventEmitter {
     start() {
         if (this._webSocketController != null) return
         
-        this._webSocketController = new WebSocketController(GATEWAY_HOST)
+        this._webSocketController = new WebSocketController(GATEWAY_HOST, args)
         this._webSocketController.on('command-sent', evt => this.emit('command-sent', evt))
         this._webSocketController.on('response-received', evt => this.emit('response-received', evt))
 
@@ -81,8 +81,10 @@ const letterToPlayer = letter =>  letter === "B" ? "BLACK" : "WHITE"
 const otherPlayer = p => p[0] === "B" ? "WHITE" : "BLACK"
 
 class WebSocketController extends EventEmitter {
-    constructor(webSocketAddress) {
+    constructor(webSocketAddress, args) {
         super()
+        this.waitForBlack = args && args.length > 0 && args[0] === "WAIT_FOR_BLACK"
+
         // TODO BUGOUT don't hardcode this
         this.board = new Board(19,19)
         this.gameId = null
