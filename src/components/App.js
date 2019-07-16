@@ -273,7 +273,7 @@ class App extends Component {
             evt.returnValue = ' '
         })
 
-        this.newFile().then(_n => this.bugoutSetPlayer())
+        this.newFile().then(_n => this.startBugout())
     }
 
     componentDidUpdate(_, prevState = {}) {
@@ -2228,18 +2228,21 @@ class App extends Component {
 
     // 🐛 BUGOUT 🐞 BELOW 🕷
     attachBugout() {
+        let bugoutEngine = {"name":"Opponent", "path":"/bugout", "args": ""}
         if (this.bugoutPlayerColor === "W") {
-            this.attachEngines({"name":"Opponent", "path":"/bugout", "args": "INIT_WAIT"}, null)
+            this.attachEngines(bugoutEngine, null)
         } else {
-            this.attachEngines(null,{"name":"Opponent", "path":"/bugout", "args": ""})
+            this.attachEngines(null,bugoutEngine)
         }
     }
     // 🐛 BUGOUT 🐞 BELOW 🕷
-    bugoutSetPlayer() {
-        this.setPlayer(
-            this.state.gameTrees[0],
-            this.state.treePosition,
-            this.bugoutPlayerColor === "W" ? -1 : 1)
+    startBugout() {
+        const STARTUP_WAIT_MS = 333
+        if (this.bugoutPlayerColor === "W") {
+            setTimeout(
+                () => this.generateMove({ firstMove: true }),
+                STARTUP_WAIT_MS)
+        }
     }
     // 🐛 BUGOUT 🐞 ABOVE 🕷
 
