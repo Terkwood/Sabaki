@@ -26,24 +26,8 @@ class PlayBar extends Component {
                 },
                 {type: 'separator'},
                 {
-                    label: t('New File'),
-                    click: () => sabaki.newFile({playSound: true, showInfo: true})
-                },
-                {
-                    label: t('Open File…'),
-                    click: () => sabaki.loadFile()
-                },
-                {
                     label: t('Download SGF'),
                     click: () => sabaki.saveFile(sabaki.state.representedFilename)
-                },
-                {
-                    label: t('Load SGF from Clipboard'),
-                    click: () => {
-                        let content = clipboard.readText()
-                        if (content == null) return
-                        sabaki.loadContent(content, 'sgf', {ignoreEncoding: true})
-                    }
                 },
                 {
                     label: t('Copy SGF to Clipboard'),
@@ -64,20 +48,6 @@ class PlayBar extends Component {
                     label: t('Show Move Colori&zation'),
                     checked: setting.get('view.show_move_colorization'),
                     click: () => toggleSetting('view.show_move_colorization')
-                },
-                {
-                    label: t('Show &Next Moves'),
-                    checked: setting.get('view.show_next_moves'),
-                    click: () => toggleSetting('view.show_next_moves')
-                },
-                {
-                    label: t('Show &Sibling Variations'),
-                    checked: setting.get('view.show_siblings'),
-                    click: () => toggleSetting('view.show_siblings')
-                },
-                {
-                    label: t('&Manage Games…'),
-                    click: () => sabaki.openDrawer('gamechooser')
                 },
                 {type: 'separator'},
                 {
@@ -178,8 +148,7 @@ class PlayBar extends Component {
             h('a',
                 {
                     class: 'current-player',
-                    title: t('Change Player'),
-                    onClick: onCurrentPlayerClick
+                    title: t('Current Player'), // 😇BUGOUT😇
                 },
                 h('img', {
                     src: `./img/ui/player_${currentPlayer}.svg`,

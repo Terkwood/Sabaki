@@ -62,7 +62,6 @@ class EditBar extends Component {
         return h(Bar, Object.assign({type: 'edit'}, this.props),
             h('ul', {},
                 [
-                    [t('Stone Tool'), `stone_${stoneTool}`],
                     [t('Cross Tool'), 'cross'],
                     [t('Triangle Tool'), 'triangle'],
                     [t('Square Tool'), 'square'],
