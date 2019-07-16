@@ -2228,10 +2228,11 @@ class App extends Component {
 
     // 🐛 BUGOUT 🐞 BELOW 🕷
     attachBugout() {
+        let bugoutEngine = {"name":"Opponent", "path":"/bugout", "args": ""}
         if (this.bugoutPlayerColor === "W") {
-            this.attachEngines({"name":"Opponent", "path":"/bugout", "args": "WAIT_FOR_BLACK"}, null)
+            this.attachEngines(bugoutEngine, null)
         } else {
-            this.attachEngines(null,{"name":"Opponent", "path":"/bugout", "args": ""})
+            this.attachEngines(null,bugoutEngine)
         }
     }
     // 🐛 BUGOUT 🐞 BELOW 🕷

@@ -83,7 +83,6 @@ const otherPlayer = p => p[0] === "B" ? "WHITE" : "BLACK"
 class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, args) {
         super()
-        this.waitForBlack = args && args.length > 0 && args[0] === "WAIT_FOR_BLACK"
         
         // TODO BUGOUT don't hardcode this
         this.board = new Board(19,19)
