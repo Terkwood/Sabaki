@@ -759,7 +759,6 @@ class App extends Component {
 
     clickVertex(vertex, {button = 0, ctrlKey = false, x = 0, y = 0} = {}) {
         this.closeDrawer()
-        this.goToEnd() // 🐞BUGOUT🐛
 
         let t = i18n.context('app.play')
         let {gameTrees, gameIndex, gameCurrents, treePosition} = this.state
