@@ -2385,7 +2385,7 @@ class App extends Component {
             while (true) {
                 let {gameTrees, gameIndex, treePosition} = this.state
                 let tree = gameTrees[gameIndex]
-                
+
                 await Promise.all(this.attachedEngineSyncers.map(syncer => {
                     if (syncer == null) return
                     return syncer.sync(tree, treePosition)
