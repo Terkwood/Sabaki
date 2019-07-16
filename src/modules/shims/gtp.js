@@ -81,7 +81,7 @@ const letterToPlayer = letter =>  letter === "B" ? "BLACK" : "WHITE"
 const otherPlayer = p => p[0] === "B" ? "WHITE" : "BLACK"
 
 class WebSocketController extends EventEmitter {
-    constructor(webSocketAddress, args) {
+    constructor(webSocketAddress) {
         super()
         
         // TODO BUGOUT don't hardcode this
