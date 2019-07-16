@@ -273,7 +273,7 @@ class App extends Component {
             evt.returnValue = ' '
         })
 
-        this.newFile().then(_n => this.bugoutSetPlayer())
+        this.newFile().then(_n => this.setPlayerBugout())
     }
 
     componentDidUpdate(_, prevState = {}) {
@@ -2235,11 +2235,18 @@ class App extends Component {
         }
     }
     // 🐛 BUGOUT 🐞 BELOW 🕷
-    bugoutSetPlayer() {
+    setPlayerBugout() {
         this.setPlayer(
             this.state.gameTrees[0],
             this.state.treePosition,
             this.bugoutPlayerColor === "W" ? -1 : 1)
+    }
+    startBugout() {
+        this.setPlayerBugout()
+        if (this.bugoutPlayerColor === "W") {
+            console.log("🐛 black to move")
+            this.syncEngines()
+        }
     }
     // 🐛 BUGOUT 🐞 ABOVE 🕷
 

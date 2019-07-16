@@ -112,6 +112,8 @@ class EngineSyncer extends EventEmitter {
                     'genmove_analyze'
                 ].includes(command.name) && command.args.length >= 1
             ) {
+                // BUGOUT
+                console.log("🐛 engine syncer heard .*genmove.*")
                 let sign = command.args[0][0].toLowerCase() === 'w' ? -1 : 1
                 let coord = !command.name.includes('analyze')
                     ? res.content.trim()

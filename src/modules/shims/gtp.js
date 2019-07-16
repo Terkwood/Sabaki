@@ -112,6 +112,9 @@ class WebSocketController extends EventEmitter {
                     .then((reply, err) => {
                         if (!err) {
                             this.gameId = reply.gameId
+                            if (this.waitForBlack) {
+                                this.sendCommand({ name: "genmove", args: ["B"] })
+                            }
                         } else {
                             console.log('FATAL ERROR - WE DO NOT HAVE A GAME ID')
                         }
