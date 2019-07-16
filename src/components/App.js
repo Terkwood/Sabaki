@@ -36,7 +36,7 @@ const treetransformer = require('../modules/treetransformer')
 class App extends Component {
     constructor() {
         super()
-        // BUGOUT
+        // 🐛 BUGOUT 🐞
         this.bugoutPlayerColor = window.confirm("Press Cancel for White, Press OK for Black") ? "B" : "W"
 
         window.sabaki = this
@@ -273,7 +273,7 @@ class App extends Component {
             evt.returnValue = ' '
         })
 
-        this.newFile()
+        this.newFile().then(_n => this.bugoutSetPlayer())
     }
 
     componentDidUpdate(_, prevState = {}) {
@@ -669,8 +669,8 @@ class App extends Component {
             this.detachEngines()
             this.clearConsole()
 
-            // BUGOUT
-            this.attachMultiplayer()
+            // 🐛 BUGOUT 🐞
+            this.attachBugout()
 
             this.setState({
                 representedFilename: null,
@@ -2226,14 +2226,22 @@ class App extends Component {
         this.setState({attachedEngines: engines})
     }
 
-    // BUGOUT
-    attachMultiplayer() {
+    // 🐛 BUGOUT 🐞 BELOW 🕷
+    attachBugout() {
         if (this.bugoutPlayerColor === "W") {
             this.attachEngines({"name":"Opponent", "path":"/bugout", "args": "INIT_WAIT"}, null)
         } else {
             this.attachEngines(null,{"name":"Opponent", "path":"/bugout", "args": ""})
         }
     }
+    // 🐛 BUGOUT 🐞 BELOW 🕷
+    bugoutSetPlayer() {
+        this.setPlayer(
+            this.state.gameTrees[0],
+            this.state.treePosition,
+            this.bugoutPlayerColor === "W" ? -1 : 1)
+    }
+    // 🐛 BUGOUT 🐞 ABOVE 🕷
 
     detachEngines() {
         this.attachEngines(null, null)
