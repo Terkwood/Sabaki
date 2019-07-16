@@ -172,17 +172,18 @@ class WebSocketController extends EventEmitter {
 
                 this.webSocket.send(JSON.stringify(makeMove))
             } else if (command.name === "genmove") {
+
                 this.resolveMoveMade = resolve
-                let waitPlayer = letterToPlayer(command.args[0])
+                let opponent = letterToPlayer(command.args[0])
                 this.webSocket.addEventListener('message', event => {
                     try {
                         let msg = JSON.parse(event.data)
-                        if (msg.type === "MoveMade" && msg.player === waitPlayer) {
+                        if (msg.type === "MoveMade" && msg.player === opponent) {
                             let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
                             resolve({"id":null,"content":sabakiCoord,"error":false})
                             this.deadlockMonitor.emit(
                                 'they-moved', 
-                                { playerUp: otherPlayer(waitPlayer) }
+                                { playerUp: otherPlayer(opponent) }
                             )
                         }
         
@@ -193,7 +194,7 @@ class WebSocketController extends EventEmitter {
                         resolve({"id": null, "content": "", "error": true})
                     }
                 })
-                this.deadlockMonitor.emit('waiting', { playerUp: waitPlayer })
+                this.deadlockMonitor.emit('waiting', { playerUp: opponent })
 
              } else {
                  resolve(true)
