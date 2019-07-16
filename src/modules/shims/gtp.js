@@ -152,7 +152,6 @@ class WebSocketController extends EventEmitter {
                     "coord": {"x":vertex[0],"y":vertex[1]}
                 }
 
-
                 this.webSocket.addEventListener('message', event => {
                     try {
                         let msg = JSON.parse(event.data)
@@ -172,30 +171,8 @@ class WebSocketController extends EventEmitter {
 
                 this.webSocket.send(JSON.stringify(makeMove))
             } else if (command.name === "genmove") {
-
-                this.resolveMoveMade = resolve
                 let opponent = letterToPlayer(command.args[0])
-                this.webSocket.addEventListener('message', event => {
-                    try {
-                        let msg = JSON.parse(event.data)
-                        if (msg.type === "MoveMade" && msg.player === opponent) {
-                            let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
-                            resolve({"id":null,"content":sabakiCoord,"error":false})
-                            this.deadlockMonitor.emit(
-                                'they-moved', 
-                                { playerUp: otherPlayer(opponent) }
-                            )
-                        }
-        
-                        // discard any other messages until we receive confirmation
-                        // from BUGOUT that the move was made
-                    } catch (err) {
-                        console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
-                        resolve({"id": null, "content": "", "error": true})
-                    }
-                })
-                this.deadlockMonitor.emit('waiting', { playerUp: opponent })
-
+                this.listenForMove(opponent, resolve)
              } else {
                  resolve(true)
              }
@@ -211,6 +188,30 @@ class WebSocketController extends EventEmitter {
         })
 
         return promise
+    }
+
+    listenForMove(opponent, resolve) {
+        this.resolveMoveMade = resolve
+        this.webSocket.addEventListener('message', event => {
+            try {
+                let msg = JSON.parse(event.data)
+                if (msg.type === "MoveMade" && msg.player === opponent) {
+                    let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
+                    resolve({"id":null,"content":sabakiCoord,"error":false})
+                    this.deadlockMonitor.emit(
+                        'they-moved', 
+                        { playerUp: otherPlayer(opponent) }
+                    )
+                }
+
+                // discard any other messages until we receive confirmation
+                // from BUGOUT that the move was made
+            } catch (err) {
+                console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                resolve({"id": null, "content": "", "error": true})
+            }
+        })
+        this.deadlockMonitor.emit('waiting', { playerUp: opponent })
     }
 
     async beep() {
@@ -252,6 +253,7 @@ class GatewayConn {
                             resolve({ playerUp: msg.playerUp })
                         }
 
+                        // listens for _any_ player to move ...
                         if (resolveMoveMade && msg.type == "MoveMade") {
                             let sabakiCoord = board.vertex2coord([msg.coord.x, msg.coord.y])
                             console.log("MOVE MADE ON RECONNECT")
