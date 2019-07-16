@@ -29,7 +29,7 @@ class Controller extends EventEmitter {
     start() {
         if (this._webSocketController != null) return
         
-        this._webSocketController = new WebSocketController(GATEWAY_HOST, this.args)
+        this._webSocketController = new WebSocketController(GATEWAY_HOST)
         this._webSocketController.on('command-sent', evt => this.emit('command-sent', evt))
         this._webSocketController.on('response-received', evt => this.emit('response-received', evt))
 
