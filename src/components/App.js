@@ -2235,22 +2235,12 @@ class App extends Component {
         }
     }
     // 🐛 BUGOUT 🐞 BELOW 🕷
-    setPlayerBugout() {
-        this.setPlayer(
-            this.state.gameTrees[0],
-            this.state.treePosition,
-            this.bugoutPlayerColor === "W" ? -1 : 1)
-    }
     startBugout() {
-        console.log('eh..')
-        // TODO no this.setPlayerBugout()
-        console.log('eh?')
+        const STARTUP_WAIT_MS = 666
         if (this.bugoutPlayerColor === "W") {
-            console.log("🐛 black to move")
             setTimeout(
-                () => this.generateMove({ firstMove: true })
-                            .then(() => console.log("HALP ANY HALP")),
-                1333)
+                () => this.generateMove({ firstMove: true }),
+                STARTUP_WAIT_MS)
         }
     }
     // 🐛 BUGOUT 🐞 ABOVE 🕷
@@ -2395,8 +2385,7 @@ class App extends Component {
                 let {gameTrees, gameIndex, treePosition} = this.state
 
                 let tree = gameTrees[gameIndex]
-                console.log(`🐛 tree ${JSON.stringify(tree)}`)
-
+                
                 await Promise.all(this.attachedEngineSyncers.map(syncer => {
                     if (syncer == null) return
 
@@ -2406,8 +2395,6 @@ class App extends Component {
                 if (treePosition === this.state.treePosition) break
             }
         } catch (err) {
-            console.log("🐛 catch")
-
             this.engineBusySyncing = false
 
             if (showErrorDialog) { // BUGOUT this shows as 'undefined'

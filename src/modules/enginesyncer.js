@@ -167,11 +167,8 @@ class EngineSyncer extends EventEmitter {
 
         let komi = +gametree.getRootProperty(tree, 'KM', 0)
 
-        console.log('🐛 HEY GUYS 0')
         if (komi !== this.state.komi) {
-            console.log('ehhh')
             let {error} = await controller.sendCommand({name: 'komi', args: [komi]})
-            console.log(`komi ${error}`)
             if (error) throw new Error('Komi is not supported by engine.')
         }
 
