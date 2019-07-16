@@ -84,7 +84,7 @@ class App extends Component {
             showConsole: setting.get('view.show_leftsidebar'),
             leftSidebarWidth: setting.get('view.leftsidebar_width'),
             showGameGraph: false, // 😇BUGOUT😇
-            showCommentBox: setting.get('view.show_comments'),
+            showCommentBox: false, // 😇BUGOUT😇
             sidebarWidth: 120, // 😇BUGOUT😇
             graphGridSize: null,
             graphNodeSize: null,
