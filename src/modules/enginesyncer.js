@@ -176,17 +176,12 @@ class EngineSyncer extends EventEmitter {
         }
 
         // Update board size
-
-        console.log('🐛 HEY GUYS 1')
         if (this.state.dirty || board.width !== this.state.size) {
 
-        console.log('🐛 HEY GUYS 2')
             let {error} = await controller.sendCommand({name: 'boardsize', args: [board.width]})
            
-        console.log('🐛 HEY GUYS 3')
             if (error) throw new Error('Board size is not supported by engine.')
 
-            console.log('🐛 HEY GUYS 4')
             this.state.dirty = true
         }
 

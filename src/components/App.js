@@ -2243,7 +2243,7 @@ class App extends Component {
     }
     startBugout() {
         console.log('eh..')
-        this.setPlayerBugout()
+        // TODO no this.setPlayerBugout()
         console.log('eh?')
         if (this.bugoutPlayerColor === "W") {
             console.log("🐛 black to move")
@@ -2251,7 +2251,6 @@ class App extends Component {
                 () => this.generateMove({ firstMove: true })
                             .then(() => console.log("HALP ANY HALP")),
                 1333)
-            
         }
     }
     // 🐛 BUGOUT 🐞 ABOVE 🕷

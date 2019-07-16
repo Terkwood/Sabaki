@@ -112,9 +112,6 @@ class WebSocketController extends EventEmitter {
                     .then((reply, err) => {
                         if (!err) {
                             this.gameId = reply.gameId
-                            if (this.waitForBlack) {
-                                this.sendCommand({ name: "genmove", args: ["B"] })
-                            }
                         } else {
                             console.log('FATAL ERROR - WE DO NOT HAVE A GAME ID')
                         }
@@ -141,12 +138,14 @@ class WebSocketController extends EventEmitter {
             try {
                 let msg = JSON.parse(event.data)
                 if (msg.type === "MoveMade" && msg.player === opponent) {
+                    console.log(":-D TRIGGERED :-D")
                     let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
                     resolve({"id":null,"content":sabakiCoord,"error":false})
                     this.deadlockMonitor.emit(
                         'they-moved', 
                         { playerUp: otherPlayer(opponent) }
                     )
+                    console.log("grats?")
                 }
 
                 // discard any other messages until we receive confirmation
