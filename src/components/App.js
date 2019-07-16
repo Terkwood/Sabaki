@@ -37,14 +37,13 @@ class App extends Component {
     constructor() {
         super()
         // 🐛 BUGOUT 🐞
-        let bugoutPlayerColor = window.confirm("Press Cancel for White, Press OK for Black") ? "B" : "W"
+        this.bugoutPlayerColor = window.confirm("Press Cancel for White, Press OK for Black") ? "B" : "W"
 
         window.sabaki = this
 
         let emptyTree = gametree.new()
 
         this.state = {
-            bugoutPlayerColor, // 🐛 BUGOUT 🐞
             mode: 'play',
             openDrawer: null,
             busy: 0,
@@ -2194,7 +2193,7 @@ class App extends Component {
     // 🐛 BUGOUT 🐞 BELOW 🕷
     attachBugout() {
         let bugoutEngine = {"name":"Opponent", "path":"/bugout", "args": ""}
-        if (this.state.bugoutPlayerColor === "W") {
+        if (this.bugoutPlayerColor === "W") {
             this.attachEngines(bugoutEngine, null)
         } else {
             this.attachEngines(null,bugoutEngine)
@@ -2203,7 +2202,7 @@ class App extends Component {
     // 🐛 BUGOUT 🐞 BELOW 🕷
     startBugout() {
         const STARTUP_WAIT_MS = 1333
-        if (this.state.bugoutPlayerColor === "W") {
+        if (this.bugoutPlayerColor === "W") {
             setTimeout(
                 () => this.generateMove({ firstMove: true }),
                 STARTUP_WAIT_MS)
