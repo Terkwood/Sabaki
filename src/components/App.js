@@ -2247,7 +2247,11 @@ class App extends Component {
         console.log('eh?')
         if (this.bugoutPlayerColor === "W") {
             console.log("🐛 black to move")
-            this.generateMove({ firstMove: true }).then(() => console.log("HALP ANY HALP"))
+            setTimeout(
+                () => this.generateMove({ firstMove: true })
+                            .then(() => console.log("HALP ANY HALP")),
+                1333)
+            
         }
     }
     // 🐛 BUGOUT 🐞 ABOVE 🕷
