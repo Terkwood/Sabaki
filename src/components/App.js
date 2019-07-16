@@ -2237,7 +2237,7 @@ class App extends Component {
     }
     // 🐛 BUGOUT 🐞 BELOW 🕷
     startBugout() {
-        const STARTUP_WAIT_MS = 333
+        const STARTUP_WAIT_MS = 1333
         if (this.bugoutPlayerColor === "W") {
             setTimeout(
                 () => this.generateMove({ firstMove: true }),
