@@ -154,6 +154,37 @@ class WebSocketController extends EventEmitter {
         this.deadlockMonitor.emit('waiting', { playerUp: opponent })
     }
 
+
+    listenForHistory(opponent, resolve) {
+        this.webSocket.addEventListener('message', event => {
+            try {
+                let msg = JSON.parse(event.data)
+                if (msg.type === "HistoryProvided" && msg.moves.length > 0 && msg.moves[msg.moves.length - 1].player === opponent) {
+                    let lastMove = msg.moves[msg.moves.length - 1]
+                    if (lastMove) { // they didn't pass
+                        let sabakiCoord = this.board.vertex2coord([lastMove.coord.x, lastMove.coord.y])
+                        
+                        resolve({"id":null,"content":sabakiCoord,"error":false})
+                    } else {
+                        resolve({"id":null,"content":null,"error":false})
+                    } 
+                }
+
+                if (msg.type === "HistoryProvided") {
+                    // a history was provided, but it's the current player's turn, or there's no history: carry on
+                    resolve({"id":null,"content":null,"error":false})
+                }
+
+                // discard any other messages until we receive confirmation
+                // from BUGOUT that the history was provided
+            } catch (err) {
+                console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                resolve({"id": null, "content": "", "error": true})
+            }
+        })
+    }
+
+
     async sendCommand(command, subscriber = () => {}) {
         console.log(`GTP command ${JSON.stringify(command)}`)
         let promise = new Promise((resolve, reject) => {
