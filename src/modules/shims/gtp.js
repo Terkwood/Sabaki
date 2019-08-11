@@ -95,6 +95,8 @@ class WebSocketController extends EventEmitter {
         this.webSocket = new RobustWebSocket(webSocketAddress)
         this.gatewayConn = new GatewayConn(this.webSocket)
 
+        this.firstMove = true
+
         this.webSocket.addEventListener('close', event => {
             console.log("WebSocket closed.")
         })
@@ -155,31 +157,37 @@ class WebSocketController extends EventEmitter {
     }
 
 
-    listenForHistory(opponent, resolve) {
+    listenForHistoryFirstMove(opponent, onFirstMove) {
         this.webSocket.addEventListener('message', event => {
             try {
                 let msg = JSON.parse(event.data)
-                if (msg.type === "HistoryProvided" && msg.moves.length > 0 && msg.moves[msg.moves.length - 1].player === opponent) {
+                if (msg.type === "HistoryProvided" && 
+                    msg.moves.length > 0 && 
+                    msg.moves[msg.moves.length - 1].player === opponent && 
+                    msg.moves[msg.moves.length - 1].turn === 1) {
                     let lastMove = msg.moves[msg.moves.length - 1]
                     if (lastMove) { // they didn't pass
                         let sabakiCoord = this.board.vertex2coord([lastMove.coord.x, lastMove.coord.y])
                         
-                        resolve({"id":null,"content":sabakiCoord,"error":false})
+                        console.log('hit')
+                        onFirstMove({player: lastMove.player, resolveWith: {"id":null,"content":sabakiCoord,"error":false}})
                     } else {
-                        resolve({"id":null,"content":null,"error":false})
+                        console.log('pass')
+                        onFirstMove({player: lastMove.player, resolveWith:{"id":null,"content":null,"error":false}})
                     } 
                 }
 
                 if (msg.type === "HistoryProvided") {
                     // a history was provided, but it's the current player's turn, or there's no history: carry on
-                    resolve({"id":null,"content":null,"error":false})
+                    console.log('miss')
+                    onFirstMove({resolveWith: undefined})
                 }
 
                 // discard any other messages until we receive confirmation
                 // from BUGOUT that the history was provided
             } catch (err) {
                 console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
-                resolve({"id": null, "content": "", "error": true})
+                onFirstMove(undefined)
             }
         })
     }
@@ -194,6 +202,7 @@ class WebSocketController extends EventEmitter {
             }
 
             if (command.name == "play") {
+                this.firstMove = false // no need to listen for history
                 let player = letterToPlayer(command.args[0])
                 let vertex = this.board.coord2vertex(command.args[1])
 
@@ -225,7 +234,29 @@ class WebSocketController extends EventEmitter {
                 this.webSocket.send(JSON.stringify(makeMove))
             } else if (command.name === "genmove") {
                 let opponent = letterToPlayer(command.args[0])
-                this.listenForMove(opponent, resolve)
+                if (opponent === "BLACK" && this.firstMove) {
+                    
+                    let provideHistoryCommand = {
+                        "type":"ProvideHistory",
+                        "gameId": this.gameId,
+                        "reqId": uuidv4()
+                    }
+                    this.webSocket.send(JSON.stringify(provideHistoryCommand))
+                    
+                    let onFirstMove = response => {
+                        this.firstMove = false
+                        if (response.resolveWith != undefined) {
+                            // black moved
+                            resolve(response.resolveWith)
+                        } else {
+                            // it wasn't black
+                            this.listenForMove(opponent, resolve)
+                        }
+                    }
+                    this.listenForHistoryFirstMove(opponent, onFirstMove)                    
+                } else {
+                    this.listenForMove(opponent, resolve)
+                }
              } else {
                  resolve({id: null, err: false})
              }
