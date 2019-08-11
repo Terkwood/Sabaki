@@ -95,6 +95,9 @@ class WebSocketController extends EventEmitter {
         this.webSocket = new RobustWebSocket(webSocketAddress)
         this.gatewayConn = new GatewayConn(this.webSocket)
 
+        // If it's the first move, and we're white,
+        // we'll always request history first. (In case
+        // black has already moved.)
         this.firstMove = true
 
         this.webSocket.addEventListener('close', event => {
@@ -149,7 +152,7 @@ class WebSocketController extends EventEmitter {
                 // discard any other messages until we receive confirmation
                 // from BUGOUT that the move was made
             } catch (err) {
-                console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                console.log(`Error processing websocket message (M): ${JSON.stringify(err)}`)
                 resolve({"id": null, "content": "", "error": true})
             }
         })
@@ -161,32 +164,30 @@ class WebSocketController extends EventEmitter {
         this.webSocket.addEventListener('message', event => {
             try {
                 let msg = JSON.parse(event.data)
-                if (msg.type === "HistoryProvided" && 
-                    msg.moves.length > 0 && 
-                    msg.moves[msg.moves.length - 1].player === opponent && 
+                if (msg.type === "HistoryProvided" &&
+                    msg.moves.length > 0 &&
+                    msg.moves[msg.moves.length - 1].player === opponent &&
                     msg.moves[msg.moves.length - 1].turn === 1) {
                     let lastMove = msg.moves[msg.moves.length - 1]
                     if (lastMove) { // they didn't pass
                         let sabakiCoord = this.board.vertex2coord([lastMove.coord.x, lastMove.coord.y])
-                        
-                        console.log('hit')
+
                         onFirstMove({player: lastMove.player, resolveWith: {"id":null,"content":sabakiCoord,"error":false}})
                     } else {
-                        console.log('pass')
+                        // This may fail.  Revisit after https://github.com/Terkwood/BUGOUT/issues/56
                         onFirstMove({player: lastMove.player, resolveWith:{"id":null,"content":null,"error":false}})
                     } 
                 }
 
                 if (msg.type === "HistoryProvided") {
                     // a history was provided, but it's the current player's turn, or there's no history: carry on
-                    console.log('miss')
                     onFirstMove({resolveWith: undefined})
                 }
 
                 // discard any other messages until we receive confirmation
                 // from BUGOUT that the history was provided
             } catch (err) {
-                console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                console.log(`Error processing websocket message (H): ${JSON.stringify(err)}`)
                 onFirstMove(undefined)
             }
         })
@@ -295,7 +296,6 @@ class GatewayConn {
 
 
     async reconnect(gameId, resolveMoveMade, board) {
-        console.log("gatewayconn reconnect")
         return new Promise((resolve, reject) => {
             try { 
                 let reconnectCommand = {
@@ -308,7 +308,6 @@ class GatewayConn {
                 this.webSocket.onmessage = event => {
                     try {
                         let msg = JSON.parse(event.data)
-                        console.log(`message after reconnect: ${event.data}`)
                         if (msg.type === "Reconnected") {
                             resolve({ playerUp: msg.playerUp })
                         }
@@ -322,7 +321,7 @@ class GatewayConn {
 
                         // discard any other messages
                     } catch (err) {
-                        console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                        console.log(`Error processing websocket message (R): ${JSON.stringify(err)}`)
                         resolve({error: true})
                     }
                 }
