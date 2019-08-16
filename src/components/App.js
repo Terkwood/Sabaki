@@ -32,12 +32,18 @@ const helper = require('../modules/helper')
 const setting = remote.require('./setting')
 const sound = require('../modules/sound')
 const treetransformer = require('../modules/treetransformer')
+const bugout = require('../modules/bugout')
 
 class App extends Component {
     constructor() {
         super()
         // 🐛 BUGOUT 🐞
         this.bugoutPlayerColor = window.confirm("Press Cancel for White, Press OK for Black") ? "B" : "W"
+        // TODO 🐛 BUGOUT 🐞
+        
+        this.bugoutJoinPrivate = bugout.joinParam()
+        console.log(`bugout join param ${JSON.stringify(this.bugoutJoinPrivate)}`)
+        // END BUGOUT
 
         window.sabaki = this
 
@@ -2104,7 +2110,8 @@ class App extends Component {
 
             try {
                 let engine = engines[i]
-                let syncer = new EngineSyncer(engine)
+                // BUGOUT
+                let syncer = new EngineSyncer(engine, this.bugoutJoinPrivate)
                 this.attachedEngineSyncers[i] = syncer
 
                 syncer.on('busy-changed', () => {
