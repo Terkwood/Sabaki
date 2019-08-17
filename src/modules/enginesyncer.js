@@ -26,8 +26,7 @@ function coord2vertex(coord, size) {
 }
 
 class EngineSyncer extends EventEmitter {
-    // BUGOUT
-    constructor(engine, bugoutJoinPrivate = { join: false }) {
+    constructor(engine, joinGame = { join: false }) { // BUGOUT
         super()
 
         let {path, args, commands} = engine
@@ -38,7 +37,7 @@ class EngineSyncer extends EventEmitter {
         this.state = JSON.parse(defaultStateJSON)
 
         this.controller = new gtp.Controller(path, argvsplit(args), {
-            bugoutJoinPrivate, // BUGOUT
+            joinGame, // BUGOUT
             cwd: dirname(resolve(path))
         })
 

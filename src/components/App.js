@@ -37,8 +37,8 @@ const bugout = require('../modules/bugout')
 class App extends Component {
     constructor() {
         super()
+
         this.bugout = bugout.load()
-        console.log(`this.bugout = ${JSON.stringify(this.bugout)}`) // TODO
 
         window.sabaki = this
 
@@ -2105,8 +2105,8 @@ class App extends Component {
 
             try {
                 let engine = engines[i]
-                // BUGOUT
-                let syncer = new EngineSyncer(engine, this.bugoutJoinGame)
+
+                let syncer = new EngineSyncer(engine, this.bugout.joinGame) // 😇BUGOUT😇
                 this.attachedEngineSyncers[i] = syncer
 
                 syncer.on('busy-changed', () => {
