@@ -114,6 +114,7 @@ class WebSocketController extends EventEmitter {
             console.log(`WebSocket error ${JSON.stringify(event)}`)
         })
 
+        // TODO BUGOUT JOIN GAME LOGIC HERE PLS 🚪
         this.webSocket.addEventListener('open', () => {
             if (!this.gameId) {
                 this.gatewayConn
