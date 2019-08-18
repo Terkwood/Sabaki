@@ -2106,7 +2106,7 @@ class App extends Component {
             try {
                 let engine = engines[i]
 
-                let syncer = new EngineSyncer(engine, this.bugout.joinGame) // 😇BUGOUT😇
+                let syncer = new EngineSyncer(engine, this.bugout.joinPrivateGame) // 😇BUGOUT😇
                 this.attachedEngineSyncers[i] = syncer
 
                 syncer.on('busy-changed', () => {

@@ -6,7 +6,7 @@ const MAX_ID_LENGTH = 37
 const isValidGameId = p =>
     p && p.length > MIN_ID_LENGTH && p.length < MAX_ID_LENGTH && re.test(p)
 
-const joinGameParam = () => {
+const joinPrivateGameParam = () => {
     let urlParams = new URLSearchParams(window.location.search)
     console.log(`urllll `)
     if (urlParams.has("join") && isValidGameId(urlParams.get("join"))) {
@@ -26,7 +26,7 @@ const load = () => {
     let pc = playerColor()
     let engine = {"name":"Opponent", "path":"/bugout", "args": ""}
     return {
-        joinGame: joinGameParam(),
+        joinPrivateGame: joinPrivateGameParam(),
         playerColor: pc,
         start: (cb) => {
             const STARTUP_WAIT_MS = 1333

@@ -18,12 +18,12 @@ class Controller extends EventEmitter {
         this.path = path
         this.args = args
         
-        let { joinGame } = spawnOptions
-        this.joinGame =
-            joinGame == undefined ? { join: false } : joinGame
+        let { joinPrivateGame } = spawnOptions
+        this.joinPrivateGame =
+            joinPrivateGame == undefined ? { join: false } : joinPrivateGame
         
         // TODO
-        console.log(`GTP joinGame ${JSON.stringify(this.joinGame)}`)
+        console.log(`GTP joinPrivateGame ${JSON.stringify(this.joinPrivateGame)}`)
 
         this._webSocketController = null
     }
