@@ -8,11 +8,10 @@ const isValidGameId = p =>
 
 const joinPrivateGameParam = () => {
     let urlParams = new URLSearchParams(window.location.search)
-    console.log(`urllll `)
+    
     if (urlParams.has("join") && isValidGameId(urlParams.get("join"))) {
         return { join: true, gameId: urlParams.get("join") }
     } else {
-        console.log("FAIL")
         return { join: false }
     }
 }
