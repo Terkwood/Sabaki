@@ -32,12 +32,13 @@ const helper = require('../modules/helper')
 const setting = remote.require('./setting')
 const sound = require('../modules/sound')
 const treetransformer = require('../modules/treetransformer')
+const bugout = require('../modules/bugout')
 
 class App extends Component {
     constructor() {
         super()
-        // 🐛 BUGOUT 🐞
-        this.bugoutPlayerColor = window.confirm("Press Cancel for White, Press OK for Black") ? "B" : "W"
+
+        this.bugout = bugout.load()
 
         window.sabaki = this
 
@@ -273,7 +274,8 @@ class App extends Component {
             evt.returnValue = ' '
         })
 
-        this.newFile().then(_n => this.startBugout())
+        this.newFile().then(_n => 
+            this.bugout.start(() => this.generateMove({ firstMove: true })))
     }
 
     componentDidUpdate(_, prevState = {}) {
@@ -669,8 +671,7 @@ class App extends Component {
             this.detachEngines()
             this.clearConsole()
 
-            // 🐛 BUGOUT 🐞
-            this.attachBugout()
+            this.bugout.attach((a, b) => this.attachEngines(a,b))
 
             this.setState({
                 representedFilename: null,
@@ -2104,7 +2105,8 @@ class App extends Component {
 
             try {
                 let engine = engines[i]
-                let syncer = new EngineSyncer(engine)
+
+                let syncer = new EngineSyncer(engine, this.bugout.joinPrivateGame) // 😇BUGOUT😇
                 this.attachedEngineSyncers[i] = syncer
 
                 syncer.on('busy-changed', () => {
@@ -2188,26 +2190,6 @@ class App extends Component {
 
         this.setState({attachedEngines: engines})
     }
-
-    // 🐛 BUGOUT 🐞 BELOW 🕷
-    attachBugout() {
-        let bugoutEngine = {"name":"Opponent", "path":"/bugout", "args": ""}
-        if (this.bugoutPlayerColor === "W") {
-            this.attachEngines(bugoutEngine, null)
-        } else {
-            this.attachEngines(null,bugoutEngine)
-        }
-    }
-    // 🐛 BUGOUT 🐞 BELOW 🕷
-    startBugout() {
-        const STARTUP_WAIT_MS = 1333
-        if (this.bugoutPlayerColor === "W") {
-            setTimeout(
-                () => this.generateMove({ firstMove: true }),
-                STARTUP_WAIT_MS)
-        }
-    }
-    // 🐛 BUGOUT 🐞 ABOVE 🕷
 
     detachEngines() {
         this.attachEngines(null, null)
