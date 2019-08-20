@@ -22,8 +22,6 @@ class Controller extends EventEmitter {
         this.joinPrivateGame =
             joinPrivateGame == undefined ? { join: false } : joinPrivateGame
         
-        console.log(`controller jpg ${JSON.stringify(this.joinPrivateGame)}`)
-
         this._webSocketController = null
     }
 
@@ -107,7 +105,6 @@ class WebSocketController extends EventEmitter {
         this.gatewayConn = new GatewayConn(this.webSocket)
 
         this.joinPrivateGame = joinPrivateGame
-        console.log(`websocket join private game object ${JSON.stringify(this.joinPrivateGame)}`)
 
         // If it's the first move, and we're white,
         // we'll always request history first. (In case
@@ -124,11 +121,9 @@ class WebSocketController extends EventEmitter {
 
         this.webSocket.addEventListener('open', () => {
             if (!this.gameId && this.joinPrivateGame.join) {
-                console.log(`join open ${this.joinPrivateGame.gameId}`)
                 this.gatewayConn
                     .joinPrivateGame(this.joinPrivateGame.gameId)
                     .then((reply, err) => {
-                        console.log(`reply ${JSON.stringify(reply)}`)
                         if (!err && reply.type === 'GameReady') {
                             this.gameId = reply.gameId
                         } else if (!err && reply.type == 'PrivateGameRejected') {
@@ -368,12 +363,10 @@ class GatewayConn {
                 'gameId': gameId
             }
 
-            console.log(`request payload ${JSON.stringify(requestPayload)}`)
-
             this.webSocket.addEventListener('message', event => {
                 try {
                     let msg = JSON.parse(event.data)
-                    console.log(`join listened for ${JSON.stringify(msg)}`)
+
                     if (msg.type === 'GameReady') {
                         resolve(msg)
                     } else if (msg.type === 'PrivateGameRejected') {
