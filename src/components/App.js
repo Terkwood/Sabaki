@@ -13,6 +13,7 @@ const DrawerManager = require('./DrawerManager')
 const InputBox = require('./InputBox')
 const BusyScreen = require('./BusyScreen')
 const InfoOverlay = require('./InfoOverlay')
+const GameLobbyModal = require('./GameLobbyModal')
 
 const deadstones = require('@sabaki/deadstones')
 const gtp = require('@sabaki/gtp')
@@ -2548,7 +2549,9 @@ class App extends Component {
             }),
 
             h(BusyScreen, {show: state.busy > 0}),
-            h(InfoOverlay, {text: state.infoOverlayText, show: state.showInfoOverlay})
+            h(InfoOverlay, {text: state.infoOverlayText, show: state.showInfoOverlay}),
+
+            h(GameLobbyModal, {smarmyMessage: 'something something'})
         )
     }
 }
