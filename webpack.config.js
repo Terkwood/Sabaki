@@ -24,10 +24,6 @@ module.exports = (env, argv) => ({
     resolve: {
         alias: {
             'react': path.join(__dirname, 'node_modules/preact/dist/preact.min'),
-            // TODO bugout V
-            //TODO FAILED 'react': 'preact-compat',       // TODO direct load from node_modules fails - check publish strat
-            //TODO FAILED 'react-dom': 'preact-compat',   // TODO direct load from node_modules fails - check publish strat
-            // TODO bugout ^
             'preact': path.join(__dirname, 'node_modules/preact/dist/preact.min'),
             'prop-types': path.join(__dirname, 'src/modules/shims/prop-types'),
             'fs': path.join(__dirname, 'src/modules/shims/fs'),
