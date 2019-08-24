@@ -1,4 +1,5 @@
 const {h, Component} = require('preact')
+const { Dialog } = require('preact-material-components')
 
 class GameLobbyModal extends Component {
     constructor() {
@@ -6,7 +7,7 @@ class GameLobbyModal extends Component {
     }
 
     render({smarmyMessage}) {
-        return h('div',
+        return h(Dialog,
             {
                 id: 'foobarbazqux'
             },
