@@ -1,18 +1,28 @@
 const {h, Component} = require('preact')
-const { Dialog } = require('preact-material-components')
+
+const { Button , Dialog} = require('preact-material-components')
+
+
 
 class GameLobbyModal extends Component {
     constructor() {
         super()
+        
     }
 
-    render({smarmyMessage}) {
+    componentDidMount() {
+        this.dialog = new Dialog(document.querySelector('.mdc-dialog'))
+    }
+
+    componentWillUnmount() {
+        this.dialog = undefined
+    }
+
+    render({}) {
         return h(Dialog,
             {
-                id: 'foobarbazqux'
-            },
-
-            smarmyMessage
+                id: "foobarbazqux"
+            }
         )
     }
 }

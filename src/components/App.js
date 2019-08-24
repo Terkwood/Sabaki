@@ -2551,7 +2551,7 @@ class App extends Component {
             h(BusyScreen, {show: state.busy > 0}),
             h(InfoOverlay, {text: state.infoOverlayText, show: state.showInfoOverlay}),
 
-            h(GameLobbyModal, {smarmyMessage: 'something something'})
+            h(GameLobbyModal)
         )
     }
 }
