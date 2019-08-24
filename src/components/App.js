@@ -2535,6 +2535,9 @@ class App extends Component {
                 })
             },
 
+
+            h(GameLobbyModal),
+
             h(ThemeManager),
             h(MainView, state),
             h(LeftSidebar, state),
@@ -2549,9 +2552,7 @@ class App extends Component {
             }),
 
             h(BusyScreen, {show: state.busy > 0}),
-            h(InfoOverlay, {text: state.infoOverlayText, show: state.showInfoOverlay}),
-
-            h(GameLobbyModal)
+            h(InfoOverlay, {text: state.infoOverlayText, show: state.showInfoOverlay})
         )
     }
 }

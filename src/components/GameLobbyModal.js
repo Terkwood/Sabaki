@@ -14,10 +14,11 @@ class GameLobbyModal extends Component {
     render({}) {
         return h(Dialog,
             {
-                id: "foobarbazqux"
+                id: "foobarbazqux",
+                isOpen: true,
+                visibility: 'visible' // dialog surface
             },
-            h(Dialog.Header, null, "Select game type"),
-            h(Dialog.Body, null, "You may find a public game with the next available player, or create a private game and share its link with your friend"),
+            h(Dialog.Body, null, "You may find a public game with the next available player, or create a private game and share its link with your friend."),
             h(Dialog.Footer, null, h(Dialog.FooterButton, { accept: true }, "Find public game")),
             h(Dialog.Footer, null, h(Dialog.FooterButton, { cancel: true }, "Create private game"))
         )

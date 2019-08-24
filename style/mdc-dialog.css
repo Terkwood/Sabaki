@@ -1,6 +1,5 @@
 /*!
  Material Components for the Web
- Copyright (c) 2018 Google Inc.
  License: MIT
 */
 .mdc-dialog {
@@ -13,7 +12,7 @@
   width: 100%;
   height: 100%;
   visibility: hidden;
-  z-index: 5; }
+  z-index: 11; }
 
 .mdc-dialog__backdrop {
   background-color: rgba(0, 0, 0, 0.87);
@@ -42,7 +41,8 @@
   -webkit-transform: translateY(150px) scale(0.8);
           transform: translateY(150px) scale(0.8);
   border-radius: 2px;
-  opacity: 0; }
+  visibility: visible;
+ }
   .mdc-dialog[dir="rtl"] .mdc-dialog__surface,
   [dir="rtl"] .mdc-dialog .mdc-dialog__surface {
     text-align: right; }
