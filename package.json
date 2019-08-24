@@ -72,6 +72,7 @@
     "octicons": "^8.5.0",
     "pikaday": "^1.8.0",
     "preact": "^8.4.2",
+    "preact-compat": "^3.19.0",
     "react-markdown": "^3.6.0",
     "remark-breaks": "^1.0.1",
     "robust-websocket": "^1.0.0",
