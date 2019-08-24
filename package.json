@@ -74,12 +74,14 @@
     "preact": "^8.4.2",
     "preact-compat": "^3.19.0",
     "react-markdown": "^3.6.0",
+    "react-modal": "^3.10.1",
     "remark-breaks": "^1.0.1",
     "robust-websocket": "^1.0.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
     "http-server": "^0.11.1",
+    "preact-material-components": "^1.5.8",
     "webpack": "^4.30.0",
     "webpack-cli": "^3.3.2"
   },
