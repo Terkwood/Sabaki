@@ -1,6 +1,6 @@
 const {h, Component} = require('preact')
 
-const { Button , Dialog} = require('preact-material-components')
+const { Dialog} = require('preact-material-components')
 
 
 
@@ -10,19 +10,16 @@ class GameLobbyModal extends Component {
         
     }
 
-    componentDidMount() {
-        this.dialog = new Dialog(document.querySelector('.mdc-dialog'))
-    }
-
-    componentWillUnmount() {
-        this.dialog = undefined
-    }
 
     render({}) {
         return h(Dialog,
             {
                 id: "foobarbazqux"
-            }
+            },
+            h(Dialog.Header, null, "Select game type"),
+            h(Dialog.Body, null, "You may find a public game with the next available player, or create a private game and share its link with your friend"),
+            h(Dialog.Footer, null, h(Dialog.FooterButton, { accept: true }, "Find public game")),
+            h(Dialog.Footer, null, h(Dialog.FooterButton, { cancel: true }, "Create private game"))
         )
     }
 }
