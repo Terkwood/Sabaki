@@ -1,8 +1,6 @@
-const {h, Component} = require('preact')
+const { h, Component } = require('preact')
 
-const { Dialog} = require('preact-material-components')
-
-
+const { Dialog } = require('preact-material-components')
 
 class GameLobbyModal extends Component {
     constructor() {
@@ -10,12 +8,11 @@ class GameLobbyModal extends Component {
         this.state = { showDialog: true }
     }
 
-
-    render({}) {
+    render({ id = "game-lobby-modal" }) {
         
         return  this.state.showDialog ? h(Dialog,
             {
-                id: "foobarbazqux",
+                id,
                 isOpen: true,
             },
             h(Dialog.Body, null, "You may find a public game with the next available player, or create a private game and share its link with your friend."),
@@ -39,7 +36,7 @@ class GameLobbyModal extends Component {
                             this.setState({showDialog: false})
                         }
                     }, "Create private game"))
-        ) : h('div', { id: "foobarbazqux"})
+        ) : h('div', { id })
     }
 }
 
