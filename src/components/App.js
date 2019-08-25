@@ -2490,6 +2490,7 @@ class App extends Component {
     // Render
 
     render(_, state) {
+        console.log(`state multiplayer ${JSON.stringify(state.multiplayer)}`)
         // Calculate some inferred values
 
         let {gameTrees, gameIndex, treePosition} = state
@@ -2536,7 +2537,7 @@ class App extends Component {
             },
 
 
-            h(GameLobbyModal),
+            h(GameLobbyModal), // BUGOUT
 
             h(ThemeManager),
             h(MainView, state),

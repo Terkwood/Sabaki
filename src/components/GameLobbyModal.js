@@ -2,13 +2,18 @@ const { h, Component } = require('preact')
 
 const { Dialog } = require('preact-material-components')
 
+const Visibility = {
+    PUBLIC: 1,
+    PRIVATE: 2,
+};
+
 class GameLobbyModal extends Component {
     constructor() {
         super()
         this.state = { showDialog: true }
     }
 
-    render({ id = "game-lobby-modal" }) {
+    render({ id = "game-lobby-modal", onChoice }) {
         
         return  this.state.showDialog ? h(Dialog,
             {
@@ -24,6 +29,7 @@ class GameLobbyModal extends Component {
                         onClick: () => {
                             console.log("PUBLIC")
                             this.setState({showDialog: false})
+                            sabaki.setState({ multiplayer: { visibility: Visibility.PUBLIC } })
                         }
                     }, 
                     "Public")
@@ -35,6 +41,7 @@ class GameLobbyModal extends Component {
                         onClick: () => {
                             console.log("PRIVATE")
                             this.setState({showDialog: false})
+                            sabaki.setState({ multiplayer: { visibility: Visibility.PRIVATE } })
                         }
                     }, "Private"))
         ) : h('div', { id })
