@@ -2490,7 +2490,6 @@ class App extends Component {
     // Render
 
     render(_, state) {
-
         // Calculate some inferred values
 
         let {gameTrees, gameIndex, treePosition} = state
