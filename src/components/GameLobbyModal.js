@@ -2,10 +2,7 @@ const { h, Component } = require('preact')
 
 const { Dialog } = require('preact-material-components')
 
-const Visibility = {
-    PUBLIC: 1,
-    PRIVATE: 2,
-};
+const { Visibility } = require('../modules/bugout')
 
 class GameLobbyModal extends Component {
     constructor() {
@@ -29,6 +26,7 @@ class GameLobbyModal extends Component {
                         onClick: () => {
                             console.log("PUBLIC")
                             this.setState({showDialog: false})
+                            // CAUTION - GLOBAL STATE AHEAD
                             sabaki.setState({ multiplayer: { visibility: Visibility.PUBLIC } })
                         }
                     }, 
@@ -41,6 +39,7 @@ class GameLobbyModal extends Component {
                         onClick: () => {
                             console.log("PRIVATE")
                             this.setState({showDialog: false})
+                            // CAUTION - GLOBAL STATE AHEAD
                             sabaki.setState({ multiplayer: { visibility: Visibility.PRIVATE } })
                         }
                     }, "Private"))
