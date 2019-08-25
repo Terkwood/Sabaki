@@ -15,6 +15,7 @@ class GameLobbyModal extends Component {
                 id,
                 isOpen: true,
             },
+            h(Dialog.Header, null, "Choose Venue"),
             h(Dialog.Body, null, "You may find a public game with the next available player, or create a private game and share its link with your friend."),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
