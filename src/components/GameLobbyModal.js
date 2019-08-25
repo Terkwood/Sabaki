@@ -25,7 +25,7 @@ class GameLobbyModal extends Component {
                             this.setState({showDialog: false})
                         }
                     }, 
-                    "Find public game")
+                    "Public")
                 ),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
@@ -35,7 +35,7 @@ class GameLobbyModal extends Component {
                             console.log("PRIVATE")
                             this.setState({showDialog: false})
                         }
-                    }, "Create private game"))
+                    }, "Private"))
         ) : h('div', { id })
     }
 }
