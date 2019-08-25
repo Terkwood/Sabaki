@@ -48,10 +48,6 @@ const load = () => {
             } else {
                 appAttachEngines(null,engine)
             }
-        },
-        isGameReady: stateMultiplayer => {
-            let { visibility } = stateMultiplayer
-            return visibility && true
         }
     };
 }
