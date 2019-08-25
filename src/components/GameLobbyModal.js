@@ -10,7 +10,7 @@ class GameLobbyModal extends Component {
         this.state = { showDialog: true }
     }
 
-    render({ id = "game-lobby-modal", onChoice }) {
+    render({ id = "game-lobby-modal" }) {
         
         return  this.state.showDialog ? h(Dialog,
             {
