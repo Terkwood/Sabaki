@@ -18,8 +18,14 @@ const joinPrivateGameParam = () => {
 
 const BLACK = "B"
 const WHITE = "W"
+
 const playerColor = () => 
     window.confirm("Press Cancel for White, Press OK for Black") ? BLACK : WHITE
+
+const Visibility = {
+    PUBLIC: 1,
+    PRIVATE: 2,
+}
 
 const load = () => {
     let pc = playerColor()
@@ -47,3 +53,4 @@ const load = () => {
 }
 
 exports.load = load
+exports.Visibility = Visibility

@@ -13,6 +13,7 @@ const DrawerManager = require('./DrawerManager')
 const InputBox = require('./InputBox')
 const BusyScreen = require('./BusyScreen')
 const InfoOverlay = require('./InfoOverlay')
+const GameLobbyModal = require('./GameLobbyModal')
 
 const deadstones = require('@sabaki/deadstones')
 const gtp = require('@sabaki/gtp')
@@ -2533,6 +2534,9 @@ class App extends Component {
                     [state.mode]: true
                 })
             },
+
+
+            h(GameLobbyModal), // BUGOUT
 
             h(ThemeManager),
             h(MainView, state),
