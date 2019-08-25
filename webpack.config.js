@@ -66,15 +66,5 @@ module.exports = (env, argv) => ({
         'moment': 'null',
         'iconv-lite': 'null',
         'jschardet': 'null'
-    },
-
-    // TODO bugout
-    module: {
-        rules: [
-          {
-            test: /\.css$/i,
-            use: ['css-loader'],
-          },
-        ],
-      },
+    }
 })
