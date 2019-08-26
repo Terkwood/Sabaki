@@ -13,6 +13,7 @@ const DrawerManager = require('./DrawerManager')
 const InputBox = require('./InputBox')
 const BusyScreen = require('./BusyScreen')
 const InfoOverlay = require('./InfoOverlay')
+const ColorChoiceModal = require('./ColorChoiceModal')
 const GameLobbyModal = require('./GameLobbyModal')
 
 const deadstones = require('@sabaki/deadstones')
@@ -2558,6 +2559,7 @@ class App extends Component {
             },
 
             h(GameLobbyModal, { joinPrivateGame: this.bugout.joinPrivateGame.join }),
+            h(ColorChoiceModal, {turnOn: state.multiplayer && state.multiplayer.initConnect && state.multiplayer.initConnect === bugout.InitConnected.CONNECTED}), // BUGOUT
 
             h(ThemeManager),
             h(MainView, state),
