@@ -257,11 +257,9 @@ class WebSocketController extends EventEmitter {
                 })
 
                 this.webSocket.send(JSON.stringify(makeMove))
-            } else if (command.name === "genmove") { // TODO MUST SEND FOR WHITE IN NON_JOIN
+            } else if (command.name === "genmove") {
                 let opponent = letterToPlayer(command.args[0])
                 if (opponent === "BLACK" && this.firstMove) {
-                    
-                    console.log(`prov history game ID ${this.gameId}`)
                     let provideHistoryCommand = {
                         "type":"ProvideHistory",
                         "gameId": this.gameId,
