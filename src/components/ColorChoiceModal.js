@@ -9,14 +9,14 @@ class ColorChoiceModal extends Component {
         this.state = { showDialog: false }
     }
 
-    render({ id = "color-choice-modal", showDialog = false }) {
+    render({ id = "color-choice-modal", forceDialog = false }) {
         // TODO this trash :-D
-        let { stateShowDialog: showDialog } = this.state
-        if (stateShowDialog != showDialog) {
-            this.setState({showDialog})
+        let { showDialog } = this.state
+        if (forceDialog != showDialog) {
+            this.setState({showDialog: forceDialog})
         }
 
-        return showDialog ? h(Dialog,
+        return forceDialog ? h(Dialog,
             {
                 id,
                 isOpen: true,
@@ -59,4 +59,4 @@ class ColorChoiceModal extends Component {
     }
 }
 
-module.exports = GameLobbyModal
+module.exports = ColorChoiceModal
