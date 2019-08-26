@@ -2530,6 +2530,8 @@ class App extends Component {
 
         if (this.bugout.readyToEnter(state)) {
             this.setState({ multiplayer: { initConnect: bugout.InitConnected.IN_PROGRESS}})
+            this.detachEngines()
+            this.clearConsole()
             this.bugout.attach((a, b) => {
                 try {
                     this.attachEngines(a,b); 
