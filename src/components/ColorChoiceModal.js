@@ -18,7 +18,7 @@ class ColorChoiceModal extends Component {
                 isOpen: true,
             },
             h(Dialog.Header, null, 'Choose a Color'),
-            h(Dialog.Body, null, 'We reserve the right to assign colors arbitrarily.'),
+            h(Dialog.Body, null, "We're on the honor system, for now.  If you choose the same color as your opponent, we apologize."),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
                     { 

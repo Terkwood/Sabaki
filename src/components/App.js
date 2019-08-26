@@ -2541,10 +2541,7 @@ class App extends Component {
                     console.log('HEY')
                     this.setState({ multiplayer: { initConnect: bugout.InitConnected.CONNECTED}})
                     console.log('HI')
-                    if (this.state.multiplayer && this.state.multiplayer.provideHistory) {
-                        this.setState({ multiplayer: { provideHistory: undefined } } )
-                        console.log('YOOO')
-                        // TODO or thisn good?
+                    if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
                         if (playerColor == bugout.Color.WHITE) {
                             console.log('the w')
                             setTimeout(
