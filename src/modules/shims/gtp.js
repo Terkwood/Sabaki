@@ -261,6 +261,7 @@ class WebSocketController extends EventEmitter {
                 let opponent = letterToPlayer(command.args[0])
                 if (opponent === "BLACK" && this.firstMove) {
                     
+                    console.log(`prov history game ID ${this.gameId}`)
                     let provideHistoryCommand = {
                         "type":"ProvideHistory",
                         "gameId": this.gameId,
