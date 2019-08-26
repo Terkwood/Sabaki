@@ -2525,18 +2525,35 @@ class App extends Component {
         state = Object.assign(state, this.inferredState)
 
         if (this.bugout.readyToEnter(state)) {
-            this.setState({ multiplayer: { initConnect: bugout.InitConnected.IN_PROGRESS}})
+            this.setState({
+                multiplayer: {
+                    ...this.state.multiplayer,
+                    initConnect: bugout.InitConnected.IN_PROGRESS
+                }
+            })
+            
             this.detachEngines()
             this.clearConsole()
+
             let playerColor = this.bugout.prefToColor(state.multiplayer.colorPref)
             this.bugout.attach((a, b) => {
                 this.attachEngines(a, b)
 
                 if (this.state.attachedEngines === [null, null]) {
-                    this.setState({ multiplayer: { ...this.state.multiplayer, initConnect: bugout.InitConnected.FAILED}})
+                    this.setState({
+                        multiplayer: {
+                            ...this.state.multiplayer,
+                            initConnect: bugout.InitConnected.FAILED
+                        }
+                    })
                     console.log(`multiplayer connect failed`)
                 } else {
-                    this.setState({ multiplayer: { ...this.state.multiplayer, initConnect: bugout.InitConnected.CONNECTED}})
+                    this.setState({
+                        multiplayer: {
+                            ...this.state.multiplayer,
+                            initConnect: bugout.InitConnected.CONNECTED
+                        }
+                    })
                     if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
                         if (playerColor == bugout.Color.WHITE) {
                             let waitMs = 1333
@@ -2548,11 +2565,7 @@ class App extends Component {
                 }
             }, playerColor) // not undefined since we're readyToEnter
             
-        } else {
-            console.log('NOPE')
         }
-        
-        
 
         return h('section',
             {
