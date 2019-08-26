@@ -276,7 +276,6 @@ class App extends Component {
             evt.returnValue = ' '
         })
 
-        // TODO bye bye
         this.newFile()
     }
 
