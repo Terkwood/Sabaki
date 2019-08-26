@@ -10,7 +10,7 @@ class GameLobbyModal extends Component {
         this.state = { showDialog: true }
     }
 
-    render({ id = "game-lobby-modal", joinPrivateGame = false }) {
+    render({ id = "game-lobby-modal", joinPrivateGame = false, update }) {
         if (joinPrivateGame && this.state.showDialog) {
             return h(Dialog,
                 {
@@ -26,7 +26,7 @@ class GameLobbyModal extends Component {
                             onClick: () => {
                                 this.setState({showDialog: false})
                                 // CAUTION - GLOBAL STATE AHEAD
-                                sabaki.setState({ multiplayer: { visibility: Visibility.PRIVATE } })
+                                update( Visibility.PRIVATE )
                             }
                         }, 
                         "OK")
@@ -47,13 +47,7 @@ class GameLobbyModal extends Component {
                         accept: true, 
                         onClick: () => {
                             this.setState({showDialog: false})
-                            // CAUTION - GLOBAL STATE AHEAD
-                            sabaki.setState({
-                                multiplayer: {
-                                    visibility: Visibility.PUBLIC,
-                                    provideHistory: true
-                                }
-                            })
+                            update(Visibility.PUBLIC)
                         }
                     }, 
                     "Public")
@@ -64,13 +58,7 @@ class GameLobbyModal extends Component {
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false})
-                            // CAUTION - GLOBAL STATE AHEAD
-                            sabaki.setState({
-                                multiplayer: {
-                                    visibility: Visibility.PRIVATE,
-                                    provideHistory: true
-                                }
-                            })
+                            update(Visibility.PRIVATE)
                         }
                     }, "Private"))
         ) : h('div', { id })

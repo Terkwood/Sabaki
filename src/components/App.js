@@ -276,8 +276,8 @@ class App extends Component {
             evt.returnValue = ' '
         })
 
-        // TODO thisn good?
-        this.newFile().then(() => this.bugout.start(() => this.generateMove({ firstMove: true })))
+        // TODO bye bye
+        this.newFile()
     }
 
     componentDidUpdate(_, prevState = {}) {
@@ -2526,28 +2526,40 @@ class App extends Component {
         state = Object.assign(state, this.inferredState)
 
         if (this.bugout.readyToEnter(state)) {
+            console.log('hey everybody')
             this.setState({ multiplayer: { initConnect: bugout.InitConnected.IN_PROGRESS}})
             this.detachEngines()
             this.clearConsole()
+            let playerColor = this.bugout.prefToColor(state.multiplayer.colorPref)
             this.bugout.attach((a, b) => {
-                try {
-                    this.attachEngines(a,b); 
-                    if (this.state.attachedEngines === [null, null]) {
-                        this.setState({ multiplayer: { initConnect: bugout.InitConnected.FAILED}})
-                        console.log(`multiplayer connect failed`)
-                    } else {
-                        this.setState({ multiplayer: { initConnect: bugout.InitConnected.CONNECTED}})
-                        if (this.state.multiplayer && this.state.multiplayer.provideHistory) {
-                            this.setState({ multiplayer: { provideHistory: undefined } } )
-                            // TODO or thisn good?
-                            this.generateMove({ firstMove: true })
-                        }   
-                    }    
-                } catch(e) {
-                    console.log(` ERROR !  ${e}`)
+                this.attachEngines(a, b)
+
+                if (this.state.attachedEngines === [null, null]) {
+                    this.setState({ multiplayer: { initConnect: bugout.InitConnected.FAILED}})
+                    console.log(`multiplayer connect failed`)
+                } else {
+                    console.log('HEY')
+                    this.setState({ multiplayer: { initConnect: bugout.InitConnected.CONNECTED}})
+                    console.log('HI')
+                    if (this.state.multiplayer && this.state.multiplayer.provideHistory) {
+                        this.setState({ multiplayer: { provideHistory: undefined } } )
+                        console.log('YOOO')
+                        // TODO or thisn good?
+                        if (playerColor == bugout.Color.WHITE) {
+                            console.log('the w')
+                            setTimeout(
+                                () => this.generateMove({ firstMove: true }),
+                                1333)
+                        }
+                    }
                 }
-            })
+            }, playerColor) // not undefined since we're readyToEnter
+            
+        } else {
+            console.log('NOPE')
         }
+        
+        
 
         return h('section',
             {
@@ -2558,8 +2570,24 @@ class App extends Component {
                 })
             },
 
-            h(GameLobbyModal, { joinPrivateGame: this.bugout.joinPrivateGame.join }),
-            h(ColorChoiceModal, {turnOn: state.multiplayer && state.multiplayer.initConnect && state.multiplayer.initConnect === bugout.InitConnected.CONNECTED}), // BUGOUT
+            h(GameLobbyModal, {
+                joinPrivateGame: this.bugout.joinPrivateGame.join,
+                update: visibility => this.setState({ 
+                    multiplayer: {
+                        ...this.state.multiplayer,
+                        visibility
+                    }
+                })
+            }),
+            h(ColorChoiceModal, {
+                turnOn: state.multiplayer && state.multiplayer.visibility,
+                updatePref: colorPref => this.setState({
+                    multiplayer: {
+                        ...this.state.multiplayer,
+                        colorPref
+                    }
+                })
+            }), // BUGOUT
 
             h(ThemeManager),
             h(MainView, state),
