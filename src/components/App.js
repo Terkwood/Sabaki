@@ -672,7 +672,8 @@ class App extends Component {
             this.detachEngines()
             this.clearConsole()
 
-            this.bugout.attach((a, b) => this.attachEngines(a,b))
+            // TODO
+            //this.bugout.attach((a, b) => this.attachEngines(a,b))
 
             this.setState({
                 representedFilename: null,
@@ -2525,6 +2526,18 @@ class App extends Component {
         }
 
         state = Object.assign(state, this.inferredState)
+
+        if (this.bugout.readyToEnter(state)) {
+            this.setState({ multiplayer: { initConnect: bugout.InitConnected.IN_PROGRESS}})
+            this.bugout.attach((a, b) => { 
+                this.attachEngines(a,b); 
+                if (this.state.attachedEngines === [null, null]) {
+                    this.setState({ multiplayer: { initConnect: bugout.InitConnected.FAILED}})
+                } else {
+                    this.setState({ multiplayer: { initConnect: bugout.InitConnected.CONNECTED}})
+                }       
+            })
+        }
 
         return h('section',
             {
