@@ -2539,10 +2539,10 @@ class App extends Component {
                     this.setState({ multiplayer: { ...this.state.multiplayer, initConnect: bugout.InitConnected.CONNECTED}})
                     if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
                         if (playerColor == bugout.Color.WHITE) {
-                            console.log('the w')
+                            let waitMs = 1333
                             setTimeout(
                                 () => this.generateMove({ firstMove: true }),
-                                1333)
+                                waitMs)
                         }
                     }
                 }
