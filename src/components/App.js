@@ -672,9 +672,6 @@ class App extends Component {
             this.detachEngines()
             this.clearConsole()
 
-            // TODO
-            //this.bugout.attach((a, b) => this.attachEngines(a,b))
-
             this.setState({
                 representedFilename: null,
                 gameIndex: 0,
