@@ -275,9 +275,6 @@ class App extends Component {
             evt.returnValue = ' '
         })
 
-        /*if (this.bugout.joinPrivateGame.join) {
-            this.setState({multiplayer: { visibility: bugout.Visibility.PRIVATE }})
-        }*/
         this.newFile().then(_n =>
             this.bugout.start(() => this.generateMove({ firstMove: true })))
     }
