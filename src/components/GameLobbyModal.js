@@ -10,8 +10,31 @@ class GameLobbyModal extends Component {
         this.state = { showDialog: true }
     }
 
-    render({ id = "game-lobby-modal" }) {
-        
+    render({ id = "game-lobby-modal", joinPrivateGame = false }) {
+        console.log(`is it secret? is it safe? 💍 ${joinPrivateGame}`)
+        if (joinPrivateGame && this.state.showDialog) {
+            return h(Dialog,
+                {
+                    id,
+                    isOpen: true,
+                },
+                h(Dialog.Header, null, "Join Private Game"),
+                h(Dialog.Body, null, "You're joining a private game created by your friend."),
+                h(Dialog.Footer, null, 
+                    h(Dialog.FooterButton, 
+                        { 
+                            accept: true, 
+                            onClick: () => {
+                                this.setState({showDialog: false})
+                                // CAUTION - GLOBAL STATE AHEAD
+                                sabaki.setState({ multiplayer: { visibility: Visibility.PRIVATE } })
+                            }
+                        }, 
+                        "OK")
+                    )
+            )
+        }
+
         return  (this.state.showDialog) ? h(Dialog,
             {
                 id,

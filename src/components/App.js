@@ -2558,7 +2558,6 @@ class App extends Component {
                 })
             },
 
-
             h(GameLobbyModal, { joinPrivateGame: this.bugout.joinPrivateGame.join }), // BUGOUT
 
             h(ThemeManager),
