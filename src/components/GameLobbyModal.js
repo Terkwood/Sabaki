@@ -11,7 +11,6 @@ class GameLobbyModal extends Component {
     }
 
     render({ id = "game-lobby-modal", joinPrivateGame = false }) {
-        console.log(`is it secret? is it safe? 💍 ${joinPrivateGame}`)
         if (joinPrivateGame && this.state.showDialog) {
             return h(Dialog,
                 {
