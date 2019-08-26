@@ -2538,7 +2538,7 @@ class App extends Component {
 
 
             h(GameLobbyModal), // BUGOUT
-            h(ColorChoiceModal), // BUGOUT
+            h(ColorChoiceModal, {turnOn: state.multiplayer && state.multiplayer.visibility}), // BUGOUT
 
             h(ThemeManager),
             h(MainView, state),

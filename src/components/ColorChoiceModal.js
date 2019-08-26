@@ -6,17 +6,13 @@ const { Dialog } = require('preact-material-components')
 class ColorChoiceModal extends Component {
     constructor() {
         super()
-        this.state = { showDialog: false }
+        this.state = { showDialog: false, turnedOnOnce: false }
     }
 
-    render({ id = "color-choice-modal", forceDialog = false }) {
-        // TODO this trash :-D
-        let { showDialog } = this.state
-        if (forceDialog != showDialog) {
-            this.setState({showDialog: forceDialog})
-        }
-
-        return forceDialog ? h(Dialog,
+    render({ id = "color-choice-modal", turnOn = false }) {
+        let { showDialog, turnedOnOnce } = this.state
+      
+        return ((turnOn && !turnedOnOnce) || showDialog) ? h(Dialog,
             {
                 id,
                 isOpen: true,
@@ -28,9 +24,8 @@ class ColorChoiceModal extends Component {
                     { 
                         accept: true, 
                         onClick: () => {
-                            this.setState({showDialog: false})
-                            // TODO DON'T USE GLOBAL STATE
-                            
+                            this.setState({showDialog: false, turnedOnOnce: true })
+                            // 🚧 Not Implemented 🚧
                         }
                     }, 
                     "Black")
@@ -40,9 +35,8 @@ class ColorChoiceModal extends Component {
                     { 
                         cancel: true,
                         onClick: () => {
-                            this.setState({showDialog: false})
-                            // TODO DON'T USE GLOBAL STATE
-
+                            this.setState({showDialog: false, turnedOnOnce: true })
+                            // 🚧 Not Implemented 🚧
                         }
                     }, "White")),
             h(Dialog.Footer, null, 
@@ -50,9 +44,8 @@ class ColorChoiceModal extends Component {
                     { 
                         cancel: true,
                         onClick: () => {
-                            this.setState({showDialog: false})
-                            // TODO DON'T USE GLOBAL STATE
-
+                            this.setState({showDialog: false, turnedOnOnce: true })
+                            // 🚧 Not Implemented 🚧
                         }
                     }, "Any"))
         ) : h('div', { id })
