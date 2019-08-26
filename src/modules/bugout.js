@@ -32,14 +32,14 @@ const Color = {
 }
 
 /** private to isValidGameId */
-const MIN_ID_LENGTH = 18
+const MIN_ID_LENGTH = 4
 /** private to isValidGameId */
-const MAX_ID_LENGTH = 37
+const MAX_ID_LENGTH = 30
 /** private to isValidGameId */
 const re = new RegExp(/^[a-zA-Z0-9]+$/, 'm')
 
 const isValidGameId = p =>
-    p && p.length > MIN_ID_LENGTH && p.length < MAX_ID_LENGTH && re.test(p)
+    p && p.length >= MIN_ID_LENGTH && p.length <= MAX_ID_LENGTH && re.test(p)
 
 const joinPrivateGameParam = () => {
     let urlParams = new URLSearchParams(window.location.search)

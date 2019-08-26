@@ -2525,7 +2525,6 @@ class App extends Component {
         state = Object.assign(state, this.inferredState)
 
         if (this.bugout.readyToEnter(state)) {
-            console.log('hey everybody')
             this.setState({ multiplayer: { initConnect: bugout.InitConnected.IN_PROGRESS}})
             this.detachEngines()
             this.clearConsole()
@@ -2534,12 +2533,10 @@ class App extends Component {
                 this.attachEngines(a, b)
 
                 if (this.state.attachedEngines === [null, null]) {
-                    this.setState({ multiplayer: { initConnect: bugout.InitConnected.FAILED}})
+                    this.setState({ multiplayer: { ...this.state.multiplayer, initConnect: bugout.InitConnected.FAILED}})
                     console.log(`multiplayer connect failed`)
                 } else {
-                    console.log('HEY')
-                    this.setState({ multiplayer: { initConnect: bugout.InitConnected.CONNECTED}})
-                    console.log('HI')
+                    this.setState({ multiplayer: { ...this.state.multiplayer, initConnect: bugout.InitConnected.CONNECTED}})
                     if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
                         if (playerColor == bugout.Color.WHITE) {
                             console.log('the w')
