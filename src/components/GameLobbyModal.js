@@ -48,7 +48,12 @@ class GameLobbyModal extends Component {
                         onClick: () => {
                             this.setState({showDialog: false})
                             // CAUTION - GLOBAL STATE AHEAD
-                            sabaki.setState({ multiplayer: { visibility: Visibility.PUBLIC } })
+                            sabaki.setState({
+                                multiplayer: {
+                                    visibility: Visibility.PUBLIC,
+                                    provideHistory: true
+                                }
+                            })
                         }
                     }, 
                     "Public")
@@ -60,7 +65,12 @@ class GameLobbyModal extends Component {
                         onClick: () => {
                             this.setState({showDialog: false})
                             // CAUTION - GLOBAL STATE AHEAD
-                            sabaki.setState({ multiplayer: { visibility: Visibility.PRIVATE } })
+                            sabaki.setState({
+                                multiplayer: {
+                                    visibility: Visibility.PRIVATE,
+                                    provideHistory: true
+                                }
+                            })
                         }
                     }, "Private"))
         ) : h('div', { id })

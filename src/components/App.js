@@ -275,8 +275,8 @@ class App extends Component {
             evt.returnValue = ' '
         })
 
-        this.newFile().then(_n =>
-            this.bugout.start(() => this.generateMove({ firstMove: true })))
+        // TODO thisn good?
+        this.newFile().then(() => this.bugout.start(() => this.generateMove({ firstMove: true })))
     }
 
     componentDidUpdate(_, prevState = {}) {
@@ -2535,7 +2535,12 @@ class App extends Component {
                         this.setState({ multiplayer: { initConnect: bugout.InitConnected.FAILED}})
                         console.log(`multiplayer connect failed`)
                     } else {
-                        this.setState({ multiplayer: { initConnect: bugout.InitConnected.CONNECTED}})                      
+                        this.setState({ multiplayer: { initConnect: bugout.InitConnected.CONNECTED}})
+                        if (this.state.multiplayer && this.state.multiplayer.provideHistory) {
+                            this.setState({ multiplayer: { provideHistory: undefined } } )
+                            // TODO or thisn good?
+                            this.generateMove({ firstMove: true })
+                        }   
                     }    
                 } catch(e) {
                     console.log(` ERROR !  ${e}`)

@@ -257,7 +257,7 @@ class WebSocketController extends EventEmitter {
                 })
 
                 this.webSocket.send(JSON.stringify(makeMove))
-            } else if (command.name === "genmove") {
+            } else if (command.name === "genmove") { // TODO MUST SEND FOR WHITE IN NON_JOIN
                 let opponent = letterToPlayer(command.args[0])
                 if (opponent === "BLACK" && this.firstMove) {
                     
