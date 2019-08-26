@@ -2539,10 +2539,9 @@ class App extends Component {
                         this.setState({ multiplayer: { initConnect: bugout.InitConnected.FAILED}})
                         console.log(`multiplayer connect failed`)
                     } else {
-                        this.setState({ multiplayer: { initConnect: bugout.InitConnected.CONNECTED}})
-                        console.log(`multiplayer connect succeeded`)                        
+                        this.setState({ multiplayer: { initConnect: bugout.InitConnected.CONNECTED}})                      
                     }    
-                }   catch(e) {
+                } catch(e) {
                     console.log(` ERROR !  ${e}`)
                 }
             })
