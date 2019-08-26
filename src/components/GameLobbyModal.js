@@ -25,8 +25,7 @@ class GameLobbyModal extends Component {
                             accept: true, 
                             onClick: () => {
                                 this.setState({showDialog: false})
-                                // CAUTION - GLOBAL STATE AHEAD
-                                update( Visibility.PRIVATE )
+                                update(Visibility.PRIVATE)
                             }
                         }, 
                         "OK")
