@@ -66,8 +66,17 @@ const load = () => {
                 appAttachEngines(null,engine)
             }
         },
-        readyToEnter: state =>
-            state.multiplayer && state.multiplayer.initConnect < InitConnected.IN_PROGRESS && (state.multiplayer.visibility || jp.join)
+        readyToEnter: state => {
+            if (state.multiplayer) {
+                console.log(`ok ${state.multiplayer.initConnect}`)
+            } else {
+                console.log('NOPE')
+            }
+            return state.multiplayer && (
+                state.multiplayer.initConnect == undefined || 
+                state.multiplayer.initConnect < InitConnected.IN_PROGRESS
+                ) && (state.multiplayer.visibility || jp.join)
+        }
     };
 }
 

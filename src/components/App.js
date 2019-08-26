@@ -275,7 +275,8 @@ class App extends Component {
             evt.returnValue = ' '
         })
 
-        this.newFile().then(_n => 
+        // TODO bugout ... ?
+        this.newFile().then(_n =>
             this.bugout.start(() => this.generateMove({ firstMove: true })))
     }
 
@@ -2529,13 +2530,19 @@ class App extends Component {
 
         if (this.bugout.readyToEnter(state)) {
             this.setState({ multiplayer: { initConnect: bugout.InitConnected.IN_PROGRESS}})
-            this.bugout.attach((a, b) => { 
-                this.attachEngines(a,b); 
-                if (this.state.attachedEngines === [null, null]) {
-                    this.setState({ multiplayer: { initConnect: bugout.InitConnected.FAILED}})
-                } else {
-                    this.setState({ multiplayer: { initConnect: bugout.InitConnected.CONNECTED}})
-                }       
+            this.bugout.attach((a, b) => {
+                try {
+                    this.attachEngines(a,b); 
+                    if (this.state.attachedEngines === [null, null]) {
+                        this.setState({ multiplayer: { initConnect: bugout.InitConnected.FAILED}})
+                        console.log(`multiplayer connect failed`)
+                    } else {
+                        this.setState({ multiplayer: { initConnect: bugout.InitConnected.CONNECTED}})
+                        console.log(`multiplayer connect succeeded`)                        
+                    }    
+                }   catch(e) {
+                    console.log(` ERROR !  ${e}`)
+                }
             })
         }
 
