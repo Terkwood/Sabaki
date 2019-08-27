@@ -276,8 +276,7 @@ class App extends Component {
             evt.returnValue = ' '
         })
 
-        this.newFile().then(_n => 
-            this.bugout.start(() => this.generateMove({ firstMove: true })))
+        this.newFile()
     }
 
     componentDidUpdate(_, prevState = {}) {
@@ -672,8 +671,6 @@ class App extends Component {
         if (gameTrees.length > 0) {
             this.detachEngines()
             this.clearConsole()
-
-            this.bugout.attach((a, b) => this.attachEngines(a,b))
 
             this.setState({
                 representedFilename: null,
@@ -2527,6 +2524,49 @@ class App extends Component {
 
         state = Object.assign(state, this.inferredState)
 
+        if (this.bugout.readyToEnter(state)) {
+            this.setState({
+                multiplayer: {
+                    ...this.state.multiplayer,
+                    initConnect: bugout.InitConnected.IN_PROGRESS
+                }
+            })
+            
+            this.detachEngines()
+            this.clearConsole()
+
+            let playerColor = this.bugout.prefToColor(state.multiplayer.colorPref)
+            this.bugout.attach((a, b) => {
+                this.attachEngines(a, b)
+
+                if (this.state.attachedEngines === [null, null]) {
+                    this.setState({
+                        multiplayer: {
+                            ...this.state.multiplayer,
+                            initConnect: bugout.InitConnected.FAILED
+                        }
+                    })
+                    console.log(`multiplayer connect failed`)
+                } else {
+                    this.setState({
+                        multiplayer: {
+                            ...this.state.multiplayer,
+                            initConnect: bugout.InitConnected.CONNECTED
+                        }
+                    })
+                    if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
+                        if (playerColor == bugout.Color.WHITE) {
+                            let waitMs = 1333
+                            setTimeout(
+                                () => this.generateMove({ firstMove: true }),
+                                waitMs)
+                        }
+                    }
+                }
+            }, playerColor) // not undefined since we're readyToEnter
+            
+        }
+
         return h('section',
             {
                 class: classNames({
@@ -2536,9 +2576,24 @@ class App extends Component {
                 })
             },
 
-
-            h(GameLobbyModal), // BUGOUT
-            h(ColorChoiceModal, {turnOn: state.multiplayer && state.multiplayer.visibility}), // BUGOUT
+            h(GameLobbyModal, {
+                joinPrivateGame: this.bugout.joinPrivateGame.join,
+                update: visibility => this.setState({ 
+                    multiplayer: {
+                        ...this.state.multiplayer,
+                        visibility
+                    }
+                })
+            }),
+            h(ColorChoiceModal, {
+                turnOn: state.multiplayer && state.multiplayer.visibility,
+                updatePref: colorPref => this.setState({
+                    multiplayer: {
+                        ...this.state.multiplayer,
+                        colorPref
+                    }
+                })
+            }), // BUGOUT
 
             h(ThemeManager),
             h(MainView, state),

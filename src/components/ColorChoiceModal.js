@@ -1,7 +1,7 @@
 const { h, Component } = require('preact')
 
 const { Dialog } = require('preact-material-components')
-
+const { ColorPref } = require('../modules/bugout')
 
 class ColorChoiceModal extends Component {
     constructor() {
@@ -9,7 +9,7 @@ class ColorChoiceModal extends Component {
         this.state = { showDialog: false, turnedOnOnce: false }
     }
 
-    render({ id = "color-choice-modal", turnOn = false }) {
+    render({ id = "color-choice-modal", turnOn = false, updatePref }) {
         let { showDialog, turnedOnOnce } = this.state
       
         return ((turnOn && !turnedOnOnce) || showDialog) ? h(Dialog,
@@ -18,14 +18,14 @@ class ColorChoiceModal extends Component {
                 isOpen: true,
             },
             h(Dialog.Header, null, 'Choose a Color'),
-            h(Dialog.Body, null, 'We reserve the right to assign colors arbitrarily.'),
+            h(Dialog.Body, null, "We're on the honor system, for now.  If you choose the same color as your opponent, we apologize."),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
                     { 
                         accept: true, 
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            // 🚧 Not Implemented 🚧
+                            updatePref( ColorPref.BLACK )
                         }
                     }, 
                     "Black")
@@ -36,18 +36,9 @@ class ColorChoiceModal extends Component {
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            // 🚧 Not Implemented 🚧
+                            updatePref( ColorPref.WHITE )
                         }
-                    }, "White")),
-            h(Dialog.Footer, null, 
-                h(Dialog.FooterButton, 
-                    { 
-                        cancel: true,
-                        onClick: () => {
-                            this.setState({showDialog: false, turnedOnOnce: true })
-                            // 🚧 Not Implemented 🚧
-                        }
-                    }, "Any"))
+                    }, "White"))
         ) : h('div', { id })
     }
 }

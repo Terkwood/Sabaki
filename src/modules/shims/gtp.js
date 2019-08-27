@@ -260,7 +260,6 @@ class WebSocketController extends EventEmitter {
             } else if (command.name === "genmove") {
                 let opponent = letterToPlayer(command.args[0])
                 if (opponent === "BLACK" && this.firstMove) {
-                    
                     let provideHistoryCommand = {
                         "type":"ProvideHistory",
                         "gameId": this.gameId,
