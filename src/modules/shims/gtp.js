@@ -124,28 +124,27 @@ class WebSocketController extends EventEmitter {
 
         this.webSocket.addEventListener('open', () => {
             if (!this.gameId && this.entryMethod === EntryMethod.FIND_PUBLIC) {
-                /*this.gatewayConn
-                    .requestGameId()
+                this.gatewayConn
+                    .findPublicGame()
                     .then((reply, err) => {
-                        if (!err) {
+                        if (!err && reply.type === 'GameReady') {
                             this.gameId = reply.gameId
+                        } else if (!err && reply.type == 'WaitForOpponent') {
+                            console.log('⏳ WaitForOpponent ⌛️')
                         } else {
                             throwFatal()
                         }
-                })*/
-
-                console.log('fail 0')
-                throw Exception('foo')
+                })
             } else if (!this.gameId && this.entryMethod === EntryMethod.CREATE_PRIVATE) {
-                /*this.gatewayConn
-                    .requestGameId()
+                this.gatewayConn
+                    .createPrivateGame()
                     .then((reply, err) => {
-                        if (!err) {
-                            this.gameId = reply.gameId
+                        if (!err && reply.type == 'WaitForOpponent') {
+                            console.log('⏳ WaitForOpponent ⌛️')
                         } else {
                             throwFatal()
                         }
-                })*/
+                })
                 console.log('fail 1')
                 throw Exception('bar')
                 
