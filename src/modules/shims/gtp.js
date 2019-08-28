@@ -373,6 +373,56 @@ class GatewayConn {
         })
     }
 
+    async findPublicGame() {
+        return new Promise((resolve, reject) => {
+            let requestPayload = {
+                'type':'FindPublicGame'
+            }
+
+            this.webSocket.addEventListener('message', event => {
+                try {
+                    let msg = JSON.parse(event.data)
+
+                    if (msg.type === 'GameReady') {
+                        resolve(msg)
+                    } else if (msg.type === 'WaitForOpponent') {
+                        resolve(msg)
+                    }
+                    // discard any other messages
+                } catch (err) {
+                    console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                }
+                reject()
+            })
+
+            this.webSocket.send(JSON.stringify(requestPayload))
+        })
+    }
+
+    async createPrivateGame() {
+        return new Promise((resolve, reject) => {
+            let requestPayload = {
+                'type':'CreatePrivateGame'
+            }
+
+            this.webSocket.addEventListener('message', event => {
+                try {
+                    let msg = JSON.parse(event.data)
+
+                    if (msg.type === 'WaitForOpponent') {
+                        resolve(msg)
+                    }
+                    // discard any other messages
+                } catch (err) {
+                    console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                }
+                reject()
+            })
+
+            this.webSocket.send(JSON.stringify(requestPayload))
+        })
+    }
+
     async joinPrivateGame(gameId) {
         return new Promise((resolve, reject) => {
             let requestPayload = {
