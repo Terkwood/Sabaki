@@ -129,6 +129,7 @@ class WebSocketController extends EventEmitter {
                     .findPublicGame()
                     .then((reply, err) => {
                         if (!err && reply.type === 'GameReady') {
+                            console.log(`+ PUBLIC GAME READY`)
                             this.gameId = reply.gameId
                         } else if (!err && reply.type == 'WaitForOpponent') {
                             console.log('⏳ WaitForOpponent ⌛️')
@@ -390,6 +391,7 @@ class GatewayConn {
                 } catch (err) {
                     console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
                 }
+                console.log('x FPG REJECT')
                 reject()
             })
 
