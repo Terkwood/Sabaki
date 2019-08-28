@@ -124,6 +124,7 @@ class WebSocketController extends EventEmitter {
 
         this.webSocket.addEventListener('open', () => {
             if (!this.gameId && this.entryMethod === EntryMethod.FIND_PUBLIC) {
+                console.log('! FIND PUBLIC')
                 this.gatewayConn
                     .findPublicGame()
                     .then((reply, err) => {
@@ -136,6 +137,7 @@ class WebSocketController extends EventEmitter {
                         }
                 })
             } else if (!this.gameId && this.entryMethod === EntryMethod.CREATE_PRIVATE) {
+                console.log('! CREATE PRIVATE')
                 this.gatewayConn
                     .createPrivateGame()
                     .then((reply, err) => {
@@ -145,10 +147,8 @@ class WebSocketController extends EventEmitter {
                             throwFatal()
                         }
                 })
-                console.log('fail 1')
-                throw Exception('bar')
-                
             } else if (!this.gameId && this.entryMethod === EntryMethod.JOIN_PRIVATE && this.joinPrivateGame.join) {
+                console.log('! JOIN PRIVATE')
                 this.gatewayConn
                     .joinPrivateGame(this.joinPrivateGame.gameId)
                     .then((reply, err) => {
@@ -161,6 +161,7 @@ class WebSocketController extends EventEmitter {
                         }
                     })
             } else {
+                console.log('! ELSE RECONN')
                 this.gatewayConn
                     .reconnect(this.gameId, this.resolveMoveMade, this.board)
                     .then((rc, err) => {
@@ -236,10 +237,9 @@ class WebSocketController extends EventEmitter {
 
 
     async sendCommand(command, subscriber = () => {}) {
-        console.log(`GTP command ${JSON.stringify(command)}`)
         let promise = new Promise((resolve, reject) => {
             if (!this.gameId) {
-                console.log('no game id')
+                console.log(`no game id: ignoring command ${command}`)
                 reject({id: null, error: true})
             }
 
@@ -344,7 +344,6 @@ class GatewayConn {
                     "reqId": uuidv4()
                 }
 
-                console.log(`sending ${JSON.stringify(reconnectCommand)}`)
                 this.webSocket.onmessage = event => {
                     try {
                         let msg = JSON.parse(event.data)
