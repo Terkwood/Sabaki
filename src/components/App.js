@@ -2578,15 +2578,15 @@ class App extends Component {
 
             h(GameLobbyModal, {
                 joinPrivateGame: this.bugout.joinPrivateGame.join,
-                update: visibility => this.setState({ 
+                update: entryMethod => this.setState({ 
                     multiplayer: {
                         ...this.state.multiplayer,
-                        visibility
+                        entryMethod
                     }
                 })
             }),
             h(ColorChoiceModal, {
-                turnOn: state.multiplayer && state.multiplayer.visibility,
+                turnOn: state.multiplayer && state.multiplayer.entryMethod,
                 updatePref: colorPref => this.setState({
                     multiplayer: {
                         ...this.state.multiplayer,

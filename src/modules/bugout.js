@@ -74,14 +74,14 @@ const load = () => {
             console.log(`state.multiplayer ${JSON.stringify(state.multiplayer)}`)
             if (state.multiplayer) {
                 console.log(`\t initConnect\t${state.multiplayer.initConnect}`)
-                console.log(`\t visibility\t${state.multiplayer.visibility}`)
+                console.log(`\t entryMethod\t${state.multiplayer.entryMethod}`)
                 console.log(`\t or jp.join\t${jp.join}`)
                 console.log(`\t colorPref\t${state.multiplayer.colorPref}`)
             }
             return state.multiplayer && (
                 state.multiplayer.initConnect == undefined || 
                 state.multiplayer.initConnect < InitConnected.IN_PROGRESS
-            ) && (state.multiplayer.visibility || jp.join) && state.multiplayer.colorPref
+            ) && (state.multiplayer.entryMethod || jp.join) && state.multiplayer.colorPref
         },
         prefToColor: colorPref => colorPref == ColorPref.BLACK ?  BLACK : WHITE,
     };
@@ -92,3 +92,4 @@ exports.Visibility = Visibility
 exports.InitConnected = InitConnected
 exports.ColorPref = ColorPref
 exports.Color = Color
+exports.EntryMethod = EntryMethod
