@@ -105,7 +105,6 @@ class WebSocketController extends EventEmitter {
         this.webSocket = new RobustWebSocket(webSocketAddress)
         this.gatewayConn = new GatewayConn(this.webSocket)
 
-        console.log(`ws controller spawn ${JSON.stringify(spawnOptions)}`)
         let { joinPrivateGame, entryMethod } = spawnOptions
         this.joinPrivateGame = joinPrivateGame
         this.entryMethod = entryMethod
@@ -124,7 +123,33 @@ class WebSocketController extends EventEmitter {
         })
 
         this.webSocket.addEventListener('open', () => {
-            if (!this.gameId && this.joinPrivateGame.join) {
+            if (!this.gameId && this.entryMethod === EntryMethod.FIND_PUBLIC) {
+                /*this.gatewayConn
+                    .requestGameId()
+                    .then((reply, err) => {
+                        if (!err) {
+                            this.gameId = reply.gameId
+                        } else {
+                            throwFatal()
+                        }
+                })*/
+
+                console.log('fail 0')
+                throw Exception('foo')
+            } else if (!this.gameId && this.entryMethod === EntryMethod.CREATE_PRIVATE) {
+                /*this.gatewayConn
+                    .requestGameId()
+                    .then((reply, err) => {
+                        if (!err) {
+                            this.gameId = reply.gameId
+                        } else {
+                            throwFatal()
+                        }
+                })*/
+                console.log('fail 1')
+                throw Exception('bar')
+                
+            } else if (!this.gameId && this.entryMethod === EntryMethod.JOIN_PRIVATE && this.joinPrivateGame.join) {
                 this.gatewayConn
                     .joinPrivateGame(this.joinPrivateGame.gameId)
                     .then((reply, err) => {
@@ -136,17 +161,6 @@ class WebSocketController extends EventEmitter {
                             throwFatal()
                         }
                     })
-            }
-            else if (!this.gameId && !this.joinPrivateGame.join) {
-                this.gatewayConn
-                    .requestGameId()
-                    .then((reply, err) => {
-                        if (!err) {
-                            this.gameId = reply.gameId
-                        } else {
-                            throwFatal()
-                        }
-                })
             } else {
                 this.gatewayConn
                     .reconnect(this.gameId, this.resolveMoveMade, this.board)
