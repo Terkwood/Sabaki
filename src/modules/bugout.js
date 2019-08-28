@@ -23,6 +23,12 @@ const ColorPref = {
     ANY: 3,
 }
 
+const EntryMethod = {
+    FIND_PUBLIC: 1,
+    CREATE_PRIVATE: 2,
+    JOIN_PRIVATE: 3,
+}
+
 const BLACK = "B"
 const WHITE = "W"
 
