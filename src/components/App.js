@@ -2105,7 +2105,11 @@ class App extends Component {
             try {
                 let engine = engines[i]
 
-                let syncer = new EngineSyncer(engine, this.bugout.joinPrivateGame) // 😇BUGOUT😇
+                let syncer = new EngineSyncer(engine, 
+                    {
+                        entryMethod: this.state.multiplayer && this.state.multiplayer.entryMethod,
+                        joinPrivateGame: this.bugout.joinPrivateGame
+                    }) // 😇BUGOUT😇
                 this.attachedEngineSyncers[i] = syncer
 
                 syncer.on('busy-changed', () => {

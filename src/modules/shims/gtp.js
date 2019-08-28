@@ -4,6 +4,7 @@ const EventEmitter = require('events')
 const Board = require('../board')
 const RobustWebSocket = require('robust-websocket')
 const uuidv4 = require('uuid/v4')
+const { EntryMethod } = require('../bugout')
 
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
 const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
@@ -12,15 +13,15 @@ const GATEWAY_HOST = GATEWAY_HOST_LOCAL
 const GATEWAY_BEEP_TIMEOUT_MS = 13333
 
 class Controller extends EventEmitter {
-    constructor(path, args = [], spawnOptions = {}) {
+    constructor(path, args = [], spawnOptions = {
+        joinPrivateGame: { join: false },
+        entryMethod: EntryMethod.FIND_PUBLIC
+    }) {
         super()
 
         this.path = path
         this.args = args
-        
-        let { joinPrivateGame } = spawnOptions
-        this.joinPrivateGame =
-            joinPrivateGame == undefined ? { join: false } : joinPrivateGame
+        this.spawnOptions = spawnOptions
         
         this._webSocketController = null
     }
@@ -32,7 +33,7 @@ class Controller extends EventEmitter {
     start() {
         if (this._webSocketController != null) return
         
-        this._webSocketController = new WebSocketController(GATEWAY_HOST, this.joinPrivateGame)
+        this._webSocketController = new WebSocketController(GATEWAY_HOST, this.spawnOptions)
         this._webSocketController.on('command-sent', evt => this.emit('command-sent', evt))
         this._webSocketController.on('response-received', evt => this.emit('response-received', evt))
 
@@ -90,7 +91,7 @@ const throwFatal = () => {
 }
 
 class WebSocketController extends EventEmitter {
-    constructor(webSocketAddress, joinPrivateGame) {
+    constructor(webSocketAddress, spawnOptions) {
         super()
 
         this.board = new Board(19,19) // TODO BUGOUT don't hardcode this
@@ -104,7 +105,10 @@ class WebSocketController extends EventEmitter {
         this.webSocket = new RobustWebSocket(webSocketAddress)
         this.gatewayConn = new GatewayConn(this.webSocket)
 
+        console.log(`ws controller spawn ${JSON.stringify(spawnOptions)}`)
+        let { joinPrivateGame, entryMethod } = spawnOptions
         this.joinPrivateGame = joinPrivateGame
+        this.entryMethod = entryMethod
 
         // If it's the first move, and we're white,
         // we'll always request history first. (In case
