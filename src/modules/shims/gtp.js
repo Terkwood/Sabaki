@@ -128,11 +128,13 @@ class WebSocketController extends EventEmitter {
                 this.gatewayConn
                     .findPublicGame()
                     .then((reply, err) => {
+                        console.log(`WELL HERE IS A REPLY .. ${JSON.stringify(reply)}`)
                         if (!err && reply.type === 'GameReady') {
                             console.log(`+ PUBLIC GAME READY`)
                             this.gameId = reply.gameId
                         } else if (!err && reply.type == 'WaitForOpponent') {
                             console.log('⏳ WaitForOpponent ⌛️')
+                            this.gameId = reply.gameId
                         } else {
                             throwFatal()
                         }
@@ -144,6 +146,7 @@ class WebSocketController extends EventEmitter {
                     .then((reply, err) => {
                         if (!err && reply.type == 'WaitForOpponent') {
                             console.log('⏳ WaitForOpponent ⌛️')
+                            this.gameId = reply.gameId
                         } else {
                             throwFatal()
                         }
@@ -378,11 +381,14 @@ class GatewayConn {
                 'type':'FindPublicGame'
             }
 
+        
             this.webSocket.addEventListener('message', event => {
                 try {
                     let msg = JSON.parse(event.data)
+                    console.log(`fpg response message: ${JSON.stringify(event.data)}`)
 
                     if (msg.type === 'GameReady') {
+                        console.log('RESOLVE GAME READY')
                         resolve(msg)
                     } else if (msg.type === 'WaitForOpponent') {
                         resolve(msg)
@@ -391,8 +397,6 @@ class GatewayConn {
                 } catch (err) {
                     console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
                 }
-                console.log('x FPG REJECT')
-                reject()
             })
 
             this.webSocket.send(JSON.stringify(requestPayload))
