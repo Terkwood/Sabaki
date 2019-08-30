@@ -105,9 +105,10 @@ class WebSocketController extends EventEmitter {
         this.webSocket = new RobustWebSocket(webSocketAddress)
         this.gatewayConn = new GatewayConn(this.webSocket)
 
-        let { joinPrivateGame, entryMethod } = spawnOptions
+        let { joinPrivateGame, entryMethod, handleWaitForOpponent } = spawnOptions
         this.joinPrivateGame = joinPrivateGame
         this.entryMethod = entryMethod
+        this.handleWaitForOpponent = handleWaitForOpponent
 
         // If it's the first move, and we're white,
         // we'll always request history first. (In case
@@ -132,9 +133,11 @@ class WebSocketController extends EventEmitter {
                         if (!err && reply.type === 'GameReady') {
                             console.log(`+ PUBLIC GAME READY`)
                             this.gameId = reply.gameId
+                            this.handleWaitForOpponent(undefined)
                         } else if (!err && reply.type == 'WaitForOpponent') {
                             console.log('⏳ WaitForOpponent ⌛️')
                             this.gameId = reply.gameId
+                            this.handleWaitForOpponent(reply)
                         } else {
                             throwFatal()
                         }
@@ -147,6 +150,12 @@ class WebSocketController extends EventEmitter {
                         if (!err && reply.type == 'WaitForOpponent') {
                             console.log('⏳ WaitForOpponent ⌛️')
                             this.gameId = reply.gameId
+                            this.handleWaitForOpponent(reply)
+                        } else if (!err && reply.type === 'GameReady') {
+                            // LATER...
+                            console.log(`+ PRIVATE GAME READY`)
+                            this.gameId = reply.gameId
+                            this.handleWaitForOpponent(undefined)
                         } else {
                             throwFatal()
                         }
@@ -158,6 +167,7 @@ class WebSocketController extends EventEmitter {
                     .then((reply, err) => {
                         if (!err && reply.type === 'GameReady') {
                             this.gameId = reply.gameId
+                            this.handleWaitForOpponent(undefined)
                         } else if (!err && reply.type == 'PrivateGameRejected') {
                             alert('Invalid game')
                         } else {

@@ -2,8 +2,8 @@
  * Enum representing game visibility
  */
 const Visibility = {
-    PUBLIC: 1,
-    PRIVATE: 2,
+    PUBLIC: 'Public',
+    PRIVATE: 'Private',
 }
 
 /**

@@ -11,13 +11,10 @@ class WaitForOpponentModal extends Component {
 
     render({ 
         id = "wait-for-opponent-modal", 
-        waitForOpponentEvent = { 
-            type: 'WaitForOpponent',
-            visibility: Visibility.PUBLIC
-        },
-        showDialog = false
+        waitForOpponentEvent
     }) {
-        return showDialog ?
+        JSON.stringify(`waitoppo ${JSON.stringify(waitForOpponentEvent)}`)
+        return undefined != waitForOpponentEvent ?
            h(Dialog,
                 {
                     id,

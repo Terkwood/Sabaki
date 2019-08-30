@@ -40,6 +40,7 @@ class EngineSyncer extends EventEmitter {
         this.controller = new gtp.Controller(path, argvsplit(args), {
             joinPrivateGame: multiplayer.joinPrivateGame, // BUGOUT
             entryMethod: multiplayer.entryMethod, // BUGOUT
+            handleWaitForOpponent: multiplayer.handleWaitForOpponent, // BUGOUT
             cwd: dirname(resolve(path))
         })
 

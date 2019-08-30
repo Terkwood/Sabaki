@@ -2111,7 +2111,13 @@ class App extends Component {
                 let syncer = new EngineSyncer(engine, 
                     {
                         entryMethod: this.state.multiplayer && this.state.multiplayer.entryMethod,
-                        joinPrivateGame: this.bugout.joinPrivateGame
+                        joinPrivateGame: this.bugout.joinPrivateGame,
+                        handleWaitForOpponent: waitForOpponentEvent => this.setState({
+                            multiplayer: {
+                                ...this.state.multiplayer,
+                                waitForOpponentEvent: waitForOpponentEvent
+                            }
+                        })
                     }) // 😇BUGOUT😇
                 this.attachedEngineSyncers[i] = syncer
 
@@ -2592,7 +2598,9 @@ class App extends Component {
                     }
                 })
             }),
-            h(WaitForOpponentModal),
+            h(WaitForOpponentModal, {
+                waitForOpponentEvent: this.state.multiplayer && this.state.multiplayer.waitForOpponentEvent
+            }),
             h(ColorChoiceModal, {
                 turnOn: state.multiplayer && state.multiplayer.entryMethod,
                 updatePref: colorPref => this.setState({
