@@ -405,35 +405,6 @@ class GatewayConn {
             this.webSocket.send(JSON.stringify(requestPayload))
         })
     }
-
-
-    // TODO DELETE
-    // TODO DELETE
-    // TODO DELETE
-    async requestGameId() {
-        return new Promise((resolve, reject) => {
-            let requestGameId = {
-                'type':'RequestOpenGame',
-                'reqId': uuidv4()
-            }
-
-            this.webSocket.addEventListener('message', event => {
-                try {
-                    let msg = JSON.parse(event.data)
-                    
-                    if (msg.type === 'OpenGameReply' && msg.replyTo === requestGameId.reqId) {
-                        resolve({gameId: msg.gameId})
-                    }
-                    // discard any other messages
-                } catch (err) {
-                    console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
-                    reject()
-                }
-            })
-
-            this.webSocket.send(JSON.stringify(requestGameId))
-        })
-    }
 }
 
 class DeadlockMonitor extends EventEmitter {
