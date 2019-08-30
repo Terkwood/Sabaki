@@ -10,7 +10,7 @@ class WaitForOpponentModal extends Component {
     }
 
     render({ 
-        id = "wait-for-opponent-modal", 
+        id = 'wait-for-opponent-modal', 
         waitForOpponentEvent
     }) {
         JSON.stringify(`waitoppo ${JSON.stringify(waitForOpponentEvent)}`)
@@ -20,10 +20,10 @@ class WaitForOpponentModal extends Component {
                     id,
                     isOpen: true,
                 },
-                h(Dialog.Header, null, "Please Wait"),
+                h(Dialog.Header, null, 'Please Wait'),
                 waitForOpponentEvent.visibility === Visibility.PUBLIC ?
-                    h(Dialog.Body, null, "The game will start once both players are present") : 
-                    h(Dialog.Body, null, `Send this link to your friend and they'll be able to join: ${waitForOpponentEvent.link}`)
+                    h(Dialog.Body, null, 'The game will start once both players are present') : 
+                    h(Dialog.Body, null, 'Click the button below to copy a link to this game to your clipboard')
             )
         : h('div', { id })
     }
