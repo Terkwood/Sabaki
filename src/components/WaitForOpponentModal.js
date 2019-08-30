@@ -46,7 +46,7 @@ class WaitForOpponentModal extends Component {
                         this.updateClipboard(waitForOpponentEvent.link)
                     }
                 }, 
-                this.state.copied ? 'Copied!' : 'Copy link 🔗')
+                this.state.copied ? 'Copied! ⭐︎' : 'Copy link 🔗')
             )
 
         let emptyFooter = () => h(Dialog.Footer, null)
@@ -59,7 +59,7 @@ class WaitForOpponentModal extends Component {
                     id,
                     isOpen: true,
                 },
-                h(Dialog.Header, null, 'Please Wait'),
+                h(Dialog.Header, null, isPublic() ? 'Please Wait' : 'Share Private Link'),
                 isPublic() ?
                     h(Dialog.Body, null, 'The game will start once both players are present') : 
                     h(Dialog.Body, null, `Click the button below to copy a link to this game onto your clipboard.  You may then paste it to a friend.`),
