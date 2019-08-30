@@ -4,18 +4,12 @@ const { Dialog } = require('preact-material-components')
 
 const { Visibility } = require('../modules/bugout')
 
-function updateClipboard(newClip) {
-    navigator.clipboard.writeText(newClip).then(() => {
-      /* clipboard successfully set */
-    }, () => {
-      throw Exception('clipboard write failed')
-    });
-  }
-
 class WaitForOpponentModal extends Component {
     constructor() {
         super()
 
+        this.state = { copied: false }
+        
         try {
             navigator.permissions.query({name: "clipboard-write"}).then(result => {
             if (result.state == "granted" || result.state == "prompt") {
@@ -27,6 +21,14 @@ class WaitForOpponentModal extends Component {
             console.log('No clipboard write permission')
         }
     }
+
+    updateClipboard(newClip) {
+        navigator.clipboard.writeText(newClip).then(() => {
+          this.setState({copied: true})
+        }, () => {
+          throw Exception('clipboard write failed')
+        });
+      }
 
     render({ 
         id = 'wait-for-opponent-modal', 
@@ -41,10 +43,10 @@ class WaitForOpponentModal extends Component {
                     accept: true, 
                     onClick: () => {
                         console.log('update clipboard')
-                        updateClipboard(waitForOpponentEvent.link)
+                        this.updateClipboard(waitForOpponentEvent.link)
                     }
                 }, 
-                'Copy link 🔗')
+                this.state.copied ? 'Copied!' : 'Copy link 🔗')
             )
 
         let emptyFooter = () => h(Dialog.Footer, null)
