@@ -6,6 +6,7 @@ const argvsplit = require('argv-split')
 const gametree = require('./gametree')
 const helper = require('./helper')
 const Board = require('./board')
+const { EntryMethod } = require('./bugout') 
 
 const alpha = 'ABCDEFGHJKLMNOPQRSTUVWXYZ'
 const defaultStateJSON = JSON.stringify({
@@ -26,7 +27,7 @@ function coord2vertex(coord, size) {
 }
 
 class EngineSyncer extends EventEmitter {
-    constructor(engine, joinPrivateGame = { join: false }) { // BUGOUT
+    constructor(engine, multiplayer) { // BUGOUT
         super()
 
         let {path, args, commands} = engine
@@ -37,7 +38,9 @@ class EngineSyncer extends EventEmitter {
         this.state = JSON.parse(defaultStateJSON)
 
         this.controller = new gtp.Controller(path, argvsplit(args), {
-            joinPrivateGame, // BUGOUT
+            joinPrivateGame: multiplayer.joinPrivateGame, // BUGOUT
+            entryMethod: multiplayer.entryMethod, // BUGOUT
+            handleWaitForOpponent: multiplayer.handleWaitForOpponent, // BUGOUT
             cwd: dirname(resolve(path))
         })
 

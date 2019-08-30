@@ -13,8 +13,11 @@ const DrawerManager = require('./DrawerManager')
 const InputBox = require('./InputBox')
 const BusyScreen = require('./BusyScreen')
 const InfoOverlay = require('./InfoOverlay')
-const ColorChoiceModal = require('./ColorChoiceModal')
+
+// BUGOUT
 const GameLobbyModal = require('./GameLobbyModal')
+const WaitForOpponentModal = require('./WaitForOpponentModal')
+const ColorChoiceModal = require('./ColorChoiceModal')
 
 const deadstones = require('@sabaki/deadstones')
 const gtp = require('@sabaki/gtp')
@@ -2105,7 +2108,19 @@ class App extends Component {
             try {
                 let engine = engines[i]
 
-                let syncer = new EngineSyncer(engine, this.bugout.joinPrivateGame) // 😇BUGOUT😇
+                let syncer = new EngineSyncer(engine, 
+                    {
+                        entryMethod: this.state.multiplayer && this.state.multiplayer.entryMethod,
+                        joinPrivateGame: this.bugout.joinPrivateGame,
+                        handleWaitForOpponent: waitForOpponentEvent => {
+                            this.setState({
+                                multiplayer: {
+                                    ...this.state.multiplayer,
+                                    waitForOpponentEvent: waitForOpponentEvent
+                                }
+                        })
+                    }
+                    }) // 😇BUGOUT😇
                 this.attachedEngineSyncers[i] = syncer
 
                 syncer.on('busy-changed', () => {
@@ -2546,7 +2561,7 @@ class App extends Component {
                             initConnect: bugout.InitConnected.FAILED
                         }
                     })
-                    console.log(`multiplayer connect failed`)
+                    throw Exception('multiplayer connect failed')
                 } else {
                     this.setState({
                         multiplayer: {
@@ -2556,10 +2571,26 @@ class App extends Component {
                     })
                     if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
                         if (playerColor == bugout.Color.WHITE) {
-                            let waitMs = 1333
-                            setTimeout(
-                                () => this.generateMove({ firstMove: true }),
-                                waitMs)
+                            let intervalMs = 700
+
+                            let stop = () => clearInterval(running)
+
+                            let genMoveAfterWaitForOpponentIsOver = () => {
+                                if (this.state.multiplayer.waitForOpponentEvent) {
+                                    // no op
+
+                                    // not ready for the first move
+                                    // as long as we're waiting for
+                                    // the opponent to show up
+                                    
+                                } else {
+                                    stop()
+                                    this.generateMove({ firstMove: true })
+                                }
+                            }
+
+
+                            let running = setInterval(genMoveAfterWaitForOpponentIsOver, intervalMs)
                         }
                     }
                 }
@@ -2578,15 +2609,18 @@ class App extends Component {
 
             h(GameLobbyModal, {
                 joinPrivateGame: this.bugout.joinPrivateGame.join,
-                update: visibility => this.setState({ 
+                update: entryMethod => this.setState({ 
                     multiplayer: {
                         ...this.state.multiplayer,
-                        visibility
+                        entryMethod
                     }
                 })
             }),
+            h(WaitForOpponentModal, {
+                waitForOpponentEvent: this.state.multiplayer && this.state.multiplayer.waitForOpponentEvent
+            }),
             h(ColorChoiceModal, {
-                turnOn: state.multiplayer && state.multiplayer.visibility,
+                turnOn: state.multiplayer && state.multiplayer.entryMethod,
                 updatePref: colorPref => this.setState({
                     multiplayer: {
                         ...this.state.multiplayer,

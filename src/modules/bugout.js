@@ -2,8 +2,8 @@
  * Enum representing game visibility
  */
 const Visibility = {
-    PUBLIC: 1,
-    PRIVATE: 2,
+    PUBLIC: 'Public',
+    PRIVATE: 'Private',
 }
 
 /**
@@ -21,6 +21,12 @@ const ColorPref = {
     BLACK: 1,
     WHITE: 2,
     ANY: 3,
+}
+
+const EntryMethod = {
+    FIND_PUBLIC: 1,
+    CREATE_PRIVATE: 2,
+    JOIN_PRIVATE: 3,
 }
 
 const BLACK = "B"
@@ -64,19 +70,10 @@ const load = () => {
                 appAttachEngines(null,engine)
             }
         },
-        readyToEnter: state => {
-            console.log(`state.multiplayer ${JSON.stringify(state.multiplayer)}`)
-            if (state.multiplayer) {
-                console.log(`\t initConnect\t${state.multiplayer.initConnect}`)
-                console.log(`\t visibility\t${state.multiplayer.visibility}`)
-                console.log(`\t or jp.join\t${jp.join}`)
-                console.log(`\t colorPref\t${state.multiplayer.colorPref}`)
-            }
-            return state.multiplayer && (
+        readyToEnter: state => state.multiplayer && (
                 state.multiplayer.initConnect == undefined || 
                 state.multiplayer.initConnect < InitConnected.IN_PROGRESS
-            ) && (state.multiplayer.visibility || jp.join) && state.multiplayer.colorPref
-        },
+            ) && (state.multiplayer.entryMethod || jp.join) && state.multiplayer.colorPref,
         prefToColor: colorPref => colorPref == ColorPref.BLACK ?  BLACK : WHITE,
     };
 }
@@ -86,3 +83,4 @@ exports.Visibility = Visibility
 exports.InitConnected = InitConnected
 exports.ColorPref = ColorPref
 exports.Color = Color
+exports.EntryMethod = EntryMethod

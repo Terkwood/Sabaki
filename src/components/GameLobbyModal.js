@@ -2,7 +2,7 @@ const { h, Component } = require('preact')
 
 const { Dialog } = require('preact-material-components')
 
-const { Visibility } = require('../modules/bugout')
+const { EntryMethod } = require('../modules/bugout')
 
 class GameLobbyModal extends Component {
     constructor() {
@@ -25,7 +25,7 @@ class GameLobbyModal extends Component {
                             accept: true, 
                             onClick: () => {
                                 this.setState({showDialog: false})
-                                update(Visibility.PRIVATE)
+                                update(EntryMethod.JOIN_PRIVATE)
                             }
                         }, 
                         "OK")
@@ -46,7 +46,7 @@ class GameLobbyModal extends Component {
                         accept: true, 
                         onClick: () => {
                             this.setState({showDialog: false})
-                            update(Visibility.PUBLIC)
+                            update(EntryMethod.FIND_PUBLIC)
                         }
                     }, 
                     "Public")
@@ -57,7 +57,7 @@ class GameLobbyModal extends Component {
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false})
-                            update(Visibility.PRIVATE)
+                            update(EntryMethod.CREATE_PRIVATE)
                         }
                     }, "Private"))
         ) : h('div', { id })

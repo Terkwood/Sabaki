@@ -4,6 +4,7 @@ const EventEmitter = require('events')
 const Board = require('../board')
 const RobustWebSocket = require('robust-websocket')
 const uuidv4 = require('uuid/v4')
+const { EntryMethod } = require('../bugout')
 
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
 const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
@@ -12,15 +13,15 @@ const GATEWAY_HOST = GATEWAY_HOST_LOCAL
 const GATEWAY_BEEP_TIMEOUT_MS = 13333
 
 class Controller extends EventEmitter {
-    constructor(path, args = [], spawnOptions = {}) {
+    constructor(path, args = [], spawnOptions = {
+        joinPrivateGame: { join: false },
+        entryMethod: EntryMethod.FIND_PUBLIC
+    }) {
         super()
 
         this.path = path
         this.args = args
-        
-        let { joinPrivateGame } = spawnOptions
-        this.joinPrivateGame =
-            joinPrivateGame == undefined ? { join: false } : joinPrivateGame
+        this.spawnOptions = spawnOptions
         
         this._webSocketController = null
     }
@@ -32,7 +33,7 @@ class Controller extends EventEmitter {
     start() {
         if (this._webSocketController != null) return
         
-        this._webSocketController = new WebSocketController(GATEWAY_HOST, this.joinPrivateGame)
+        this._webSocketController = new WebSocketController(GATEWAY_HOST, this.spawnOptions)
         this._webSocketController.on('command-sent', evt => this.emit('command-sent', evt))
         this._webSocketController.on('response-received', evt => this.emit('response-received', evt))
 
@@ -90,7 +91,7 @@ const throwFatal = () => {
 }
 
 class WebSocketController extends EventEmitter {
-    constructor(webSocketAddress, joinPrivateGame) {
+    constructor(webSocketAddress, spawnOptions) {
         super()
 
         this.board = new Board(19,19) // TODO BUGOUT don't hardcode this
@@ -102,9 +103,16 @@ class WebSocketController extends EventEmitter {
 
         this.webSocketAddress = webSocketAddress
         this.webSocket = new RobustWebSocket(webSocketAddress)
-        this.gatewayConn = new GatewayConn(this.webSocket)
+        
 
+        let { joinPrivateGame, entryMethod, handleWaitForOpponent } = spawnOptions
         this.joinPrivateGame = joinPrivateGame
+        this.entryMethod = entryMethod
+        
+        // We pass handleWaitForOpponent down so that it can 'stick'
+        // to the incoming websocket message, even after an initial WFP
+        // result is returned via findPublicGame() and createPrivateGame() funcs
+        this.gatewayConn = new GatewayConn(this.webSocket, handleWaitForOpponent)
 
         // If it's the first move, and we're white,
         // we'll always request history first. (In case
@@ -120,7 +128,32 @@ class WebSocketController extends EventEmitter {
         })
 
         this.webSocket.addEventListener('open', () => {
-            if (!this.gameId && this.joinPrivateGame.join) {
+            if (!this.gameId && this.entryMethod === EntryMethod.FIND_PUBLIC) {
+                this.gatewayConn
+                    .findPublicGame()
+                    .then((reply, err) => {
+                        if (!err && reply.type === 'GameReady') {
+                            this.gameId = reply.gameId
+                        } else if (!err && reply.type == 'WaitForOpponent') {
+                            this.gameId = reply.gameId
+                        } else {
+                            throwFatal()
+                        }
+                })
+            } else if (!this.gameId && this.entryMethod === EntryMethod.CREATE_PRIVATE) {
+                this.gatewayConn
+                    .createPrivateGame()
+                    .then((reply, err) => {
+                        if (!err && reply.type == 'WaitForOpponent') {
+                            this.gameId = reply.gameId
+                        } else if (!err && reply.type === 'GameReady') {
+                            // LATER...
+                            this.gameId = reply.gameId
+                        } else {
+                            throwFatal()
+                        }
+                })
+            } else if (!this.gameId && this.entryMethod === EntryMethod.JOIN_PRIVATE && this.joinPrivateGame.join) {
                 this.gatewayConn
                     .joinPrivateGame(this.joinPrivateGame.gameId)
                     .then((reply, err) => {
@@ -132,17 +165,6 @@ class WebSocketController extends EventEmitter {
                             throwFatal()
                         }
                     })
-            }
-            else if (!this.gameId && !this.joinPrivateGame.join) {
-                this.gatewayConn
-                    .requestGameId()
-                    .then((reply, err) => {
-                        if (!err) {
-                            this.gameId = reply.gameId
-                        } else {
-                            throwFatal()
-                        }
-                })
             } else {
                 this.gatewayConn
                     .reconnect(this.gameId, this.resolveMoveMade, this.board)
@@ -184,45 +206,10 @@ class WebSocketController extends EventEmitter {
     }
 
 
-    listenForHistoryFirstMove(opponent, onFirstMove) {
-        this.webSocket.addEventListener('message', event => {
-            try {
-                let msg = JSON.parse(event.data)
-                if (msg.type === "HistoryProvided" &&
-                    msg.moves.length > 0 &&
-                    msg.moves[msg.moves.length - 1].player === opponent &&
-                    msg.moves[msg.moves.length - 1].turn === 1) {
-                    let lastMove = msg.moves[msg.moves.length - 1]
-                    if (lastMove) { // they didn't pass
-                        let sabakiCoord = this.board.vertex2coord([lastMove.coord.x, lastMove.coord.y])
-
-                        onFirstMove({player: lastMove.player, resolveWith: {"id":null,"content":sabakiCoord,"error":false}})
-                    } else {
-                        // This may fail.  Revisit after https://github.com/Terkwood/BUGOUT/issues/56
-                        onFirstMove({player: lastMove.player, resolveWith:{"id":null,"content":null,"error":false}})
-                    } 
-                }
-
-                if (msg.type === "HistoryProvided") {
-                    // a history was provided, but it's the current player's turn, or there's no history: carry on
-                    onFirstMove({resolveWith: undefined})
-                }
-
-                // discard any other messages until we receive confirmation
-                // from BUGOUT that the history was provided
-            } catch (err) {
-                console.log(`Error processing websocket message (H): ${JSON.stringify(err)}`)
-                onFirstMove(undefined)
-            }
-        })
-    }
-
-
     async sendCommand(command, subscriber = () => {}) {
-        console.log(`GTP command ${JSON.stringify(command)}`)
         let promise = new Promise((resolve, reject) => {
             if (!this.gameId) {
-                console.log('no game id')
+                console.log(`no game id: ignoring command ${JSON.stringify(command)}`)
                 reject({id: null, error: true})
             }
 
@@ -259,28 +246,8 @@ class WebSocketController extends EventEmitter {
                 this.webSocket.send(JSON.stringify(makeMove))
             } else if (command.name === "genmove") {
                 let opponent = letterToPlayer(command.args[0])
-                if (opponent === "BLACK" && this.firstMove) {
-                    let provideHistoryCommand = {
-                        "type":"ProvideHistory",
-                        "gameId": this.gameId,
-                        "reqId": uuidv4()
-                    }
-                    this.webSocket.send(JSON.stringify(provideHistoryCommand))
-                    
-                    let onFirstMove = response => {
-                        this.firstMove = false
-                        if (response.resolveWith != undefined) {
-                            // black moved
-                            resolve(response.resolveWith)
-                        } else {
-                            // it wasn't black
-                            this.listenForMove(opponent, resolve)
-                        }
-                    }
-                    this.listenForHistoryFirstMove(opponent, onFirstMove)                    
-                } else {
-                    this.listenForMove(opponent, resolve)
-                }
+
+                this.listenForMove(opponent, resolve)
              } else {
                  resolve({id: null, err: false})
              }
@@ -313,8 +280,15 @@ class WebSocketController extends EventEmitter {
 }
 
 class GatewayConn {
-    constructor(webSocket) {
+    constructor(webSocket, handleWaitForOpponent) {
         this.webSocket = webSocket
+
+
+        // We manage handleWaitForOpponent at this level
+        // so that the incoming websocket message triggers
+        // a state update in App.js, even after an initial Wait event
+        // has been handled by the WebsocketController
+        this.handleWaitForOpponent = handleWaitForOpponent
     }
 
 
@@ -327,7 +301,6 @@ class GatewayConn {
                     "reqId": uuidv4()
                 }
 
-                console.log(`sending ${JSON.stringify(reconnectCommand)}`)
                 this.webSocket.onmessage = event => {
                     try {
                         let msg = JSON.parse(event.data)
@@ -355,6 +328,64 @@ class GatewayConn {
         })
     }
 
+    async findPublicGame() {
+        return new Promise((resolve, reject) => {
+            let requestPayload = {
+                'type':'FindPublicGame'
+            }
+
+        
+            this.webSocket.addEventListener('message', event => {
+                try {
+                    let msg = JSON.parse(event.data)
+                    
+                    if (msg.type === 'GameReady') {
+                        resolve(msg)
+                        this.handleWaitForOpponent(undefined)
+                    } else if (msg.type === 'WaitForOpponent') {
+                        resolve(msg)
+                        this.handleWaitForOpponent(msg)
+                    }
+                    // discard any other messages
+                } catch (err) {
+                    console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                    reject()
+                }
+            })
+
+            this.webSocket.send(JSON.stringify(requestPayload))
+        })
+    }
+
+    async createPrivateGame() {
+        return new Promise((resolve, reject) => {
+            let requestPayload = {
+                'type':'CreatePrivateGame'
+            }
+
+            this.webSocket.addEventListener('message', event => {
+                try {
+                    let msg = JSON.parse(event.data)
+
+                    if (msg.type === 'WaitForOpponent') {
+                        resolve(msg)
+                        this.handleWaitForOpponent(msg)
+                    } else if (msg.type === 'GameReady') {
+                        // later ...
+                        resolve(msg)
+                        this.handleWaitForOpponent(undefined)
+                    }
+                    // discard any other messages
+                } catch (err) {
+                    console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                    reject()
+                }
+            })
+
+            this.webSocket.send(JSON.stringify(requestPayload))
+        })
+    }
+
     async joinPrivateGame(gameId) {
         return new Promise((resolve, reject) => {
             let requestPayload = {
@@ -368,33 +399,9 @@ class GatewayConn {
 
                     if (msg.type === 'GameReady') {
                         resolve(msg)
+                        this.handleWaitForOpponent(undefined)
                     } else if (msg.type === 'PrivateGameRejected') {
                         resolve(msg)
-                    }
-                    // discard any other messages
-                } catch (err) {
-                    console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
-                }
-                reject()
-            })
-
-            this.webSocket.send(JSON.stringify(requestPayload))
-        })
-    }
-
-    async requestGameId() {
-        return new Promise((resolve, reject) => {
-            let requestGameId = {
-                'type':'RequestOpenGame',
-                'reqId': uuidv4()
-            }
-
-            this.webSocket.addEventListener('message', event => {
-                try {
-                    let msg = JSON.parse(event.data)
-                    
-                    if (msg.type === 'OpenGameReply' && msg.replyTo === requestGameId.reqId) {
-                        resolve({gameId: msg.gameId})
                     }
                     // discard any other messages
                 } catch (err) {
@@ -403,7 +410,7 @@ class GatewayConn {
                 }
             })
 
-            this.webSocket.send(JSON.stringify(requestGameId))
+            this.webSocket.send(JSON.stringify(requestPayload))
         })
     }
 }
