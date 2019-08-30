@@ -396,6 +396,7 @@ class GatewayConn {
                     // discard any other messages
                 } catch (err) {
                     console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                    reject()
                 }
             })
 
@@ -414,13 +415,18 @@ class GatewayConn {
                     let msg = JSON.parse(event.data)
 
                     if (msg.type === 'WaitForOpponent') {
+                        console.log(`wait in private venue ${JSON.stringify(msg)}`)
+                        resolve(msg)
+                    } else if (msg.type === 'GameReady') {
+                        // later ...
+                        console.log('private game ready')
                         resolve(msg)
                     }
                     // discard any other messages
                 } catch (err) {
                     console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                    reject()
                 }
-                reject()
             })
 
             this.webSocket.send(JSON.stringify(requestPayload))
@@ -446,14 +452,18 @@ class GatewayConn {
                     // discard any other messages
                 } catch (err) {
                     console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                    reject()
                 }
-                reject()
             })
 
             this.webSocket.send(JSON.stringify(requestPayload))
         })
     }
 
+
+    // TODO DELETE
+    // TODO DELETE
+    // TODO DELETE
     async requestGameId() {
         return new Promise((resolve, reject) => {
             let requestGameId = {
