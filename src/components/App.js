@@ -2574,19 +2574,24 @@ class App extends Component {
                         if (playerColor == bugout.Color.WHITE) {
                             let intervalMs = 1333
 
+                            let stop = () => clearInterval(genMoveAfterWaitForOpponentIsOver)
+                            
                             let genMoveAfterWaitForOpponentIsOver = () => {
-                                if (undefined != state.multiplayer.waitForOpponentEvent) {
+                                if (this.state.multiplayer.waitForOpponentEvent) {
                                     // no op
-                                    
+
                                     // not ready for the first move
                                     // as long as we're waiting for
                                     // the opponent to show up
-                                    
+                                    console.log('no nop')
                                 } else {
-                                    clearInterval(genMoveAfterWaitForOpponentIsOver)
+                                    console.log('clear interval')
+                                    stop()
                                     this.generateMove({ firstMove: true })
                                 }
                             }
+
+
                             setInterval(genMoveAfterWaitForOpponentIsOver, intervalMs)
                         }
                     }
