@@ -2572,10 +2572,17 @@ class App extends Component {
                     })
                     if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
                         if (playerColor == bugout.Color.WHITE) {
-                            let waitMs = 1333
-                            setTimeout(
-                                () => this.generateMove({ firstMove: true }),
-                                waitMs)
+                            let intervalMs = 1333
+
+                            let genMoveAfterWaitForOpponentIsOver = () => {
+                                if (undefined != state.multiplayer.waitForOpponentEvent) {
+                                    this.generateMove({ firstMove: true })
+                                } else {
+                                    clearInterval(genMoveAfterWaitForOpponentIsOver)
+                                }
+                            }
+                            
+                            setInterval(genMoveAfterWaitForOpponentIsOver, intervalMs)
                         }
                     }
                 }
