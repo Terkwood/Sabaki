@@ -22,9 +22,7 @@ class WaitForOpponentModal extends Component {
         id = 'wait-for-opponent-modal', 
         waitForOpponentEvent
     }) {
-        JSON.stringify(`waitoppo ${JSON.stringify(waitForOpponentEvent)}`)
-
-        // dfried says a thunk is a thunk
+        // dfried says a thunk is a thunk is a thunk
         let copyLinkFooter = () => h(Dialog.Footer, null, 
             h(Dialog.FooterButton, 
                 { 
