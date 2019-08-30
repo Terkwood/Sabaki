@@ -23,7 +23,7 @@ class WaitForOpponentModal extends Component {
                 h(Dialog.Header, null, "Please Wait"),
                 waitForOpponentEvent.visibility === Visibility.PUBLIC ?
                     h(Dialog.Body, null, "The game will start once both players are present") : 
-                    h(Dialog.Body, null, `Join this private game: ${waitForOpponentEvent.link}`)
+                    h(Dialog.Body, null, `Send this link to your friend and they'll be able to join: ${waitForOpponentEvent.link}`)
             )
         : h('div', { id })
     }
