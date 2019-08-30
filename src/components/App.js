@@ -13,8 +13,11 @@ const DrawerManager = require('./DrawerManager')
 const InputBox = require('./InputBox')
 const BusyScreen = require('./BusyScreen')
 const InfoOverlay = require('./InfoOverlay')
-const ColorChoiceModal = require('./ColorChoiceModal')
+
+// BUGOUT
 const GameLobbyModal = require('./GameLobbyModal')
+const WaitForOpponentModal = require('./WaitForOpponentModal')
+const ColorChoiceModal = require('./ColorChoiceModal')
 
 const deadstones = require('@sabaki/deadstones')
 const gtp = require('@sabaki/gtp')
@@ -2589,6 +2592,7 @@ class App extends Component {
                     }
                 })
             }),
+            h(WaitForOpponentModal),
             h(ColorChoiceModal, {
                 turnOn: state.multiplayer && state.multiplayer.entryMethod,
                 updatePref: colorPref => this.setState({
