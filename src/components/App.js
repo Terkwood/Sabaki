@@ -2576,12 +2576,17 @@ class App extends Component {
 
                             let genMoveAfterWaitForOpponentIsOver = () => {
                                 if (undefined != state.multiplayer.waitForOpponentEvent) {
-                                    this.generateMove({ firstMove: true })
+                                    // no op
+                                    
+                                    // not ready for the first move
+                                    // as long as we're waiting for
+                                    // the opponent to show up
+                                    
                                 } else {
                                     clearInterval(genMoveAfterWaitForOpponentIsOver)
+                                    this.generateMove({ firstMove: true })
                                 }
                             }
-                            
                             setInterval(genMoveAfterWaitForOpponentIsOver, intervalMs)
                         }
                     }
