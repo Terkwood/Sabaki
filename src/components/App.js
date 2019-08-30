@@ -2113,7 +2113,6 @@ class App extends Component {
                         entryMethod: this.state.multiplayer && this.state.multiplayer.entryMethod,
                         joinPrivateGame: this.bugout.joinPrivateGame,
                         handleWaitForOpponent: waitForOpponentEvent => {
-                            console.log(`handle wait ${JSON.stringify(waitForOpponentEvent)}`)
                             this.setState({
                                 multiplayer: {
                                     ...this.state.multiplayer,
@@ -2562,7 +2561,7 @@ class App extends Component {
                             initConnect: bugout.InitConnected.FAILED
                         }
                     })
-                    console.log(`multiplayer connect failed`)
+                    throw Exception('multiplayer connect failed')
                 } else {
                     this.setState({
                         multiplayer: {
@@ -2583,9 +2582,8 @@ class App extends Component {
                                     // not ready for the first move
                                     // as long as we're waiting for
                                     // the opponent to show up
-                                    console.log('no nop')
+                                    
                                 } else {
-                                    console.log('clear interval')
                                     stop()
                                     this.generateMove({ firstMove: true })
                                 }

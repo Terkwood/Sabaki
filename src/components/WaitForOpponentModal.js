@@ -9,17 +9,16 @@ class WaitForOpponentModal extends Component {
         super()
 
         this.state = { copied: false }
-        
+       /* 
         try {
             navigator.permissions.query({name: "clipboard-write"}).then(result => {
             if (result.state == "granted" || result.state == "prompt") {
-              /* write to the clipboard now */
-              console.log('OK for clipboard write')
+              // clipboard write is ok
             }
           });
         } catch (e) {
             console.log('No clipboard write permission')
-        }
+        }*/
     }
 
     updateClipboard(newClip) {
@@ -41,10 +40,8 @@ class WaitForOpponentModal extends Component {
             h(Dialog.FooterButton, 
                 { 
                     accept: true, 
-                    onClick: () => {
-                        console.log('update clipboard')
-                        this.updateClipboard(waitForOpponentEvent.link)
-                    }
+                    onClick: () => 
+                        this.updateClipboard(waitForOpponentEvent.link),
                 }, 
                 this.state.copied ? 'Copied! ⭐︎' : 'Copy link 🔗')
             )

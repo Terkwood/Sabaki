@@ -129,39 +129,31 @@ class WebSocketController extends EventEmitter {
 
         this.webSocket.addEventListener('open', () => {
             if (!this.gameId && this.entryMethod === EntryMethod.FIND_PUBLIC) {
-                console.log('! FIND PUBLIC')
                 this.gatewayConn
                     .findPublicGame()
                     .then((reply, err) => {
-                        console.log(`WELL HERE IS A REPLY .. ${JSON.stringify(reply)}`)
                         if (!err && reply.type === 'GameReady') {
-                            console.log(`+ PUBLIC GAME READY`)
                             this.gameId = reply.gameId
                         } else if (!err && reply.type == 'WaitForOpponent') {
-                            console.log('⏳ WaitForOpponent ⌛️')
                             this.gameId = reply.gameId
                         } else {
                             throwFatal()
                         }
                 })
             } else if (!this.gameId && this.entryMethod === EntryMethod.CREATE_PRIVATE) {
-                console.log('! CREATE PRIVATE')
                 this.gatewayConn
                     .createPrivateGame()
                     .then((reply, err) => {
                         if (!err && reply.type == 'WaitForOpponent') {
-                            console.log('⏳ WaitForOpponent ⌛️')
                             this.gameId = reply.gameId
                         } else if (!err && reply.type === 'GameReady') {
                             // LATER...
-                            console.log(`+ PRIVATE GAME READY`)
                             this.gameId = reply.gameId
                         } else {
                             throwFatal()
                         }
                 })
             } else if (!this.gameId && this.entryMethod === EntryMethod.JOIN_PRIVATE && this.joinPrivateGame.join) {
-                console.log('! JOIN PRIVATE')
                 this.gatewayConn
                     .joinPrivateGame(this.joinPrivateGame.gameId)
                     .then((reply, err) => {
@@ -174,7 +166,6 @@ class WebSocketController extends EventEmitter {
                         }
                     })
             } else {
-                console.log('! ELSE RECONN')
                 this.gatewayConn
                     .reconnect(this.gameId, this.resolveMoveMade, this.board)
                     .then((rc, err) => {
@@ -218,7 +209,7 @@ class WebSocketController extends EventEmitter {
     async sendCommand(command, subscriber = () => {}) {
         let promise = new Promise((resolve, reject) => {
             if (!this.gameId) {
-                console.log(`no game id: ignoring command ${command}`)
+                console.log(`no game id: ignoring command ${JSON.stringify(command)}`)
                 reject({id: null, error: true})
             }
 
@@ -347,10 +338,8 @@ class GatewayConn {
             this.webSocket.addEventListener('message', event => {
                 try {
                     let msg = JSON.parse(event.data)
-                    console.log(`fpg response message: ${JSON.stringify(event.data)}`)
-
+                    
                     if (msg.type === 'GameReady') {
-                        console.log('RESOLVE GAME READY')
                         resolve(msg)
                         this.handleWaitForOpponent(undefined)
                     } else if (msg.type === 'WaitForOpponent') {
@@ -379,12 +368,10 @@ class GatewayConn {
                     let msg = JSON.parse(event.data)
 
                     if (msg.type === 'WaitForOpponent') {
-                        console.log(`wait in private venue ${JSON.stringify(msg)}`)
                         resolve(msg)
                         this.handleWaitForOpponent(msg)
                     } else if (msg.type === 'GameReady') {
                         // later ...
-                        console.log('private game ready')
                         resolve(msg)
                         this.handleWaitForOpponent(undefined)
                     }
