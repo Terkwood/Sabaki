@@ -2572,10 +2572,10 @@ class App extends Component {
                     })
                     if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
                         if (playerColor == bugout.Color.WHITE) {
-                            let intervalMs = 1333
+                            let intervalMs = 700
 
-                            let stop = () => clearInterval(genMoveAfterWaitForOpponentIsOver)
-                            
+                            let stop = () => clearInterval(running)
+
                             let genMoveAfterWaitForOpponentIsOver = () => {
                                 if (this.state.multiplayer.waitForOpponentEvent) {
                                     // no op
@@ -2592,7 +2592,7 @@ class App extends Component {
                             }
 
 
-                            setInterval(genMoveAfterWaitForOpponentIsOver, intervalMs)
+                            let running = setInterval(genMoveAfterWaitForOpponentIsOver, intervalMs)
                         }
                     }
                 }
