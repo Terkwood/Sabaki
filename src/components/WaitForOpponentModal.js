@@ -7,18 +7,7 @@ const { Visibility } = require('../modules/bugout')
 class WaitForOpponentModal extends Component {
     constructor() {
         super()
-
         this.state = { copied: false }
-       /* 
-        try {
-            navigator.permissions.query({name: "clipboard-write"}).then(result => {
-            if (result.state == "granted" || result.state == "prompt") {
-              // clipboard write is ok
-            }
-          });
-        } catch (e) {
-            console.log('No clipboard write permission')
-        }*/
     }
 
     updateClipboard(newClip) {
