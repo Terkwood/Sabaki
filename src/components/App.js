@@ -2112,12 +2112,15 @@ class App extends Component {
                     {
                         entryMethod: this.state.multiplayer && this.state.multiplayer.entryMethod,
                         joinPrivateGame: this.bugout.joinPrivateGame,
-                        handleWaitForOpponent: waitForOpponentEvent => this.setState({
-                            multiplayer: {
-                                ...this.state.multiplayer,
-                                waitForOpponentEvent: waitForOpponentEvent
-                            }
+                        handleWaitForOpponent: waitForOpponentEvent => {
+                            console.log(`handle wait ${JSON.stringify(waitForOpponentEvent)}`)
+                            this.setState({
+                                multiplayer: {
+                                    ...this.state.multiplayer,
+                                    waitForOpponentEvent: waitForOpponentEvent
+                                }
                         })
+                    }
                     }) // 😇BUGOUT😇
                 this.attachedEngineSyncers[i] = syncer
 

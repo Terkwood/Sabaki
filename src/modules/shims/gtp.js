@@ -103,12 +103,16 @@ class WebSocketController extends EventEmitter {
 
         this.webSocketAddress = webSocketAddress
         this.webSocket = new RobustWebSocket(webSocketAddress)
-        this.gatewayConn = new GatewayConn(this.webSocket)
+        
 
         let { joinPrivateGame, entryMethod, handleWaitForOpponent } = spawnOptions
         this.joinPrivateGame = joinPrivateGame
         this.entryMethod = entryMethod
-        this.handleWaitForOpponent = handleWaitForOpponent
+        
+        // We pass handleWaitForOpponent down so that it can 'stick'
+        // to the incoming websocket message, even after an initial WFP
+        // result is returned via findPublicGame() and createPrivateGame() funcs
+        this.gatewayConn = new GatewayConn(this.webSocket, handleWaitForOpponent)
 
         // If it's the first move, and we're white,
         // we'll always request history first. (In case
@@ -133,11 +137,9 @@ class WebSocketController extends EventEmitter {
                         if (!err && reply.type === 'GameReady') {
                             console.log(`+ PUBLIC GAME READY`)
                             this.gameId = reply.gameId
-                            this.handleWaitForOpponent(undefined)
                         } else if (!err && reply.type == 'WaitForOpponent') {
                             console.log('⏳ WaitForOpponent ⌛️')
                             this.gameId = reply.gameId
-                            this.handleWaitForOpponent(reply)
                         } else {
                             throwFatal()
                         }
@@ -150,12 +152,10 @@ class WebSocketController extends EventEmitter {
                         if (!err && reply.type == 'WaitForOpponent') {
                             console.log('⏳ WaitForOpponent ⌛️')
                             this.gameId = reply.gameId
-                            this.handleWaitForOpponent(reply)
                         } else if (!err && reply.type === 'GameReady') {
                             // LATER...
                             console.log(`+ PRIVATE GAME READY`)
                             this.gameId = reply.gameId
-                            this.handleWaitForOpponent(undefined)
                         } else {
                             throwFatal()
                         }
@@ -167,7 +167,6 @@ class WebSocketController extends EventEmitter {
                     .then((reply, err) => {
                         if (!err && reply.type === 'GameReady') {
                             this.gameId = reply.gameId
-                            this.handleWaitForOpponent(undefined)
                         } else if (!err && reply.type == 'PrivateGameRejected') {
                             alert('Invalid game')
                         } else {
@@ -290,8 +289,15 @@ class WebSocketController extends EventEmitter {
 }
 
 class GatewayConn {
-    constructor(webSocket) {
+    constructor(webSocket, handleWaitForOpponent) {
         this.webSocket = webSocket
+
+
+        // We manage handleWaitForOpponent at this level
+        // so that the incoming websocket message triggers
+        // a state update in App.js, even after an initial Wait event
+        // has been handled by the WebsocketController
+        this.handleWaitForOpponent = handleWaitForOpponent
     }
 
 
@@ -346,8 +352,10 @@ class GatewayConn {
                     if (msg.type === 'GameReady') {
                         console.log('RESOLVE GAME READY')
                         resolve(msg)
+                        this.handleWaitForOpponent(undefined)
                     } else if (msg.type === 'WaitForOpponent') {
                         resolve(msg)
+                        this.handleWaitForOpponent(msg)
                     }
                     // discard any other messages
                 } catch (err) {
@@ -373,10 +381,12 @@ class GatewayConn {
                     if (msg.type === 'WaitForOpponent') {
                         console.log(`wait in private venue ${JSON.stringify(msg)}`)
                         resolve(msg)
+                        this.handleWaitForOpponent(msg)
                     } else if (msg.type === 'GameReady') {
                         // later ...
                         console.log('private game ready')
                         resolve(msg)
+                        this.handleWaitForOpponent(undefined)
                     }
                     // discard any other messages
                 } catch (err) {
@@ -402,6 +412,7 @@ class GatewayConn {
 
                     if (msg.type === 'GameReady') {
                         resolve(msg)
+                        this.handleWaitForOpponent(undefined)
                     } else if (msg.type === 'PrivateGameRejected') {
                         resolve(msg)
                     }
