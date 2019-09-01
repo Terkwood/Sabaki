@@ -2584,9 +2584,7 @@ class App extends Component {
                                     // not ready for the first move
                                     // as long as we're waiting for
                                     // the opponent to show up
-                                    console.log(`App attach: NO    OP      ! ${JSON.stringify(wfpm)}`)
                                 } else {
-                                    console.log(`App attach: GENERATE MOVE ! ${JSON.stringify(wfpm)}`)
                                     stop()
                                     this.generateMove({ firstMove: true })
                                 }
