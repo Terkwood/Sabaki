@@ -1,9 +1,6 @@
 const { h, Component } = require('preact')
 
-// Use direct import to avoid bringing in all the various
-// preact-material-components we don't need
-const Dialog = require('preact-material-components/Dialog')
-
+const { Dialog } = require('preact-material-components')
 const { ColorPref } = require('../modules/bugout')
 
 class ColorChoiceModal extends Component {
