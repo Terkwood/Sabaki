@@ -1,6 +1,8 @@
 const { h, Component } = require('preact')
 
-const { Dialog } = require('preact-material-components')
+// Use direct import to avoid bringing in all the various
+// preact-material-components we don't need
+const Dialog = require('preact-material-components/Dialog')
 
 const { Visibility } = require('../modules/bugout')
 
