@@ -20,24 +20,25 @@ class WaitForOpponentModal extends Component {
 
     render({ 
         id = 'wait-for-opponent-modal', 
-        waitForOpponentEvent
+        data
     }) {
+        console.log(`wfpm data ${JSON.stringify(data)}`)
         // dfried says a thunk is a thunk is a thunk
         let copyLinkFooter = () => h(Dialog.Footer, null, 
             h(Dialog.FooterButton, 
                 { 
                     accept: true, 
                     onClick: () => 
-                        this.updateClipboard(waitForOpponentEvent.link),
+                        this.updateClipboard(data.event.link),
                 }, 
                 this.state.copied ? 'Copied! ⭐︎' : 'Copy link 🔗')
             )
 
         let emptyFooter = () => h(Dialog.Footer, null)
 
-        let isPublic = () => waitForOpponentEvent.visibility === Visibility.PUBLIC
+        let isPublic = () => data.gap || (data.hasEvent && data.event.visibility === Visibility.PUBLIC)
 
-        return undefined != waitForOpponentEvent ?
+        return undefined != data && (data.gap || data.hasEvent) ?
            h(Dialog,
                 {
                     id,

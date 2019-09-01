@@ -2112,11 +2112,11 @@ class App extends Component {
                     {
                         entryMethod: this.state.multiplayer && this.state.multiplayer.entryMethod,
                         joinPrivateGame: this.bugout.joinPrivateGame,
-                        handleWaitForOpponent: waitForOpponentEvent => {
+                        handleWaitForOpponent: waitForOpponentModal => {
                             this.setState({
                                 multiplayer: {
                                     ...this.state.multiplayer,
-                                    waitForOpponentEvent: waitForOpponentEvent
+                                    waitForOpponentModal: waitForOpponentModal
                                 }
                         })
                     }
@@ -2575,8 +2575,10 @@ class App extends Component {
 
                             let stop = () => clearInterval(running)
 
+                            let wfpm = this.state.multiplayer.waitForOpponentModal
+
                             let genMoveAfterWaitForOpponentIsOver = () => {
-                                if (this.state.multiplayer.waitForOpponentEvent) {
+                                if ( undefined != wfpm && ( wfpm.gap || wfpm.hasEvent ) ) {
                                     // no op
 
                                     // not ready for the first move
@@ -2617,7 +2619,7 @@ class App extends Component {
                 })
             }),
             h(WaitForOpponentModal, {
-                waitForOpponentEvent: this.state.multiplayer && this.state.multiplayer.waitForOpponentEvent
+                data: this.state.multiplayer && this.state.multiplayer.waitForOpponentModal
             }),
             h(ColorChoiceModal, {
                 turnOn: state.multiplayer && state.multiplayer.entryMethod,

@@ -183,6 +183,7 @@ class WebSocketController extends EventEmitter {
 
     listenForMove(opponent, resolve) {
         this.resolveMoveMade = resolve
+        
         this.webSocket.addEventListener('message', event => {
             try {
                 let msg = JSON.parse(event.data)
@@ -291,7 +292,6 @@ class GatewayConn {
         this.handleWaitForOpponent = handleWaitForOpponent
     }
 
-
     async reconnect(gameId, resolveMoveMade, board) {
         return new Promise((resolve, reject) => {
             try { 
@@ -321,6 +321,7 @@ class GatewayConn {
                         resolve({error: true})
                     }
                 }
+
                 this.webSocket.send(JSON.stringify(reconnectCommand))
             } catch (err) {
                 reject(err)
@@ -334,17 +335,16 @@ class GatewayConn {
                 'type':'FindPublicGame'
             }
 
-        
             this.webSocket.addEventListener('message', event => {
                 try {
                     let msg = JSON.parse(event.data)
                     
                     if (msg.type === 'GameReady') {
                         resolve(msg)
-                        this.handleWaitForOpponent(undefined)
+                        this.handleWaitForOpponent({ gap: false, hasEvent: false })
                     } else if (msg.type === 'WaitForOpponent') {
                         resolve(msg)
-                        this.handleWaitForOpponent(msg)
+                        this.handleWaitForOpponent({ gap: false, hasEvent: true, event: msg})
                     }
                     // discard any other messages
                 } catch (err) {
@@ -353,6 +353,8 @@ class GatewayConn {
                 }
             })
 
+            // We want to show the modal while we wait for a response from gateway
+            this.handleWaitForOpponent( { gap: true, hasEvent: false })
             this.webSocket.send(JSON.stringify(requestPayload))
         })
     }
@@ -369,11 +371,12 @@ class GatewayConn {
 
                     if (msg.type === 'WaitForOpponent') {
                         resolve(msg)
-                        this.handleWaitForOpponent(msg)
+                        
+                        this.handleWaitForOpponent({ gap: false, hasEvent: true, event: msg})
                     } else if (msg.type === 'GameReady') {
                         // later ...
                         resolve(msg)
-                        this.handleWaitForOpponent(undefined)
+                        this.handleWaitForOpponent({ gap: false, hasEvent: false })
                     }
                     // discard any other messages
                 } catch (err) {
@@ -382,6 +385,8 @@ class GatewayConn {
                 }
             })
 
+            // We want to show the modal while we wait for a response from gateway
+            this.handleWaitForOpponent( { gap: true, hasEvent: false })
             this.webSocket.send(JSON.stringify(requestPayload))
         })
     }
@@ -399,7 +404,7 @@ class GatewayConn {
 
                     if (msg.type === 'GameReady') {
                         resolve(msg)
-                        this.handleWaitForOpponent(undefined)
+                        this.handleWaitForOpponent({ gap: false, hasEvent: false })
                     } else if (msg.type === 'PrivateGameRejected') {
                         resolve(msg)
                     }
@@ -410,6 +415,8 @@ class GatewayConn {
                 }
             })
 
+            // We want to show the modal while we wait for a response from gateway
+            this.handleWaitForOpponent( { gap: true, hasEvent: false })
             this.webSocket.send(JSON.stringify(requestPayload))
         })
     }
