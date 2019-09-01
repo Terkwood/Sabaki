@@ -2112,11 +2112,11 @@ class App extends Component {
                     {
                         entryMethod: this.state.multiplayer && this.state.multiplayer.entryMethod,
                         joinPrivateGame: this.bugout.joinPrivateGame,
-                        handleWaitForOpponent: waitForOpponentEvent => {
+                        handleWaitForOpponent: data => {
                             this.setState({
                                 multiplayer: {
                                     ...this.state.multiplayer,
-                                    waitForOpponentEvent: waitForOpponentEvent
+                                    waitForOpponentModal: data
                                 }
                         })
                     }
@@ -2576,13 +2576,14 @@ class App extends Component {
                             let stop = () => clearInterval(running)
 
                             let genMoveAfterWaitForOpponentIsOver = () => {
-                                if (this.state.multiplayer.waitForOpponentEvent) {
+                                let wfpm = this.state.multiplayer.waitForOpponentModal
+
+                                if ( wfpm && ( wfpm.gap || wfpm.hasEvent ) ) {
                                     // no op
 
                                     // not ready for the first move
                                     // as long as we're waiting for
                                     // the opponent to show up
-                                    
                                 } else {
                                     stop()
                                     this.generateMove({ firstMove: true })
@@ -2617,7 +2618,7 @@ class App extends Component {
                 })
             }),
             h(WaitForOpponentModal, {
-                waitForOpponentEvent: this.state.multiplayer && this.state.multiplayer.waitForOpponentEvent
+                data: this.state.multiplayer && this.state.multiplayer.waitForOpponentModal
             }),
             h(ColorChoiceModal, {
                 turnOn: state.multiplayer && state.multiplayer.entryMethod,
