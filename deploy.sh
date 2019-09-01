@@ -1,6 +1,9 @@
 #!/bin/bash
 
-echo "🏗 Building minified javascript"
+echo "🛠  Installing node modules"
+npm install
+
+echo "🏗  Building minified javascript"
 npm run build
 
 # Trim node modules down to the essentials:
@@ -23,7 +26,7 @@ mkdir node_modules
 cd tmp
 for ext in "svg" "png" "wasm" "css"
 do
-    echo "🗄 Repositioning $ext files"
+    echo "🗄  Repositioning $ext files"
     find . -name "*.$ext" | xargs -n1 dirname | uniq | xargs -I '{}' mkdir -p ../node_modules/{}
     find . -name "*.$ext" -exec mv {} ../node_modules/{} \;
 done
