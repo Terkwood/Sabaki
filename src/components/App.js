@@ -2112,11 +2112,11 @@ class App extends Component {
                     {
                         entryMethod: this.state.multiplayer && this.state.multiplayer.entryMethod,
                         joinPrivateGame: this.bugout.joinPrivateGame,
-                        handleWaitForOpponent: waitForOpponentModal => {
+                        handleWaitForOpponent: data => {
                             this.setState({
                                 multiplayer: {
                                     ...this.state.multiplayer,
-                                    waitForOpponentModal: waitForOpponentModal
+                                    waitForOpponentModal: data
                                 }
                         })
                     }
@@ -2575,18 +2575,18 @@ class App extends Component {
 
                             let stop = () => clearInterval(running)
 
-                            let wfpm = this.state.multiplayer.waitForOpponentModal
-
                             let genMoveAfterWaitForOpponentIsOver = () => {
-                                if ( undefined != wfpm && ( wfpm.gap || wfpm.hasEvent ) ) {
+                                let wfpm = this.state.multiplayer.waitForOpponentModal
+
+                                if ( wfpm && ( wfpm.gap || wfpm.hasEvent ) ) {
                                     // no op
 
                                     // not ready for the first move
                                     // as long as we're waiting for
                                     // the opponent to show up
-                                    
+                                    console.log(`App attach: NO    OP      ! ${JSON.stringify(wfpm)}`)
                                 } else {
-                                    console.log(`GENERATE MOVE ! ${JSON.stringify(wfpm)}`)
+                                    console.log(`App attach: GENERATE MOVE ! ${JSON.stringify(wfpm)}`)
                                     stop()
                                     this.generateMove({ firstMove: true })
                                 }

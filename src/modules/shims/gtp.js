@@ -371,7 +371,6 @@ class GatewayConn {
 
                     if (msg.type === 'WaitForOpponent') {
                         resolve(msg)
-                        
                         this.handleWaitForOpponent({ gap: false, hasEvent: true, event: msg})
                     } else if (msg.type === 'GameReady') {
                         // later ...
