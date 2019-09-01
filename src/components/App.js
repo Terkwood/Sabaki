@@ -2586,6 +2586,7 @@ class App extends Component {
                                     // the opponent to show up
                                     
                                 } else {
+                                    console.log(`GENERATE MOVE ! ${JSON.stringify(wfpm)}`)
                                     stop()
                                     this.generateMove({ firstMove: true })
                                 }
