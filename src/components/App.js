@@ -2402,8 +2402,6 @@ class App extends Component {
             }
         }
 
-        console.log(`p ${playerSyncer}`)
-        console.log(`o ${otherSyncer}`)
         this.setBusy(true)
 
         try {
