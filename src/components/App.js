@@ -2349,7 +2349,7 @@ class App extends Component {
                     if (syncer == null) return
                     return syncer.sync(tree, treePosition)
                 }))
-                
+
                 if (treePosition === this.state.treePosition) break
             }
         } catch (err) {
