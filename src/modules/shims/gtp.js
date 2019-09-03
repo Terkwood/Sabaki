@@ -8,6 +8,7 @@ const { EntryMethod } = require('../bugout')
 
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
 const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
+
 const GATEWAY_HOST = GATEWAY_HOST_LOCAL
 
 const GATEWAY_BEEP_TIMEOUT_MS = 13333
@@ -86,6 +87,7 @@ const otherPlayer = p => p[0] === "B" ? "WHITE" : "BLACK"
 
 const FATAL_ERROR = 'Fatal error'
 const throwFatal = () => {
+    console.log('THROW FATAL')
     alert(FATAL_ERROR)
     throw FATAL_ERROR
 }
@@ -128,6 +130,7 @@ class WebSocketController extends EventEmitter {
         })
 
         this.webSocket.addEventListener('open', () => {
+            console.log('THE WEBSOCKET IS OPEN ')
             if (!this.gameId && this.entryMethod === EntryMethod.FIND_PUBLIC) {
                 this.gatewayConn
                     .findPublicGame()

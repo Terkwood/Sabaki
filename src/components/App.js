@@ -2334,6 +2334,7 @@ class App extends Component {
     }
 
     async syncEngines({showErrorDialog = false} = {}) {
+        console.log('SYNC')
         if (this.attachedEngineSyncers.every(x => x == null)) return
         if (this.engineBusySyncing) return
 
@@ -2349,13 +2350,14 @@ class App extends Component {
                     if (syncer == null) return
                     return syncer.sync(tree, treePosition)
                 }))
-
+                
                 if (treePosition === this.state.treePosition) break
             }
         } catch (err) {
             this.engineBusySyncing = false
 
             if (showErrorDialog) {
+                console.log('HELLO NOW')
                 dialog.showMessageBox(t(err.message), 'warning')
             } else {
                 throw err
@@ -2398,10 +2400,13 @@ class App extends Component {
                 this.attachEngines(...engines)
                 ;[playerSyncer, otherSyncer] = [otherSyncer, playerSyncer]
             } else {
+                console.log('RETURN NOW')
                 return
             }
         }
 
+        console.log(`p ${playerSyncer}`)
+        console.log(`o ${otherSyncer}`)
         this.setBusy(true)
 
         try {
@@ -2571,21 +2576,24 @@ class App extends Component {
                     })
                     if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
                         if (playerColor == bugout.Color.WHITE) {
-                            let intervalMs = 1333
+                            let intervalMs = 13
 
                             let stop = () => clearInterval(running)
 
                             let genMoveAfterWaitForOpponentIsOver = () => {
                                 let wfpm = this.state.multiplayer.waitForOpponentModal
 
-                                if ( wfpm && ( wfpm.gap || wfpm.hasEvent ) ) {
+                                if ( undefined == wfpm ||  wfpm.gap || wfpm.hasEvent ) {
+                                    console.log(`go   ${JSON.stringify(wfpm)}`)
                                     // no op
 
                                     // not ready for the first move
                                     // as long as we're waiting for
                                     // the opponent to show up
                                 } else {
+                                    console.log(`stop ${JSON.stringify(wfpm)}`)
                                     stop()
+                                    
                                     this.generateMove({ firstMove: true })
                                 }
                             }
