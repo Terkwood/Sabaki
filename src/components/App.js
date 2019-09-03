@@ -2356,7 +2356,6 @@ class App extends Component {
             this.engineBusySyncing = false
 
             if (showErrorDialog) {
-                console.log('HELLO NOW')
                 dialog.showMessageBox(t(err.message), 'warning')
             } else {
                 throw err
