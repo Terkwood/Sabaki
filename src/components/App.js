@@ -2398,7 +2398,6 @@ class App extends Component {
                 this.attachEngines(...engines)
                 ;[playerSyncer, otherSyncer] = [otherSyncer, playerSyncer]
             } else {
-                console.log('RETURN NOW')
                 return
             }
         }
