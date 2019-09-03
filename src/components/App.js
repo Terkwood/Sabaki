@@ -2576,7 +2576,7 @@ class App extends Component {
                     })
                     if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
                         if (playerColor == bugout.Color.WHITE) {
-                            let intervalMs = 13
+                            let intervalMs = 33
 
                             let stop = () => clearInterval(running)
 

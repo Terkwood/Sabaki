@@ -8,7 +8,6 @@ const { EntryMethod } = require('../bugout')
 
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
 const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
-
 const GATEWAY_HOST = GATEWAY_HOST_LOCAL
 
 const GATEWAY_BEEP_TIMEOUT_MS = 13333
