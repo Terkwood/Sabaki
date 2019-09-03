@@ -86,7 +86,6 @@ const otherPlayer = p => p[0] === "B" ? "WHITE" : "BLACK"
 
 const FATAL_ERROR = 'Fatal error'
 const throwFatal = () => {
-    console.log('THROW FATAL')
     alert(FATAL_ERROR)
     throw FATAL_ERROR
 }
