@@ -2571,14 +2571,14 @@ class App extends Component {
                     })
                     if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
                         if (playerColor == bugout.Color.WHITE) {
-                            let intervalMs = 1333
+                            let intervalMs = 33
 
                             let stop = () => clearInterval(running)
 
                             let genMoveAfterWaitForOpponentIsOver = () => {
                                 let wfpm = this.state.multiplayer.waitForOpponentModal
 
-                                if ( wfpm && ( wfpm.gap || wfpm.hasEvent ) ) {
+                                if ( undefined == wfpm ||  wfpm.gap || wfpm.hasEvent ) {
                                     // no op
 
                                     // not ready for the first move

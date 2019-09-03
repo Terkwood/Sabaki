@@ -22,7 +22,6 @@ class WaitForOpponentModal extends Component {
         id = 'wait-for-opponent-modal', 
         data
     }) {
-        console.log(`wfpm data ${JSON.stringify(data)}`)
         // dfried says a thunk is a thunk is a thunk
         let copyLinkFooter = () => h(Dialog.Footer, null, 
             h(Dialog.FooterButton, 
