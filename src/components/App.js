@@ -2334,7 +2334,6 @@ class App extends Component {
     }
 
     async syncEngines({showErrorDialog = false} = {}) {
-        console.log('SYNC')
         if (this.attachedEngineSyncers.every(x => x == null)) return
         if (this.engineBusySyncing) return
 
