@@ -130,7 +130,6 @@ class WebSocketController extends EventEmitter {
         })
 
         this.webSocket.addEventListener('open', () => {
-            console.log('THE WEBSOCKET IS OPEN ')
             if (!this.gameId && this.entryMethod === EntryMethod.FIND_PUBLIC) {
                 this.gatewayConn
                     .findPublicGame()

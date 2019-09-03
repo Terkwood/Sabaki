@@ -2584,14 +2584,12 @@ class App extends Component {
                                 let wfpm = this.state.multiplayer.waitForOpponentModal
 
                                 if ( undefined == wfpm ||  wfpm.gap || wfpm.hasEvent ) {
-                                    console.log(`go   ${JSON.stringify(wfpm)}`)
                                     // no op
 
                                     // not ready for the first move
                                     // as long as we're waiting for
                                     // the opponent to show up
                                 } else {
-                                    console.log(`stop ${JSON.stringify(wfpm)}`)
                                     stop()
                                     
                                     this.generateMove({ firstMove: true })
