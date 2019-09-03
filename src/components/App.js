@@ -2586,7 +2586,6 @@ class App extends Component {
                                     // the opponent to show up
                                 } else {
                                     stop()
-                                    
                                     this.generateMove({ firstMove: true })
                                 }
                             }
