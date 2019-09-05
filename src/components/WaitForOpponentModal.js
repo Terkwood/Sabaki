@@ -1,6 +1,6 @@
 const { h, Component } = require('preact')
 
-const { Dialog } = require('preact-material-components')
+import Dialog from 'preact-material-components/Dialog'
 
 const { Visibility } = require('../modules/bugout')
 
@@ -64,4 +64,4 @@ class WaitForOpponentModal extends Component {
     }
 }
 
-module.exports = WaitForOpponentModal
+export default WaitForOpponentModal

@@ -15,9 +15,9 @@ const BusyScreen = require('./BusyScreen')
 const InfoOverlay = require('./InfoOverlay')
 
 // BUGOUT
-const GameLobbyModal = require('./GameLobbyModal')
-const WaitForOpponentModal = require('./WaitForOpponentModal')
-const ColorChoiceModal = require('./ColorChoiceModal')
+import GameLobbyModal from './GameLobbyModal'
+import WaitForOpponentModal from './WaitForOpponentModal'
+import ColorChoiceModal from './ColorChoiceModal'
 
 const deadstones = require('@sabaki/deadstones')
 const gtp = require('@sabaki/gtp')
