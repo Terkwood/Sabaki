@@ -14,7 +14,7 @@ const InputBox = require('./InputBox')
 const BusyScreen = require('./BusyScreen')
 const InfoOverlay = require('./InfoOverlay')
 
-// BUGOUT
+// BUGOUT 🦹🏻‍ Bundle Bloat Protector
 import GameLobbyModal from './GameLobbyModal'
 import WaitForOpponentModal from './WaitForOpponentModal'
 import ColorChoiceModal from './ColorChoiceModal'
