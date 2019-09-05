@@ -1,6 +1,7 @@
 const { h, Component } = require('preact')
 
-const { Dialog } = require('preact-material-components')
+// 🦹🏻‍ Bundle Bloat Protector
+import Dialog from 'preact-material-components/Dialog'
 
 const { EntryMethod } = require('../modules/bugout')
 
@@ -64,4 +65,4 @@ class GameLobbyModal extends Component {
     }
 }
 
-module.exports = GameLobbyModal
+export default GameLobbyModal

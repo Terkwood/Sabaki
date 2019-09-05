@@ -14,10 +14,10 @@ const InputBox = require('./InputBox')
 const BusyScreen = require('./BusyScreen')
 const InfoOverlay = require('./InfoOverlay')
 
-// BUGOUT
-const GameLobbyModal = require('./GameLobbyModal')
-const WaitForOpponentModal = require('./WaitForOpponentModal')
-const ColorChoiceModal = require('./ColorChoiceModal')
+// BUGOUT 🦹🏻‍ Bundle Bloat Protector
+import GameLobbyModal from './GameLobbyModal'
+import WaitForOpponentModal from './WaitForOpponentModal'
+import ColorChoiceModal from './ColorChoiceModal'
 
 const deadstones = require('@sabaki/deadstones')
 const gtp = require('@sabaki/gtp')

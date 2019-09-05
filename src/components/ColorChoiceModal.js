@@ -1,6 +1,8 @@
 const { h, Component } = require('preact')
 
-const { Dialog } = require('preact-material-components')
+// 🦹🏻‍ Bundle Bloat Protector
+import Dialog from 'preact-material-components/Dialog'
+
 const { ColorPref } = require('../modules/bugout')
 
 class ColorChoiceModal extends Component {
@@ -43,4 +45,5 @@ class ColorChoiceModal extends Component {
     }
 }
 
-module.exports = ColorChoiceModal
+
+export default ColorChoiceModal
