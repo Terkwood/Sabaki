@@ -1,5 +1,6 @@
 const { h, Component } = require('preact')
 
+// 🦹🏻‍ Bundle Bloat Protector
 import Dialog from 'preact-material-components/Dialog'
 
 const { EntryMethod } = require('../modules/bugout')
