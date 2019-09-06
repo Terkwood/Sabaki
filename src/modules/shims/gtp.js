@@ -105,14 +105,14 @@ class WebSocketController extends EventEmitter {
         this.webSocket = new RobustWebSocket(webSocketAddress)
         
 
-        let { joinPrivateGame, entryMethod, handleWaitForOpponent } = spawnOptions
+        let { joinPrivateGame, entryMethod, handleWaitForOpponent, handleYourColor } = spawnOptions
         this.joinPrivateGame = joinPrivateGame
         this.entryMethod = entryMethod
         
         // We pass handleWaitForOpponent down so that it can 'stick'
         // to the incoming websocket message, even after an initial WFP
         // result is returned via findPublicGame() and createPrivateGame() funcs
-        this.gatewayConn = new GatewayConn(this.webSocket, handleWaitForOpponent)
+        this.gatewayConn = new GatewayConn(this.webSocket, handleWaitForOpponent, handleYourColor)
 
         // If it's the first move, and we're white,
         // we'll always request history first. (In case
@@ -281,10 +281,10 @@ class WebSocketController extends EventEmitter {
 }
 
 class GatewayConn {
-    constructor(webSocket, handleWaitForOpponent, handleWaitForColorChoice) {
+    constructor(webSocket, handleWaitForOpponent, handleYourColor) {
         this.webSocket = webSocket
 
-        if (handleWaitForOpponent == undefined || handleWaitForColorChoice == undefined) {
+        if (handleWaitForOpponent == undefined || handleYourColor == undefined) {
             throw Exception('malformed gateway conn')
         }
 
@@ -294,7 +294,7 @@ class GatewayConn {
         // has been handled by the WebsocketController
         this.handleWaitForOpponent = handleWaitForOpponent
 
-        this.handleWaitForColorChoice = handleWaitForColorChoice
+        this.handleYourColor = handleYourColor
     }
 
     async reconnect(gameId, resolveMoveMade, board) {
@@ -438,8 +438,7 @@ class GatewayConn {
                     
                     if (msg.type === 'YourColor') {
                         resolve(msg)
-                        // TODO HANDLE IT
-                        throw Exception('not impl')
+                        this.handleYourColor({ wait: false, hasEvent: true, event: msg})
                     }
                     // discard any other messages
                 } catch (err) {
@@ -449,7 +448,7 @@ class GatewayConn {
             })
 
             // We want to show a modal while we wait for a response from gateway
-            this.handleWaitForColorChoice( undefined ) // TODO
+            this.handleYourColor( { wait: true, hasEvent: false } )
             this.webSocket.send(JSON.stringify(requestPayload))
         })
     }
