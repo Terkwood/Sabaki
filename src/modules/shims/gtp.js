@@ -105,7 +105,7 @@ class WebSocketController extends EventEmitter {
         this.webSocket = new RobustWebSocket(webSocketAddress)
         
 
-        let { joinPrivateGame, entryMethod, handleWaitForOpponent, handleYourColor, setSendColorPref } = spawnOptions
+        let { joinPrivateGame, entryMethod, handleWaitForOpponent, handleYourColor, setSendColorPref } = spawnOptions.multiplayer
         this.joinPrivateGame = joinPrivateGame
         this.entryMethod = entryMethod
         

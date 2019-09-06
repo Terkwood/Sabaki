@@ -38,10 +38,7 @@ class EngineSyncer extends EventEmitter {
         this.state = JSON.parse(defaultStateJSON)
 
         this.controller = new gtp.Controller(path, argvsplit(args), {
-            joinPrivateGame: multiplayer.joinPrivateGame, // BUGOUT
-            entryMethod: multiplayer.entryMethod, // BUGOUT
-            handleWaitForOpponent: multiplayer.handleWaitForOpponent, // BUGOUT
-            handleYourColor: multiplayer.handleYourColor, // BUGOUT
+            multiplayer, // BUGOUT
             cwd: dirname(resolve(path))
         })
 
