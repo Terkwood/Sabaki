@@ -2118,8 +2118,16 @@ class App extends Component {
                                     ...this.state.multiplayer,
                                     waitForOpponentModal: data
                                 }
-                        })
-                    }
+                            })
+                        },
+                        handleYourColor: data => {
+                            this.setState({
+                                multiplayer: {
+                                    ...this.state.multiplayer,
+                                    yourColor: data
+                                }
+                            })
+                        }
                     }) // 😇BUGOUT😇
                 this.attachedEngineSyncers[i] = syncer
 
