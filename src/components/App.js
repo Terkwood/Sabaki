@@ -2569,6 +2569,7 @@ class App extends Component {
                 if ( undefined == yourColor || yourColor.wait ) {
                     // no op
                     console.log('NO OP YOUR COLOR')
+                    // TODO should we show the wait for your color modal here?
                 } else {
                     console.log(`WE HAVE YOUR COLOR ${JSON.stringify(yourColor)}`)
                     stopColorInterval()
