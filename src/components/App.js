@@ -18,6 +18,7 @@ const InfoOverlay = require('./InfoOverlay')
 import GameLobbyModal from './GameLobbyModal'
 import WaitForOpponentModal from './WaitForOpponentModal'
 import ColorChoiceModal from './ColorChoiceModal'
+import WaitForYourColorModal from './WaitForYourColorModal'
 
 const deadstones = require('@sabaki/deadstones')
 const gtp = require('@sabaki/gtp')
@@ -2643,6 +2644,7 @@ class App extends Component {
                 })
             },
 
+            // ↓ BUGOUT ↓
             h(GameLobbyModal, {
                 joinPrivateGame: this.bugout.joinPrivateGame.join,
                 update: entryMethod => this.setState({ 
@@ -2663,7 +2665,11 @@ class App extends Component {
                         yourColor
                     }
                 })
-            }), // BUGOUT
+            }), 
+            h(WaitForYourColorModal, {
+                data: this.state.multiplayer &&
+                this.state.multiplayer.yourColor
+            }), // ↑ BUGOUT ↑
 
             h(ThemeManager),
             h(MainView, state),

@@ -9,11 +9,11 @@ class WaitForYourColorModal extends Component {
     }
 
     render({ 
-        id = 'wait-for-opponent-modal', 
+        id = 'wait-for-your-color-modal', 
         data
     }) {
 
-        return undefined != data && !data.wait ?
+        return undefined != data && data.wait ?
            h(Dialog,
                 {
                     id,
