@@ -41,6 +41,7 @@ class EngineSyncer extends EventEmitter {
             joinPrivateGame: multiplayer.joinPrivateGame, // BUGOUT
             entryMethod: multiplayer.entryMethod, // BUGOUT
             handleWaitForOpponent: multiplayer.handleWaitForOpponent, // BUGOUT
+            handleYourColor: multiplayer.handleYourColor, // BUGOUT
             cwd: dirname(resolve(path))
         })
 

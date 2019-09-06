@@ -2583,10 +2583,12 @@ class App extends Component {
 
                             let stop = () => clearInterval(running)
 
-                            let genMoveAfterWaitForOpponentIsOver = () => {
+                            let wait = () => {
                                 let wfpm = this.state.multiplayer.waitForOpponentModal
 
-                                if ( undefined == wfpm ||  wfpm.gap || wfpm.hasEvent ) {
+                                let yourColor = this.state.multiplayer.yourColor
+
+                                if ( undefined == wfpm ||  wfpm.gap || wfpm.hasEvent || undefined == yourColor || yourColor.wait ) {
                                     // no op
 
                                     // not ready for the first move
@@ -2599,7 +2601,7 @@ class App extends Component {
                             }
 
 
-                            let running = setInterval(genMoveAfterWaitForOpponentIsOver, intervalMs)
+                            let running = setInterval(wait, intervalMs)
                         }
                     }
                 }

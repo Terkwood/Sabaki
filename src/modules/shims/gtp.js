@@ -438,7 +438,7 @@ class GatewayConn {
                     
                     if (msg.type === 'YourColor') {
                         resolve(msg)
-                        this.handleYourColor({ wait: false, hasEvent: true, event: msg})
+                        this.handleYourColor({ wait: false, event: msg })
                     }
                     // discard any other messages
                 } catch (err) {
@@ -448,7 +448,7 @@ class GatewayConn {
             })
 
             // We want to show a modal while we wait for a response from gateway
-            this.handleYourColor( { wait: true, hasEvent: false } )
+            this.handleYourColor( { wait: true } )
             this.webSocket.send(JSON.stringify(requestPayload))
         })
     }
