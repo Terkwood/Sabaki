@@ -2562,21 +2562,26 @@ class App extends Component {
 
             let stopColorInterval = () => clearInterval(colorInterval)
 
+            console.log('PRE PRE')
             let waitForColor = () => {
                 let yourColor = this.state.multiplayer.yourColor
 
                 if ( undefined == yourColor || yourColor.wait ) {
                     // no op
+                    console.log('NO OP YOUR COLOR')
                 } else {
+                    console.log(`WE HAVE YOUR COLOR ${JSON.stringify(yourColor)}`)
                     stopColorInterval()
 
                     let playerColor = this.bugout.playerToColor(yourColor.event.yourColor)
 
                     console.log(`CHECK player COLOR ${playerColor}`)
                     this.bugout.attach((a, b) => {
+                        console.log('ATTACH')
                         this.attachEngines(a, b)
 
                         if (this.state.attachedEngines === [null, null]) {
+                            console.log('NULL NULL')
                             this.setState({
                                 multiplayer: {
                                     ...this.state.multiplayer,
@@ -2585,6 +2590,7 @@ class App extends Component {
                             })
                             throw Exception('multiplayer connect failed')
                         } else {
+                            console.log('SET CONNECTED')
                             this.setState({
                                 multiplayer: {
                                     ...this.state.multiplayer,
@@ -2592,6 +2598,7 @@ class App extends Component {
                                 }
                             })
                             if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
+                                console.log('WHITE')
                                 if (playerColor == bugout.Color.WHITE) {
                                     
                                     let stop = () => clearInterval(running)
@@ -2617,11 +2624,13 @@ class App extends Component {
                             }
                         }
                     }, playerColor) // not undefined since we're readyToEnter
+                    console.log('DONE I GUESS')
                 }
             }
 
             let colorInterval = setInterval(waitForColor, intervalMs)
 
+            console.log('POST ')
         }
 
         return h('section',

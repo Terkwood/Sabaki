@@ -79,7 +79,7 @@ const load = () => {
         readyToEnter: state => state.multiplayer && (
                 state.multiplayer.initConnect == undefined || 
                 state.multiplayer.initConnect < InitConnected.IN_PROGRESS
-            ) && (state.multiplayer.entryMethod || jp.join) && state.multiplayer.colorPref,
+            ) && (state.multiplayer.entryMethod || jp.join),
         playerToColor: player => player == Player.BLACK ?  BLACK : WHITE,
     };
 }
