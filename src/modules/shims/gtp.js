@@ -281,15 +281,20 @@ class WebSocketController extends EventEmitter {
 }
 
 class GatewayConn {
-    constructor(webSocket, handleWaitForOpponent) {
+    constructor(webSocket, handleWaitForOpponent, handleWaitForColorChoice) {
         this.webSocket = webSocket
 
+        if (handleWaitForOpponent == undefined || handleWaitForColorChoice == undefined) {
+            throw Exception('malformed gateway conn')
+        }
 
         // We manage handleWaitForOpponent at this level
         // so that the incoming websocket message triggers
         // a state update in App.js, even after an initial Wait event
         // has been handled by the WebsocketController
         this.handleWaitForOpponent = handleWaitForOpponent
+
+        this.handleWaitForColorChoice = handleWaitForColorChoice
     }
 
     async reconnect(gameId, resolveMoveMade, board) {
@@ -416,6 +421,35 @@ class GatewayConn {
 
             // We want to show the modal while we wait for a response from gateway
             this.handleWaitForOpponent( { gap: true, hasEvent: false })
+            this.webSocket.send(JSON.stringify(requestPayload))
+        })
+    }
+
+    async chooseColorPref(colorPref) {
+        return new Promise((resolve, reject) => {
+            let requestPayload = {
+                'type':'ChooseColorPref',
+                'colorPref': colorPref
+            }
+
+            this.webSocket.addEventListener('message', event => {
+                try {
+                    let msg = JSON.parse(event.data)
+                    
+                    if (msg.type === 'YourColor') {
+                        resolve(msg)
+                        // TODO HANDLE IT
+                        throw Exception('not impl')
+                    }
+                    // discard any other messages
+                } catch (err) {
+                    console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                    reject()
+                }
+            })
+
+            // We want to show a modal while we wait for a response from gateway
+            this.handleWaitForColorChoice( undefined ) // TODO
             this.webSocket.send(JSON.stringify(requestPayload))
         })
     }

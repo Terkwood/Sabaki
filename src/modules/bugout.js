@@ -18,9 +18,9 @@ const InitConnected = {
 }
 
 const ColorPref = {
-    BLACK: 1,
-    WHITE: 2,
-    ANY: 3,
+    BLACK: 'Black',
+    WHITE: 'White',
+    ANY: 'Any',
 }
 
 const EntryMethod = {
@@ -74,6 +74,7 @@ const load = () => {
                 state.multiplayer.initConnect == undefined || 
                 state.multiplayer.initConnect < InitConnected.IN_PROGRESS
             ) && (state.multiplayer.entryMethod || jp.join) && state.multiplayer.colorPref,
+        // TODO IS THIS USED?  REMOVE IT ?!
         prefToColor: colorPref => colorPref == ColorPref.BLACK ?  BLACK : WHITE,
     };
 }
