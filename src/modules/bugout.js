@@ -90,3 +90,4 @@ exports.InitConnected = InitConnected
 exports.ColorPref = ColorPref
 exports.Color = Color
 exports.EntryMethod = EntryMethod
+exports.Player = Player

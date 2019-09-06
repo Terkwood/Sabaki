@@ -2558,56 +2558,70 @@ class App extends Component {
             this.detachEngines()
             this.clearConsole()
 
-            // TODO WE NEED TO MOVE THINGS AROUND 🚚
-            let playerColor = this.bugout.playerToColor(state.multiplayer.colorPref)
-            this.bugout.attach((a, b) => {
-                this.attachEngines(a, b)
+            let intervalMs = 33
 
-                if (this.state.attachedEngines === [null, null]) {
-                    this.setState({
-                        multiplayer: {
-                            ...this.state.multiplayer,
-                            initConnect: bugout.InitConnected.FAILED
-                        }
-                    })
-                    throw Exception('multiplayer connect failed')
+            let stopColorInterval = () => clearInterval(colorInterval)
+
+            let waitForColor = () => {
+                let yourColor = this.state.multiplayer.yourColor
+
+                if ( undefined == yourColor || yourColor.wait ) {
+                    // no op
                 } else {
-                    this.setState({
-                        multiplayer: {
-                            ...this.state.multiplayer,
-                            initConnect: bugout.InitConnected.CONNECTED
-                        }
-                    })
-                    if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
-                        if (playerColor == bugout.Color.WHITE) {
-                            let intervalMs = 33
+                    stopColorInterval()
 
-                            let stop = () => clearInterval(running)
+                    let playerColor = this.bugout.playerToColor(yourColor.event.yourColor)
 
-                            let wait = () => {
-                                let wfpm = this.state.multiplayer.waitForOpponentModal
+                    console.log(`CHECK player COLOR ${playerColor}`)
+                    this.bugout.attach((a, b) => {
+                        this.attachEngines(a, b)
 
-                                let yourColor = this.state.multiplayer.yourColor
+                        if (this.state.attachedEngines === [null, null]) {
+                            this.setState({
+                                multiplayer: {
+                                    ...this.state.multiplayer,
+                                    initConnect: bugout.InitConnected.FAILED
+                                }
+                            })
+                            throw Exception('multiplayer connect failed')
+                        } else {
+                            this.setState({
+                                multiplayer: {
+                                    ...this.state.multiplayer,
+                                    initConnect: bugout.InitConnected.CONNECTED
+                                }
+                            })
+                            if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
+                                if (playerColor == bugout.Color.WHITE) {
+                                    
+                                    let stop = () => clearInterval(running)
 
-                                if ( undefined == wfpm ||  wfpm.gap || wfpm.hasEvent || undefined == yourColor || yourColor.wait ) {
-                                    // no op
+                                    let waitForOpponent = () => {
+                                        let wfpm = this.state.multiplayer.waitForOpponentModal
 
-                                    // not ready for the first move
-                                    // as long as we're waiting for
-                                    // the opponent to show up
-                                } else {
-                                    stop()
-                                    this.generateMove({ firstMove: true })
+                                        if ( undefined == wfpm ||  wfpm.gap || wfpm.hasEvent  ) {
+                                            // no op
+
+                                            // not ready for the first move
+                                            // as long as we're waiting for
+                                            // the opponent to show up
+                                        } else {
+                                            stop()
+                                            this.generateMove({ firstMove: true })
+                                        }
+                                    }
+
+
+                                    let running = setInterval(waitForOpponent, intervalMs)
                                 }
                             }
-
-
-                            let running = setInterval(wait, intervalMs)
                         }
-                    }
+                    }, playerColor) // not undefined since we're readyToEnter
                 }
-            }, playerColor) // not undefined since we're readyToEnter
-            
+            }
+
+            let colorInterval = setInterval(waitForColor, intervalMs)
+
         }
 
         return h('section',

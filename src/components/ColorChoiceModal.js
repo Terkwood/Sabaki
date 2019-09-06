@@ -3,7 +3,7 @@ const { h, Component } = require('preact')
 // 🦹🏻‍ Bundle Bloat Protector
 import Dialog from 'preact-material-components/Dialog'
 
-const { ColorPref } = require('../modules/bugout')
+const { Player } = require('../modules/bugout')
 
 class ColorChoiceModal extends Component {
     constructor() {
@@ -27,7 +27,7 @@ class ColorChoiceModal extends Component {
                         accept: true, 
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            updateYourColor( ColorPref.BLACK )
+                            updateYourColor( Player.BLACK )
                         }
                     }, 
                     "Black")
@@ -38,7 +38,7 @@ class ColorChoiceModal extends Component {
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            updateYourColor( ColorPref.WHITE )
+                            updateYourColor( Player.WHITE )
                         }
                     }, "White"))
         ) : h('div', { id })
