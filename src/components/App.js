@@ -2573,7 +2573,7 @@ class App extends Component {
                     console.log(`WE HAVE YOUR COLOR ${JSON.stringify(yourColor)}`)
                     stopColorInterval()
 
-                    let playerColor = this.bugout.playerToColor(yourColor.event.yourColor)
+                    let playerColor = this.bugout.playerToColor(yourColor)
 
                     console.log(`CHECK player COLOR ${playerColor}`)
                     this.bugout.attach((a, b) => {
