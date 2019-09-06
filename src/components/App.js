@@ -2128,6 +2128,14 @@ class App extends Component {
                                     yourColor: data
                                 }
                             })
+                        },
+                        setSendColorPref: sendColorPref => {
+                            this.setState({
+                                multiplayer: {
+                                    ...this.state.multiplayer,
+                                    sendColorPref
+                                }
+                            })
                         }
                     }) // 😇BUGOUT😇
                 this.attachedEngineSyncers[i] = syncer
