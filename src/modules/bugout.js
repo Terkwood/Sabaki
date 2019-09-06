@@ -37,6 +37,12 @@ const Color = {
     WHITE
 }
 
+/** Gateway uses this rep */
+const Player = {
+    BLACK: "BLACK",
+    WHITE: "WHITE"
+}
+
 /** private to isValidGameId */
 const MIN_ID_LENGTH = 4
 /** private to isValidGameId */
@@ -74,8 +80,7 @@ const load = () => {
                 state.multiplayer.initConnect == undefined || 
                 state.multiplayer.initConnect < InitConnected.IN_PROGRESS
             ) && (state.multiplayer.entryMethod || jp.join) && state.multiplayer.colorPref,
-        // TODO IS THIS USED?  REMOVE IT ?!
-        prefToColor: colorPref => colorPref == ColorPref.BLACK ?  BLACK : WHITE,
+        playerToColor: player => player == Player.BLACK ?  BLACK : WHITE,
     };
 }
 

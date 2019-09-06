@@ -11,7 +11,7 @@ class ColorChoiceModal extends Component {
         this.state = { showDialog: false, turnedOnOnce: false }
     }
 
-    render({ id = "color-choice-modal", turnOn = false, updatePref }) {
+    render({ id = "color-choice-modal", turnOn = false, updateYourColor }) {
         let { showDialog, turnedOnOnce } = this.state
       
         return ((turnOn && !turnedOnOnce) || showDialog) ? h(Dialog,
@@ -27,7 +27,7 @@ class ColorChoiceModal extends Component {
                         accept: true, 
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            updatePref( ColorPref.BLACK )
+                            updateYourColor( ColorPref.BLACK )
                         }
                     }, 
                     "Black")
@@ -38,7 +38,7 @@ class ColorChoiceModal extends Component {
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            updatePref( ColorPref.WHITE )
+                            updateYourColor( ColorPref.WHITE )
                         }
                     }, "White"))
         ) : h('div', { id })

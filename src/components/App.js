@@ -2558,7 +2558,8 @@ class App extends Component {
             this.detachEngines()
             this.clearConsole()
 
-            let playerColor = this.bugout.prefToColor(state.multiplayer.colorPref)
+            // TODO WE NEED TO MOVE THINGS AROUND 🚚
+            let playerColor = this.bugout.playerToColor(state.multiplayer.colorPref)
             this.bugout.attach((a, b) => {
                 this.attachEngines(a, b)
 
@@ -2632,10 +2633,10 @@ class App extends Component {
             }),
             h(ColorChoiceModal, {
                 turnOn: state.multiplayer && state.multiplayer.entryMethod,
-                updatePref: colorPref => this.setState({
+                updateYourColor: yourColor => this.setState({
                     multiplayer: {
                         ...this.state.multiplayer,
-                        colorPref
+                        yourColor
                     }
                 })
             }), // BUGOUT
