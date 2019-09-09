@@ -2607,6 +2607,12 @@ class App extends Component {
                                     initConnect: bugout.InitConnected.CONNECTED
                                 }
                             })
+                            
+                            /*
+                            console.log('a weird trick')
+                            this.setState({attachedEngines: this.state.attachedEngines.reverse()})
+                            */
+
                             if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
                                 console.log('WHITE')
                                 if (playerColor == bugout.Color.WHITE) {
