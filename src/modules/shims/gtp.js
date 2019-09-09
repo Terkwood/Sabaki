@@ -37,6 +37,8 @@ class Controller extends EventEmitter {
         this._webSocketController.on('command-sent', evt => this.emit('command-sent', evt))
         this._webSocketController.on('response-received', evt => this.emit('response-received', evt))
 
+        this.on('choose-color-pref', evt => this._webSocketController.emit('choose-color-pref', evt))
+
         this.emit('started')
     }
 
@@ -179,6 +181,8 @@ class WebSocketController extends EventEmitter {
         this.webSocket.addEventListener('connecting', () => {
             console.log('Reconnecting...')
         })
+
+        this.on('choose-color-pref', evt => this.gatewayConn.chooseColorPref(evt))
     }
 
     listenForMove(opponent, resolve) {
@@ -426,6 +430,7 @@ class GatewayConn {
     }
 
     async chooseColorPref(colorPref) {
+        console.log('invoked')
         return new Promise((resolve, reject) => {
             let requestPayload = {
                 'type':'ChooseColorPref',
@@ -439,6 +444,7 @@ class GatewayConn {
                     if (msg.type === 'YourColor') {
                         resolve(msg)
                         this.handleYourColor({ wait: false, event: msg })
+                        sabaki.events.emit('your-color', msg)
                     }
                     // discard any other messages
                 } catch (err) {
