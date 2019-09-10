@@ -19,7 +19,7 @@ class ColorChoiceModal extends Component {
                 id,
                 isOpen: true,
             },
-            h(Dialog.Header, null, 'Choose Your Color Preference'),
+            h(Dialog.Header, null, 'Choose Color Preference'),
             h(Dialog.Body, null, 'In the case that both players want the same color, we shall assign them at random.'),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
