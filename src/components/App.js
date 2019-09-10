@@ -2128,6 +2128,12 @@ class App extends Component {
                                     yourColor: data
                                 }
                             })
+
+                            if (data == "WHITE") {
+                                this.setState({
+                                    attachedEngines: this.state.attachedEngines.reverse()
+                                })
+                            }
                         },
                         setSendColorPref: sendColorPref => {
                             this.setState({
@@ -2593,10 +2599,6 @@ class App extends Component {
                         console.log(`yourColor ${yourColor}`)
 
                         if (yourColor === "WHITE") {
-                            // placeholderColor is wrong
-                            this.setState({attachedEngines: this.state.attachedEngines.reverse()})
-                            //this.setPlayer(tree, treePosition, -1)
-
                             this.generateMove({ firstMove: true })
                         }
                     })
