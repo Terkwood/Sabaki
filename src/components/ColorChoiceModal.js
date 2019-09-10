@@ -40,7 +40,16 @@ class ColorChoiceModal extends Component {
                             this.setState({showDialog: false, turnedOnOnce: true })
                             chooseColorPref( ColorPref.WHITE )
                         }
-                    }, "White"))
+                    }, "White")),
+            h(Dialog.Footer, null, 
+                h(Dialog.FooterButton, 
+                    { 
+                        cancel: true,
+                        onClick: () => {
+                            this.setState({showDialog: false, turnedOnOnce: true })
+                            chooseColorPref( ColorPref.ANY )
+                        }
+                    }, "Either"))
         ) : h('div', { id })
     }
 }
