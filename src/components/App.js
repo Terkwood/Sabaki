@@ -2567,102 +2567,40 @@ class App extends Component {
             this.detachEngines()
             this.clearConsole()
 
-            // TODO
-            let intervalMs = 33
+            let placeholderColor = "BLACK"
 
-            // TODO
-            /*let stopColorInterval = () => clearInterval(colorInterval)
+            this.bugout.attach((a, b) => {
+                console.log('ATTACH')
+                this.attachEngines(a, b)
 
-            console.log('PRE PRE')
-            let waitForColor = () => {
-                let yourColor = this.state.multiplayer.yourColor
-
-                if ( undefined == yourColor || yourColor.wait ) {
-                    // no op
-                    console.log('NO OP YOUR COLOR')
-                    // TODO should we show the wait for your color modal here?
-                } else {
-                    console.log(`WE HAVE YOUR COLOR ${JSON.stringify(yourColor)}`)
-                    stopColorInterval()*/
-
-                    // TODO let playerColor = this.bugout.playerToColor(yourColor)
-
-                    let placeholderColor = "BLACK"
-
-                    this.bugout.attach((a, b) => {
-                        console.log('ATTACH')
-                        this.attachEngines(a, b)
-
-                        if (this.state.attachedEngines === [null, null]) {
-                            console.log('NULL NULL')
-                            this.setState({
-                                multiplayer: {
-                                    ...this.state.multiplayer,
-                                    initConnect: bugout.InitConnected.FAILED
-                                }
-                            })
-                            throw Exception('multiplayer connect failed')
-                        } else {
-                            console.log('SET CONNECTED')
-                            this.setState({
-                                multiplayer: {
-                                    ...this.state.multiplayer,
-                                    initConnect: bugout.InitConnected.CONNECTED
-                                }
-                            })
-
-                            this.events.on('your-color', ({ yourColor }) => {
-                                if (yourColor === "WHITE") {
-                                    console.log('a weird trick')
-                                    this.setState({attachedEngines: this.state.attachedEngines.reverse()})
-
-                                    this.generateMove({ firstMove: true })
-                                }
-                            })
-                            
-                            /*
-                            */
-
-                            // TODO
-                            console.log('Not initiating white ... TODO')
-                            /*
-                            if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
-                                console.log('WHITE')
-                                if (playerColor == bugout.Color.WHITE) {
-                                    
-                                    let stop = () => clearInterval(running)
-
-                                    let waitForOpponent = () => {
-                                        let wfpm = this.state.multiplayer.waitForOpponentModal
-
-                                        if ( undefined == wfpm ||  wfpm.gap || wfpm.hasEvent  ) {
-                                            // no op
-
-                                            // not ready for the first move
-                                            // as long as we're waiting for
-                                            // the opponent to show up
-                                        } else {
-                                            stop()
-                                            
-                                        }
-                                    }
-
-
-                                    let running = setInterval(waitForOpponent, intervalMs)
-                                }
-                            }*/
+                if (this.state.attachedEngines === [null, null]) {
+                    console.log('NULL NULL')
+                    this.setState({
+                        multiplayer: {
+                            ...this.state.multiplayer,
+                            initConnect: bugout.InitConnected.FAILED
                         }
-                    }, placeholderColor)
-                    console.log('DONE I GUESS')
-               /* }
-            }
+                    })
+                    throw Exception('multiplayer connect failed')
+                } else {
+                    this.setState({
+                        multiplayer: {
+                            ...this.state.multiplayer,
+                            initConnect: bugout.InitConnected.CONNECTED
+                        }
+                    })
 
-            let colorInterval = setInterval(waitForColor, intervalMs)
+                    // TODO once upon a time
+                    this.events.once('your-color', ({ yourColor }) => {
+                        if (yourColor === "WHITE") {
+                            this.setState({attachedEngines: this.state.attachedEngines.reverse()})
 
-            console.log('POST ')*/
+                            this.generateMove({ firstMove: true })
+                        }
+                    })
+                }
+            }, placeholderColor)
         }
-
-        console.log(`STATE YOUR COLOR ${this.state.multiplayer && JSON.stringify(this.state.multiplayer.yourColor)}`)
 
         return h('section',
             {
