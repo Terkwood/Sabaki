@@ -432,8 +432,6 @@ class GatewayConn {
     }
 
     async chooseColorPref(colorPref) {
-        console.log('invoked')
-        // TODO emit into empty space?
         return new Promise((resolve, reject) => {
             let requestPayload = {
                 'type':'ChooseColorPref',
