@@ -300,7 +300,7 @@ class GatewayConn {
 
         this.handleYourColor = handleYourColor
 
-        sabaki.events.on('choose-color-pref', evt => console.log(`sabaki emitted choose color pref: ${JSON.stringify(evt)}`))
+        sabaki.events.on('choose-color-pref', ({ colorPref }) => this.chooseColorPref(colorPref))
     }
 
     async reconnect(gameId, resolveMoveMade, board) {
@@ -433,6 +433,7 @@ class GatewayConn {
 
     async chooseColorPref(colorPref) {
         console.log('invoked')
+        // TODO emit into empty space?
         return new Promise((resolve, reject) => {
             let requestPayload = {
                 'type':'ChooseColorPref',
@@ -445,6 +446,7 @@ class GatewayConn {
                     
                     if (msg.type === 'YourColor') {
                         resolve(msg)
+                        // TODO remove?
                         this.handleYourColor({ wait: false, event: msg })
                         sabaki.events.emit('your-color', msg)
                     }

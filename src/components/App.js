@@ -2656,6 +2656,8 @@ class App extends Component {
             console.log('POST ')*/
         }
 
+        console.log(`STATE YOUR COLOR ${this.state.multiplayer && JSON.stringify(this.state.multiplayer.yourColor)}`)
+
         return h('section',
             {
                 class: classNames({
