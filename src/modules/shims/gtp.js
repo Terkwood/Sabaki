@@ -299,6 +299,8 @@ class GatewayConn {
         this.handleWaitForOpponent = handleWaitForOpponent
 
         this.handleYourColor = handleYourColor
+
+        sabaki.events.on('choose-color-pref', evt => console.log(`sabaki emitted choose color pref: ${JSON.stringify(evt)}`))
     }
 
     async reconnect(gameId, resolveMoveMade, board) {

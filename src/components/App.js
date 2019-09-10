@@ -2571,7 +2571,8 @@ class App extends Component {
 
             this.events.on('your-color', evt => console.log(`your color arrived ${JSON.stringify(evt)}`))
 
-            let stopColorInterval = () => clearInterval(colorInterval)
+            // TODO
+            /*let stopColorInterval = () => clearInterval(colorInterval)
 
             console.log('PRE PRE')
             let waitForColor = () => {
@@ -2583,11 +2584,12 @@ class App extends Component {
                     // TODO should we show the wait for your color modal here?
                 } else {
                     console.log(`WE HAVE YOUR COLOR ${JSON.stringify(yourColor)}`)
-                    stopColorInterval()
+                    stopColorInterval()*/
 
-                    let playerColor = this.bugout.playerToColor(yourColor)
+                    // TODO let playerColor = this.bugout.playerToColor(yourColor)
 
-                    console.log(`CHECK player COLOR ${playerColor}`)
+                    let placeholderColor = "BLACK"
+
                     this.bugout.attach((a, b) => {
                         console.log('ATTACH')
                         this.attachEngines(a, b)
@@ -2615,6 +2617,9 @@ class App extends Component {
                             this.setState({attachedEngines: this.state.attachedEngines.reverse()})
                             */
 
+                            // TODO
+                            console.log('Not initiating white ... TODO')
+                            /*
                             if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
                                 console.log('WHITE')
                                 if (playerColor == bugout.Color.WHITE) {
@@ -2639,16 +2644,16 @@ class App extends Component {
 
                                     let running = setInterval(waitForOpponent, intervalMs)
                                 }
-                            }
+                            }*/
                         }
-                    }, playerColor) // not undefined since we're readyToEnter
+                    }, placeholderColor)
                     console.log('DONE I GUESS')
-                }
+               /* }
             }
 
             let colorInterval = setInterval(waitForColor, intervalMs)
 
-            console.log('POST ')
+            console.log('POST ')*/
         }
 
         return h('section',
@@ -2675,12 +2680,7 @@ class App extends Component {
             }),
             h(ColorChoiceModal, {
                 turnOn: state.multiplayer && state.multiplayer.entryMethod,
-                updateYourColor: yourColor => this.setState({
-                    multiplayer: {
-                        ...this.state.multiplayer,
-                        yourColor
-                    }
-                })
+                chooseColorPref: colorPref => this.events.emit('choose-color-pref', { colorPref })
             }), 
             h(WaitForYourColorModal, {
                 data: this.state.multiplayer &&
