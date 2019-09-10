@@ -19,6 +19,7 @@ import GameLobbyModal from './GameLobbyModal'
 import WaitForOpponentModal from './WaitForOpponentModal'
 import ColorChoiceModal from './ColorChoiceModal'
 import WaitForYourColorModal from './WaitForYourColorModal'
+import YourColorChosenModal from './YourColorChosenModal'
 
 const deadstones = require('@sabaki/deadstones')
 const gtp = require('@sabaki/gtp')
@@ -2634,7 +2635,8 @@ class App extends Component {
             }), 
             h(WaitForYourColorModal, {
                 data: this.state.multiplayer
-            }), // ↑ BUGOUT ↑
+            }),
+            h(YourColorChosenModal, { yourColor: this.state.multiplayer && this.state.multiplayer.yourColor }), // ↑ BUGOUT ↑
 
             h(ThemeManager),
             h(MainView, state),
