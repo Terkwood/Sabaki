@@ -11,7 +11,7 @@ class ColorChoiceModal extends Component {
         this.state = { showDialog: false, turnedOnOnce: false }
     }
 
-    render({ id = "color-choice-modal", turnOn = false, updatePref }) {
+    render({ id = "color-choice-modal", turnOn = false, chooseColorPref }) {
         let { showDialog, turnedOnOnce } = this.state
       
         return ((turnOn && !turnedOnOnce) || showDialog) ? h(Dialog,
@@ -19,15 +19,15 @@ class ColorChoiceModal extends Component {
                 id,
                 isOpen: true,
             },
-            h(Dialog.Header, null, 'Choose a Color'),
-            h(Dialog.Body, null, "We're on the honor system, for now.  If you choose the same color as your opponent, we apologize."),
+            h(Dialog.Header, null, 'Choose Color Preference'),
+            h(Dialog.Body, null, 'In the case that both players want the same color, we shall assign them at random.'),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
                     { 
                         accept: true, 
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            updatePref( ColorPref.BLACK )
+                            chooseColorPref( ColorPref.BLACK )
                         }
                     }, 
                     "Black")
@@ -38,9 +38,18 @@ class ColorChoiceModal extends Component {
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            updatePref( ColorPref.WHITE )
+                            chooseColorPref( ColorPref.WHITE )
                         }
-                    }, "White"))
+                    }, "White")),
+            h(Dialog.Footer, null, 
+                h(Dialog.FooterButton, 
+                    { 
+                        cancel: true,
+                        onClick: () => {
+                            this.setState({showDialog: false, turnedOnOnce: true })
+                            chooseColorPref( ColorPref.ANY )
+                        }
+                    }, "Either"))
         ) : h('div', { id })
     }
 }

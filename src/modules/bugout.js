@@ -18,9 +18,9 @@ const InitConnected = {
 }
 
 const ColorPref = {
-    BLACK: 1,
-    WHITE: 2,
-    ANY: 3,
+    BLACK: 'Black',
+    WHITE: 'White',
+    ANY: 'Any',
 }
 
 const EntryMethod = {
@@ -35,6 +35,12 @@ const WHITE = "W"
 const Color = {
     BLACK,
     WHITE
+}
+
+/** Gateway uses this rep */
+const Player = {
+    BLACK: "BLACK",
+    WHITE: "WHITE"
 }
 
 /** private to isValidGameId */
@@ -73,8 +79,8 @@ const load = () => {
         readyToEnter: state => state.multiplayer && (
                 state.multiplayer.initConnect == undefined || 
                 state.multiplayer.initConnect < InitConnected.IN_PROGRESS
-            ) && (state.multiplayer.entryMethod || jp.join) && state.multiplayer.colorPref,
-        prefToColor: colorPref => colorPref == ColorPref.BLACK ?  BLACK : WHITE,
+            ) && (state.multiplayer.entryMethod || jp.join),
+        playerToColor: player => player == Player.BLACK ?  BLACK : WHITE,
     };
 }
 
@@ -84,3 +90,4 @@ exports.InitConnected = InitConnected
 exports.ColorPref = ColorPref
 exports.Color = Color
 exports.EntryMethod = EntryMethod
+exports.Player = Player

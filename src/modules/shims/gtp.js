@@ -105,14 +105,14 @@ class WebSocketController extends EventEmitter {
         this.webSocket = new RobustWebSocket(webSocketAddress)
         
 
-        let { joinPrivateGame, entryMethod, handleWaitForOpponent } = spawnOptions
+        let { joinPrivateGame, entryMethod, handleWaitForOpponent, handleYourColor } = spawnOptions.multiplayer
         this.joinPrivateGame = joinPrivateGame
         this.entryMethod = entryMethod
         
         // We pass handleWaitForOpponent down so that it can 'stick'
         // to the incoming websocket message, even after an initial WFP
         // result is returned via findPublicGame() and createPrivateGame() funcs
-        this.gatewayConn = new GatewayConn(this.webSocket, handleWaitForOpponent)
+        this.gatewayConn = new GatewayConn(this.webSocket, handleWaitForOpponent, handleYourColor)
 
         // If it's the first move, and we're white,
         // we'll always request history first. (In case
@@ -190,10 +190,14 @@ class WebSocketController extends EventEmitter {
                 if (msg.type === "MoveMade" && msg.player === opponent) {
                     let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
                     resolve({"id":null,"content":sabakiCoord,"error":false})
+                    let playerUp = otherPlayer(opponent) 
                     this.deadlockMonitor.emit(
                         'they-moved', 
-                        { playerUp: otherPlayer(opponent) }
+                        { playerUp }
                     )
+
+                    // In case white needs to dismiss its initial screen
+                    sabaki.events.emit('they-moved', { playerUp })
                 }
 
                 // discard any other messages until we receive confirmation
@@ -281,15 +285,22 @@ class WebSocketController extends EventEmitter {
 }
 
 class GatewayConn {
-    constructor(webSocket, handleWaitForOpponent) {
+    constructor(webSocket, handleWaitForOpponent, handleYourColor) {
         this.webSocket = webSocket
 
+        if (handleWaitForOpponent == undefined || handleYourColor == undefined) {
+            throw Exception('malformed gateway conn')
+        }
 
         // We manage handleWaitForOpponent at this level
         // so that the incoming websocket message triggers
         // a state update in App.js, even after an initial Wait event
         // has been handled by the WebsocketController
         this.handleWaitForOpponent = handleWaitForOpponent
+
+        this.handleYourColor = handleYourColor
+
+        sabaki.events.on('choose-color-pref', ({ colorPref }) => this.chooseColorPref(colorPref))
     }
 
     async reconnect(gameId, resolveMoveMade, board) {
@@ -416,6 +427,34 @@ class GatewayConn {
 
             // We want to show the modal while we wait for a response from gateway
             this.handleWaitForOpponent( { gap: true, hasEvent: false })
+            this.webSocket.send(JSON.stringify(requestPayload))
+        })
+    }
+
+    async chooseColorPref(colorPref) {
+        return new Promise((resolve, reject) => {
+            let requestPayload = {
+                'type':'ChooseColorPref',
+                'colorPref': colorPref
+            }
+
+            this.webSocket.addEventListener('message', event => {
+                try {
+                    let msg = JSON.parse(event.data)
+                    
+                    if (msg.type === 'YourColor') {
+                        resolve(msg)
+                        this.handleYourColor({ wait: false, event: msg })
+                    }
+                    // discard any other messages
+                } catch (err) {
+                    console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                    reject()
+                }
+            })
+
+            // We want to show a modal while we wait for a response from gateway
+            this.handleYourColor( { wait: true } )
             this.webSocket.send(JSON.stringify(requestPayload))
         })
     }

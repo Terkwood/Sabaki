@@ -18,6 +18,8 @@ const InfoOverlay = require('./InfoOverlay')
 import GameLobbyModal from './GameLobbyModal'
 import WaitForOpponentModal from './WaitForOpponentModal'
 import ColorChoiceModal from './ColorChoiceModal'
+import WaitForYourColorModal from './WaitForYourColorModal'
+import YourColorChosenModal from './YourColorChosenModal'
 
 const deadstones = require('@sabaki/deadstones')
 const gtp = require('@sabaki/gtp')
@@ -2118,8 +2120,30 @@ class App extends Component {
                                     ...this.state.multiplayer,
                                     waitForOpponentModal: data
                                 }
-                        })
-                    }
+                            })
+                        },
+                        handleYourColor: data => {
+                            this.setState({
+                                multiplayer: {
+                                    ...this.state.multiplayer,
+                                    yourColor: data
+                                }
+                            })
+
+                            if (data == "WHITE") {
+                                this.setState({
+                                    attachedEngines: this.state.attachedEngines.reverse()
+                                })
+                            }
+                        },
+                        setSendColorPref: sendColorPref => {
+                            this.setState({
+                                multiplayer: {
+                                    ...this.state.multiplayer,
+                                    sendColorPref
+                                }
+                            })
+                        }
                     }) // 😇BUGOUT😇
                 this.attachedEngineSyncers[i] = syncer
 
@@ -2550,7 +2574,8 @@ class App extends Component {
             this.detachEngines()
             this.clearConsole()
 
-            let playerColor = this.bugout.prefToColor(state.multiplayer.colorPref)
+            let placeholderColor = "BLACK"
+
             this.bugout.attach((a, b) => {
                 this.attachEngines(a, b)
 
@@ -2569,34 +2594,16 @@ class App extends Component {
                             initConnect: bugout.InitConnected.CONNECTED
                         }
                     })
-                    if (this.state.multiplayer && playerColor === bugout.Color.WHITE) {
-                        if (playerColor == bugout.Color.WHITE) {
-                            let intervalMs = 33
 
-                            let stop = () => clearInterval(running)
+                    this.events.once('your-color', ({ yourColor }) => {
+                        console.log(`yourColor ${yourColor}`)
 
-                            let genMoveAfterWaitForOpponentIsOver = () => {
-                                let wfpm = this.state.multiplayer.waitForOpponentModal
-
-                                if ( undefined == wfpm ||  wfpm.gap || wfpm.hasEvent ) {
-                                    // no op
-
-                                    // not ready for the first move
-                                    // as long as we're waiting for
-                                    // the opponent to show up
-                                } else {
-                                    stop()
-                                    this.generateMove({ firstMove: true })
-                                }
-                            }
-
-
-                            let running = setInterval(genMoveAfterWaitForOpponentIsOver, intervalMs)
+                        if (yourColor === "WHITE") {
+                            this.generateMove({ firstMove: true })
                         }
-                    }
+                    })
                 }
-            }, playerColor) // not undefined since we're readyToEnter
-            
+            }, placeholderColor)
         }
 
         return h('section',
@@ -2608,6 +2615,7 @@ class App extends Component {
                 })
             },
 
+            // ↓ BUGOUT ↓
             h(GameLobbyModal, {
                 joinPrivateGame: this.bugout.joinPrivateGame.join,
                 update: entryMethod => this.setState({ 
@@ -2622,13 +2630,12 @@ class App extends Component {
             }),
             h(ColorChoiceModal, {
                 turnOn: state.multiplayer && state.multiplayer.entryMethod,
-                updatePref: colorPref => this.setState({
-                    multiplayer: {
-                        ...this.state.multiplayer,
-                        colorPref
-                    }
-                })
-            }), // BUGOUT
+                chooseColorPref: colorPref => this.events.emit('choose-color-pref', { colorPref })
+            }), 
+            h(WaitForYourColorModal, {
+                data: this.state.multiplayer
+            }),
+            h(YourColorChosenModal, { yourColor: this.state.multiplayer && this.state.multiplayer.yourColor }), // ↑ BUGOUT ↑
 
             h(ThemeManager),
             h(MainView, state),
