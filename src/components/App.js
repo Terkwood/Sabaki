@@ -2580,7 +2580,6 @@ class App extends Component {
                 this.attachEngines(a, b)
 
                 if (this.state.attachedEngines === [null, null]) {
-                    console.log('NULL NULL')
                     this.setState({
                         multiplayer: {
                             ...this.state.multiplayer,
