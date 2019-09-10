@@ -7,6 +7,10 @@ class YourColorChosenModal extends Component {
     constructor() {
         super()
         this.state = { showDialog: false, turnedOnOnce: false }
+
+        // From GTP.js :-D
+        sabaki.events.on('they-moved', () => 
+        this.setState({showDialog: false, turnedOnOnce: true }))
     }
 
     render({ id = "color-choice-modal", yourColor }) {
@@ -25,10 +29,6 @@ class YourColorChosenModal extends Component {
             // App.js is waiting on this to potentially call this.generateMove for white
             sabaki.events.emit('your-color', yourColor.event)
         }
-
-        // From GTP.js :-D
-        sabaki.events.on('they-moved', () => 
-        this.setState({showDialog: false, turnedOnOnce: true }))
 
         return isItReallyOn ? h(Dialog,
             {
