@@ -31,7 +31,7 @@ class WaitForYourColorModal extends Component {
                     isOpen: true,
                 },
                 h(Dialog.Header, null, 'Please Wait' ),
-                h(Dialog.Body, null, 'WAITING FOR YOUR COLOR')
+                h(Dialog.Body, null, 'Choosing colors...')
             )
         : empty
     }
