@@ -37,8 +37,6 @@ class Controller extends EventEmitter {
         this._webSocketController.on('command-sent', evt => this.emit('command-sent', evt))
         this._webSocketController.on('response-received', evt => this.emit('response-received', evt))
 
-        this.on('choose-color-pref', evt => this._webSocketController.emit('choose-color-pref', evt))
-
         this.emit('started')
     }
 
@@ -181,8 +179,6 @@ class WebSocketController extends EventEmitter {
         this.webSocket.addEventListener('connecting', () => {
             console.log('Reconnecting...')
         })
-
-        this.on('choose-color-pref', evt => this.gatewayConn.chooseColorPref(evt))
     }
 
     listenForMove(opponent, resolve) {
