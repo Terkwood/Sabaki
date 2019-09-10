@@ -2570,7 +2570,6 @@ class App extends Component {
             let placeholderColor = "BLACK"
 
             this.bugout.attach((a, b) => {
-                console.log('ATTACH')
                 this.attachEngines(a, b)
 
                 if (this.state.attachedEngines === [null, null]) {
@@ -2590,10 +2589,13 @@ class App extends Component {
                         }
                     })
 
-                    // TODO once upon a time
                     this.events.once('your-color', ({ yourColor }) => {
+                        console.log(`yourColor ${yourColor}`)
+
                         if (yourColor === "WHITE") {
+                            // placeholderColor is wrong
                             this.setState({attachedEngines: this.state.attachedEngines.reverse()})
+                            //this.setPlayer(tree, treePosition, -1)
 
                             this.generateMove({ firstMove: true })
                         }
