@@ -447,6 +447,9 @@ class GatewayConn {
                     if (msg.type === 'YourColor') {
                         resolve(msg)
                         this.handleYourColor({ wait: false, event: msg })
+                        
+                        // App.js is waiting on this to finalize colors
+                        sabaki.events.emit('your-color', msg)
                     }
                     // discard any other messages
                 } catch (err) {

@@ -2609,10 +2609,17 @@ class App extends Component {
                                     initConnect: bugout.InitConnected.CONNECTED
                                 }
                             })
+
+                            this.events.on('your-color', ({ yourColor }) => {
+                                if (yourColor === "WHITE") {
+                                    console.log('a weird trick')
+                                    this.setState({attachedEngines: this.state.attachedEngines.reverse()})
+
+                                    this.generateMove({ firstMove: true })
+                                }
+                            })
                             
                             /*
-                            console.log('a weird trick')
-                            this.setState({attachedEngines: this.state.attachedEngines.reverse()})
                             */
 
                             // TODO
@@ -2635,7 +2642,7 @@ class App extends Component {
                                             // the opponent to show up
                                         } else {
                                             stop()
-                                            this.generateMove({ firstMove: true })
+                                            
                                         }
                                     }
 
