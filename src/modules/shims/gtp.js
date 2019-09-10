@@ -446,9 +446,7 @@ class GatewayConn {
                     
                     if (msg.type === 'YourColor') {
                         resolve(msg)
-                        // TODO remove?
                         this.handleYourColor({ wait: false, event: msg })
-                        sabaki.events.emit('your-color', msg)
                     }
                     // discard any other messages
                 } catch (err) {

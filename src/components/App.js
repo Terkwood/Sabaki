@@ -2569,8 +2569,6 @@ class App extends Component {
 
             let intervalMs = 33
 
-            this.events.on('your-color', evt => console.log(`your color arrived ${JSON.stringify(evt)}`))
-
             // TODO
             /*let stopColorInterval = () => clearInterval(colorInterval)
 
