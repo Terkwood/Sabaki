@@ -194,10 +194,14 @@ class WebSocketController extends EventEmitter {
                 if (msg.type === "MoveMade" && msg.player === opponent) {
                     let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
                     resolve({"id":null,"content":sabakiCoord,"error":false})
+                    let playerUp = otherPlayer(opponent) 
                     this.deadlockMonitor.emit(
                         'they-moved', 
-                        { playerUp: otherPlayer(opponent) }
+                        { playerUp }
                     )
+
+                    // In case white needs to dismiss its initial screen
+                    sabaki.events.emit('they-moved', { playerUp })
                 }
 
                 // discard any other messages until we receive confirmation
@@ -447,9 +451,6 @@ class GatewayConn {
                     if (msg.type === 'YourColor') {
                         resolve(msg)
                         this.handleYourColor({ wait: false, event: msg })
-                        
-                        // App.js is waiting on this to finalize colors
-                        sabaki.events.emit('your-color', msg)
                     }
                     // discard any other messages
                 } catch (err) {

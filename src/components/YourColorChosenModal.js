@@ -16,28 +16,39 @@ class YourColorChosenModal extends Component {
         let empty = h('div', { id })
 
         if (undefined == yourColor || yourColor.wait || undefined == yourColor.event.yourColor) {
-            console.log('sad')
             return empty
         }
 
-        console.log('happy')
-        return !yourColor.wait && (!turnedOnOnce || showDialog) ? h(Dialog,
+        let isItReallyOn = !yourColor.wait && (!turnedOnOnce || showDialog)
+
+        if (isItReallyOn && yourColor.event.yourColor === "WHITE") {
+            // App.js is waiting on this to potentially call this.generateMove for white
+            sabaki.events.emit('your-color', yourColor.event)
+        }
+
+        // From GTP.js :-D
+        sabaki.events.on('they-moved', () => 
+        this.setState({showDialog: false, turnedOnOnce: true }))
+
+        return isItReallyOn ? h(Dialog,
             {
                 id,
                 isOpen: true,
             },
             h(Dialog.Header, null, 'Your Color'),
             h(Dialog.Body, null, `Please enjoy playing ${yourColor.event.yourColor}.`),
-            h(Dialog.Footer, null, 
-                h(Dialog.FooterButton, 
-                    { 
-                        accept: true, 
-                        onClick: () => {
-                            this.setState({showDialog: false, turnedOnOnce: true })
-                        }
-                    }, 
-                    "OK")
-                )
+            yourColor.event.yourColor === "BLACK" ?
+                h(Dialog.Footer, null, 
+                    h(Dialog.FooterButton, 
+                        { 
+                            accept: true, 
+                            onClick: () => {
+                                this.setState({showDialog: false, turnedOnOnce: true })
+                            }
+                        }, 
+                        "OK")
+                    ) :
+                empty,
         ) : empty
     }
 }
