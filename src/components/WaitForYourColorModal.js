@@ -12,8 +12,19 @@ class WaitForYourColorModal extends Component {
         id = 'wait-for-your-color-modal', 
         data
     }) {
+        let empty = h('div', { id })
 
-        return undefined != data && data.wait ?
+        if (undefined == data) {
+            return empty
+        }
+
+        let { yourColor, waitForOpponentModal } = data
+
+        if (undefined == yourColor || undefined == waitForOpponentModal) {
+            return empty
+        }
+
+        return yourColor.wait && waitForOpponentModal.gap == false && waitForOpponentModal.hasEvent == false ?
            h(Dialog,
                 {
                     id,
@@ -22,7 +33,7 @@ class WaitForYourColorModal extends Component {
                 h(Dialog.Header, null, 'Please Wait' ),
                 h(Dialog.Body, null, 'WAITING FOR YOUR COLOR')
             )
-        : h('div', { id })
+        : empty
     }
 }
 

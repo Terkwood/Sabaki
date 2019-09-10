@@ -2691,8 +2691,7 @@ class App extends Component {
                 chooseColorPref: colorPref => this.events.emit('choose-color-pref', { colorPref })
             }), 
             h(WaitForYourColorModal, {
-                data: this.state.multiplayer &&
-                this.state.multiplayer.yourColor
+                data: this.state.multiplayer
             }), // ↑ BUGOUT ↑
 
             h(ThemeManager),
