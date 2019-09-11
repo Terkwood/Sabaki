@@ -20,6 +20,7 @@ import WaitForOpponentModal from './bugout/WaitForOpponentModal'
 import ColorChoiceModal from './bugout/ColorChoiceModal'
 import WaitForYourColorModal from './bugout/WaitForYourColorModal'
 import YourColorChosenModal from './bugout/YourColorChosenModal'
+import ReconnectModal from './bugout/ReconnectModal'
 
 const deadstones = require('@sabaki/deadstones')
 const gtp = require('@sabaki/gtp')
@@ -2594,7 +2595,9 @@ class App extends Component {
             h(WaitForYourColorModal, {
                 data: this.state.multiplayer
             }),
-            h(YourColorChosenModal, { yourColor: this.state.multiplayer && this.state.multiplayer.yourColor }), // ↑ BUGOUT ↑
+            h(YourColorChosenModal, { yourColor: this.state.multiplayer && this.state.multiplayer.yourColor }), 
+            h(ReconnectModal, { data: this.state.multiplayer }), 
+            // ↑ BUGOUT ↑
 
             h(ThemeManager),
             h(MainView, state),

@@ -63,6 +63,55 @@ const joinPrivateGameParam = () => {
     }
 }
 
+const registerReconnectEvents = app => {
+    app.events.on('websocket-closed', () => app.setState({
+        multiplayer: {
+            ...app.state.multiplayer,
+            connectionState: ConnectionState.DISCONNECTED,
+            reconnectDialog: true,
+        }
+    }))
+
+    app.events.on('websocket-connecting', () => app.setState({
+        multiplayer: {
+            ...app.state.multiplayer,
+            connectionState: ConnectionState.IN_PROGRESS,
+            reconnectDialog: true, // we've already connected once 
+        }
+    }))
+
+    app.events.on('websocket-error', () => app.setState({
+        multiplayer: {
+            ...app.state.multiplayer,
+            connectionState: ConnectionState.FAILED,
+            reconnectDialog: true,
+        }
+    }))
+
+    // The name differs since we're interested in a logical
+    // reconnect, not simply a connection to the websocket.
+    // We know that we have a valid game ID in hand.
+    app.events.on('bugout-reconnected', ({ playerUp }) => {
+        app.setState({
+            multiplayer: {
+                ...app.state.multiplayer,
+                connectionState: ConnectionState.CONNECTED,
+                playerUp
+            }
+        })
+
+        let dialogDurationMs = 1000
+    
+        setTimeout(() => app.setState({
+            multiplayer: {
+                ...app.state.multiplayer,
+                reconnectDialog: false,
+                playerUp: undefined
+            }
+        }), dialogDurationMs)
+    })
+}
+
 const placeholderColor = Player.BLACK
 
 const load = () => {
@@ -70,7 +119,7 @@ const load = () => {
     let jp = joinPrivateGameParam()
     let readyToEnter = state => state.multiplayer && (
         state.multiplayer.connectionState == undefined || 
-        state.multiplayer.connectionState < ConnectionState.IN_PROGRESS
+        (state.multiplayer.connectionState < ConnectionState.IN_PROGRESS & !state.multiplayer.reconnectDialog)
     ) && (state.multiplayer.entryMethod || jp.join)
     return {
         joinPrivateGame: jp,
@@ -120,6 +169,8 @@ const load = () => {
                                 app.generateMove({ firstMove: true })
                             }
                         })
+
+                        registerReconnectEvents(app)
                     }
                 }, placeholderColor)
             }
