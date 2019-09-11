@@ -129,15 +129,13 @@ const load = () => {
                             }
                         }))
 
-                        app.events.on('websocket-connecting', () => {
-                            app.setState({
-                                multiplayer: {
-                                    ...app.state.multiplayer,
-                                    connectionState: ConnectionState.IN_PROGRESS,
-                                    reconnectDialog: true, // we've already connected once 
-                                }
-                            })
-                        })
+                        app.events.on('websocket-connecting', () => app.setState({
+                            multiplayer: {
+                                ...app.state.multiplayer,
+                                connectionState: ConnectionState.IN_PROGRESS,
+                                reconnectDialog: true, // we've already connected once 
+                            }
+                        }))
 
                         app.events.on('websocket-error', () => app.setState({
                             multiplayer: {
