@@ -91,11 +91,12 @@ const registerReconnectEvents = app => {
     // The name differs since we're interested in a logical
     // reconnect, not simply a connection to the websocket.
     // We know that we have a valid game ID in hand.
-    app.events.on('bugout-reconnected', () => {
+    app.events.on('bugout-reconnected', ({ playerUp }) => {
         app.setState({
             multiplayer: {
                 ...app.state.multiplayer,
                 connectionState: ConnectionState.CONNECTED,
+                playerUp
             }
         })
 
@@ -105,6 +106,7 @@ const registerReconnectEvents = app => {
             multiplayer: {
                 ...app.state.multiplayer,
                 reconnectDialog: false,
+                playerUp: undefined
             }
         }), dialogDurationMs)
     })

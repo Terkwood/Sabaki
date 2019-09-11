@@ -172,7 +172,7 @@ class WebSocketController extends EventEmitter {
                     .then((rc, err) => {
                         if (!err) {
                             console.log(`Reconnected! playerUp: ${rc.playerUp}`)
-                            sabaki.events.emit('bugout-reconnected')
+                            sabaki.events.emit('bugout-reconnected', rc)
                         } else {
                             throwFatal()
                         }

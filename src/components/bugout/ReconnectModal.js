@@ -7,16 +7,16 @@ const { ConnectionState } = require('../../modules/bugout')
 
 const DisconnectedBody = h(Dialog.Body, null, 'Please wait while we reestablish internet communication.')
 const InProgressBody = h(Dialog.Body, null, 'Connecting...')
-const ConnectedBody = h(Dialog.Body, null, 'Connected!')
+const ConnectedBody = playerUp => h(Dialog.Body, null, `Connected! Player up: ${playerUp}`)
 const FailedBody = h(Dialog.Body, null, 'FATAL ERROR ⚰️')
 
-const chooseBody = connectionState => {
+const chooseBody = (connectionState, playerUp) => {
     if (connectionState == ConnectionState.DISCONNECTED) {
         return DisconnectedBody
     } else if (connectionState == ConnectionState.IN_PROGRESS) {
         return InProgressBody
     } else if (connectionState == ConnectionState.CONNECTED) {
-        return ConnectedBody
+        return ConnectedBody(playerUp)
     } else {
         return FailedBody
     }
@@ -37,7 +37,7 @@ class ReconnectModal extends Component {
             return empty
         }
 
-        let { reconnectDialog, connectionState } = data
+        let { reconnectDialog, connectionState, playerUp } = data
 
         if (undefined == reconnectDialog || undefined == connectionState) {
             return empty
@@ -50,7 +50,7 @@ class ReconnectModal extends Component {
                     isOpen: true,
                 },
                 h(Dialog.Header, null, 'Network Unavailable' ),
-                chooseBody(connectionState)
+                chooseBody(connectionState, playerUp)
             )
         : empty
     }
