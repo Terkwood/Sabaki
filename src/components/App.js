@@ -15,11 +15,11 @@ const BusyScreen = require('./BusyScreen')
 const InfoOverlay = require('./InfoOverlay')
 
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
-import GameLobbyModal from './GameLobbyModal'
-import WaitForOpponentModal from './WaitForOpponentModal'
-import ColorChoiceModal from './ColorChoiceModal'
-import WaitForYourColorModal from './WaitForYourColorModal'
-import YourColorChosenModal from './YourColorChosenModal'
+import GameLobbyModal from './bugout/GameLobbyModal'
+import WaitForOpponentModal from './bugout/WaitForOpponentModal'
+import ColorChoiceModal from './bugout/ColorChoiceModal'
+import WaitForYourColorModal from './bugout/WaitForYourColorModal'
+import YourColorChosenModal from './bugout/YourColorChosenModal'
 
 const deadstones = require('@sabaki/deadstones')
 const gtp = require('@sabaki/gtp')
@@ -2563,48 +2563,7 @@ class App extends Component {
 
         state = Object.assign(state, this.inferredState)
 
-        if (this.bugout.readyToEnter(state)) {
-            this.setState({
-                multiplayer: {
-                    ...this.state.multiplayer,
-                    initConnect: bugout.InitConnected.IN_PROGRESS
-                }
-            })
-            
-            this.detachEngines()
-            this.clearConsole()
-
-            let placeholderColor = "BLACK"
-
-            this.bugout.attach((a, b) => {
-                this.attachEngines(a, b)
-
-                if (this.state.attachedEngines === [null, null]) {
-                    this.setState({
-                        multiplayer: {
-                            ...this.state.multiplayer,
-                            initConnect: bugout.InitConnected.FAILED
-                        }
-                    })
-                    throw Exception('multiplayer connect failed')
-                } else {
-                    this.setState({
-                        multiplayer: {
-                            ...this.state.multiplayer,
-                            initConnect: bugout.InitConnected.CONNECTED
-                        }
-                    })
-
-                    this.events.once('your-color', ({ yourColor }) => {
-                        console.log(`yourColor ${yourColor}`)
-
-                        if (yourColor === "WHITE") {
-                            this.generateMove({ firstMove: true })
-                        }
-                    })
-                }
-            }, placeholderColor)
-        }
+        this.bugout.enterGame(this, state) // 😀
 
         return h('section',
             {

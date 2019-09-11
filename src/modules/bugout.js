@@ -10,7 +10,7 @@ const Visibility = {
  * Enum representing the status of an initial connection
  * attempt from Sabaki client to Bugout gateway
  */
-const InitConnected = {
+const ConnectionState = {
     DISCONNECTED: 0,
     IN_PROGRESS: 1,
     CONNECTED: 2,
@@ -63,9 +63,15 @@ const joinPrivateGameParam = () => {
     }
 }
 
+const placeholderColor = Player.BLACK
+
 const load = () => {
     let engine = {"name":"Opponent", "path":"/bugout", "args": ""}
     let jp = joinPrivateGameParam()
+    let readyToEnter = state => state.multiplayer && (
+        state.multiplayer.connectionState == undefined || 
+        state.multiplayer.connectionState < ConnectionState.IN_PROGRESS
+    ) && (state.multiplayer.entryMethod || jp.join)
     return {
         joinPrivateGame: jp,
         engine,
@@ -76,17 +82,55 @@ const load = () => {
                 appAttachEngines(null,engine)
             }
         },
-        readyToEnter: state => state.multiplayer && (
-                state.multiplayer.initConnect == undefined || 
-                state.multiplayer.initConnect < InitConnected.IN_PROGRESS
-            ) && (state.multiplayer.entryMethod || jp.join),
         playerToColor: player => player == Player.BLACK ?  BLACK : WHITE,
+        enterGame: (app, state) => {
+            if (readyToEnter(state)) {
+                app.setState({
+                    multiplayer: {
+                        ...app.state.multiplayer,
+                        connectionState: ConnectionState.IN_PROGRESS
+                    }
+                })
+                
+                app.detachEngines()
+                app.clearConsole()
+
+                app.bugout.attach((a, b) => {
+                    app.attachEngines(a, b)
+
+                    if (app.state.attachedEngines === [null, null]) {
+                        app.setState({
+                            multiplayer: {
+                                ...app.state.multiplayer,
+                                connectionState: ConnectionState.FAILED
+                            }
+                        })
+                        throw Exception('multiplayer connect failed')
+                    } else {
+                        app.setState({
+                            multiplayer: {
+                                ...app.state.multiplayer,
+                                connectionState: ConnectionState.CONNECTED,
+                                reconnectDialog: false, // We just now connected for the first time
+                            }
+                        })
+
+                        app.events.once('your-color', ({ yourColor }) => {
+                            if (yourColor === Player.WHITE) {
+                                app.generateMove({ firstMove: true })
+                            }
+                        })
+                    }
+                }, placeholderColor)
+            }
+
+        }
     };
 }
 
 exports.load = load
 exports.Visibility = Visibility
-exports.InitConnected = InitConnected
+exports.ConnectionState = ConnectionState
 exports.ColorPref = ColorPref
 exports.Color = Color
 exports.EntryMethod = EntryMethod

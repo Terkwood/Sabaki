@@ -9,12 +9,14 @@ class YourColorChosenModal extends Component {
         this.state = { showDialog: false, turnedOnOnce: false }
 
         // From GTP.js :-D
-        sabaki.events.on('they-moved', () => 
-        this.setState({showDialog: false, turnedOnOnce: true }))
+        sabaki.events.on('they-moved',
+            () => this.setState({
+                showDialog: false, 
+                turnedOnOnce: true 
+            }))
     }
 
     render({ id = "color-choice-modal", yourColor }) {
-        console.log(`modal ${JSON.stringify(yourColor)}`)
         let { showDialog, turnedOnOnce } = this.state
       
         let empty = h('div', { id })

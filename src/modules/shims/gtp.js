@@ -96,7 +96,6 @@ class WebSocketController extends EventEmitter {
 
         this.board = new Board(19,19) // TODO BUGOUT don't hardcode this
         this.gameId = null
-        this.deadlockMonitor = new DeadlockMonitor()
 
         this.beeping = true
         setTimeout(() => this.beep(), GATEWAY_BEEP_TIMEOUT_MS)
@@ -119,12 +118,14 @@ class WebSocketController extends EventEmitter {
         // black has already moved.)
         this.firstMove = true
 
-        this.webSocket.addEventListener('close', event => {
+        this.webSocket.addEventListener('close', () => {
             console.log("WebSocket closed.")
+            sabaki.events.emit('websocket-closed')
         })
 
         this.webSocket.addEventListener('error',event => {
             console.log(`WebSocket error ${JSON.stringify(event)}`)
+            sabaki.events.emit('websocket-error')
         })
 
         this.webSocket.addEventListener('open', () => {
@@ -169,16 +170,20 @@ class WebSocketController extends EventEmitter {
                 this.gatewayConn
                     .reconnect(this.gameId, this.resolveMoveMade, this.board)
                     .then((rc, err) => {
-                        console.log(`Reconnected! playerUp: ${rc.playerUp}`)
-                        this.deadlockMonitor.emit('reconnected', { playerUp: rc.playerUp })
+                        if (!err) {
+                            console.log(`Reconnected! playerUp: ${rc.playerUp}`)
+                            sabaki.events.emit('bugout-reconnected')
+                        } else {
+                            throwFatal()
+                        }
                     })
             }
         })
 
         // reconnect event
-        this.webSocket.addEventListener('connecting', () => {
-            console.log('Reconnecting...')
-        })
+        this.webSocket.addEventListener('connecting', () =>
+            sabaki.events.emit('websocket-connecting')
+        )
     }
 
     listenForMove(opponent, resolve) {
@@ -191,10 +196,6 @@ class WebSocketController extends EventEmitter {
                     let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
                     resolve({"id":null,"content":sabakiCoord,"error":false})
                     let playerUp = otherPlayer(opponent) 
-                    this.deadlockMonitor.emit(
-                        'they-moved', 
-                        { playerUp }
-                    )
 
                     // In case white needs to dismiss its initial screen
                     sabaki.events.emit('they-moved', { playerUp })
@@ -207,7 +208,6 @@ class WebSocketController extends EventEmitter {
                 resolve({"id": null, "content": "", "error": true})
             }
         })
-        this.deadlockMonitor.emit('waiting', { playerUp: opponent })
     }
 
 
@@ -237,7 +237,6 @@ class WebSocketController extends EventEmitter {
                         if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
                             this.resolveMoveMade = undefined
                             resolve({id: null, error: false})
-                            this.deadlockMonitor.emit('we-moved', { playerUp: otherPlayer(player) })
                         }
 
                         // discard any other messages until we receive confirmation
@@ -456,22 +455,6 @@ class GatewayConn {
             // We want to show a modal while we wait for a response from gateway
             this.handleYourColor( { wait: true } )
             this.webSocket.send(JSON.stringify(requestPayload))
-        })
-    }
-}
-
-class DeadlockMonitor extends EventEmitter {
-    constructor() {
-        super()
-
-        this.playerUp = "BLACK"
-        this.on('we-moved', evt => this.playerUp = evt.playerUp)
-        this.on('they-moved', evt => this.playerUp = evt.playerUp)
-        this.on('waiting', evt => this.playerUp = evt.playerUp)
-        this.on('reconnected', evt => {
-            if (evt.playerUp !== this.playerUp) {
-                alert("⚰️ DEADLOCK... ☠️ ...GAMEOVER ⚰️")
-            }
         })
     }
 }

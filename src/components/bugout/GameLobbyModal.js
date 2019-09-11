@@ -3,7 +3,7 @@ const { h, Component } = require('preact')
 // 🦹🏻‍ Bundle Bloat Protector
 import Dialog from 'preact-material-components/Dialog'
 
-const { EntryMethod } = require('../modules/bugout')
+const { EntryMethod } = require('../../modules/bugout')
 
 class GameLobbyModal extends Component {
     constructor() {
