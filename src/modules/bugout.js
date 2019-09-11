@@ -63,6 +63,8 @@ const joinPrivateGameParam = () => {
     }
 }
 
+const placeholderColor = Player.BLACK
+
 const load = () => {
     let engine = {"name":"Opponent", "path":"/bugout", "args": ""}
     let jp = joinPrivateGameParam()
@@ -81,7 +83,7 @@ const load = () => {
             }
         },
         playerToColor: player => player == Player.BLACK ?  BLACK : WHITE,
-        render: (app, state) => {
+        enterGame: (app, state) => {
             if (readyToEnter(state)) {
                 app.setState({
                     multiplayer: {
@@ -92,8 +94,6 @@ const load = () => {
                 
                 app.detachEngines()
                 app.clearConsole()
-
-                let placeholderColor = "BLACK"
 
                 app.bugout.attach((a, b) => {
                     app.attachEngines(a, b)
@@ -116,9 +116,7 @@ const load = () => {
                         })
 
                         app.events.once('your-color', ({ yourColor }) => {
-                            console.log(`yourColor ${yourColor}`)
-
-                            if (yourColor === "WHITE") {
+                            if (yourColor === Player.WHITE) {
                                 app.generateMove({ firstMove: true })
                             }
                         })
