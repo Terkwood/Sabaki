@@ -134,7 +134,6 @@ const load = () => {
         playerToColor: player => player == Player.BLACK ?  BLACK : WHITE,
         enterGame: (app, state) => {
             if (readyToEnter(state)) {
-                console.log('READY TO ENTER')
                 app.setState({
                     multiplayer: {
                         ...app.state.multiplayer,
