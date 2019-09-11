@@ -119,8 +119,9 @@ class WebSocketController extends EventEmitter {
         // black has already moved.)
         this.firstMove = true
 
-        this.webSocket.addEventListener('close', event => {
+        this.webSocket.addEventListener('close', () => {
             console.log("WebSocket closed.")
+            sabaki.events.emit('websocket-closed')
         })
 
         this.webSocket.addEventListener('error',event => {
@@ -171,14 +172,15 @@ class WebSocketController extends EventEmitter {
                     .then((rc, err) => {
                         console.log(`Reconnected! playerUp: ${rc.playerUp}`)
                         this.deadlockMonitor.emit('reconnected', { playerUp: rc.playerUp })
+                        sabaki.events.emit('bugout-reconnected')
                     })
             }
         })
 
         // reconnect event
-        this.webSocket.addEventListener('connecting', () => {
-            console.log('Reconnecting...')
-        })
+        this.webSocket.addEventListener('connecting', () =>
+            sabaki.events.emit('websocket-connecting')
+        )
     }
 
     listenForMove(opponent, resolve) {

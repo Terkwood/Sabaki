@@ -2567,7 +2567,7 @@ class App extends Component {
             this.setState({
                 multiplayer: {
                     ...this.state.multiplayer,
-                    initConnect: bugout.InitConnected.IN_PROGRESS
+                    connectionState: bugout.ConnectionState.IN_PROGRESS
                 }
             })
             
@@ -2583,7 +2583,7 @@ class App extends Component {
                     this.setState({
                         multiplayer: {
                             ...this.state.multiplayer,
-                            initConnect: bugout.InitConnected.FAILED
+                            connectionState: bugout.ConnectionState.FAILED
                         }
                     })
                     throw Exception('multiplayer connect failed')
@@ -2591,7 +2591,8 @@ class App extends Component {
                     this.setState({
                         multiplayer: {
                             ...this.state.multiplayer,
-                            initConnect: bugout.InitConnected.CONNECTED
+                            connectionState: bugout.ConnectionState.CONNECTED,
+                            reconnectDialog: false, // We just now connected for the first time
                         }
                     })
 
@@ -2602,6 +2603,35 @@ class App extends Component {
                             this.generateMove({ firstMove: true })
                         }
                     })
+
+                    this.events.on('websocket-closed', () => this.setState({
+                        multiplayer: {
+                            ...this.state.multiplayer,
+                            connectionState: bugout.ConnectionState.CLOSED,
+                            reconnectDialog: true,
+                        }
+                    }))
+
+                    this.events.on('websocket-connecting', () => {
+                        this.setState({
+                            multiplayer: {
+                                ...this.state.multiplayer,
+                                connectionState: bugout.ConnectionState.IN_PROGRESS,
+                                reconnectDialog: true, // If we got to this "events.on" call, we've already connected once 
+                            }
+                        })
+                    })
+
+                    // The name differs since we're interested in a logical
+                    // reconnect, not simply a connection to the websocket.
+                    // We know that we have a valid game ID in hand.
+                    this.events.on('bugout-reconnected', () => this.setState({
+                        multiplayer: {
+                            ...this.state.multiplayer,
+                            connectionState: bugout.ConnectionState.CONNECTED,
+                            reconnectDialog: false,
+                        }
+                    }))
                 }
             }, placeholderColor)
         }

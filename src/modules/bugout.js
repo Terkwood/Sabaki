@@ -10,7 +10,7 @@ const Visibility = {
  * Enum representing the status of an initial connection
  * attempt from Sabaki client to Bugout gateway
  */
-const InitConnected = {
+const ConnectionState = {
     DISCONNECTED: 0,
     IN_PROGRESS: 1,
     CONNECTED: 2,
@@ -77,8 +77,8 @@ const load = () => {
             }
         },
         readyToEnter: state => state.multiplayer && (
-                state.multiplayer.initConnect == undefined || 
-                state.multiplayer.initConnect < InitConnected.IN_PROGRESS
+                state.multiplayer.connectionState == undefined || 
+                state.multiplayer.connectionState < ConnectionState.IN_PROGRESS
             ) && (state.multiplayer.entryMethod || jp.join),
         playerToColor: player => player == Player.BLACK ?  BLACK : WHITE,
     };
@@ -86,7 +86,7 @@ const load = () => {
 
 exports.load = load
 exports.Visibility = Visibility
-exports.InitConnected = InitConnected
+exports.ConnectionState = ConnectionState
 exports.ColorPref = ColorPref
 exports.Color = Color
 exports.EntryMethod = EntryMethod
