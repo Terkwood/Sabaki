@@ -126,6 +126,7 @@ class WebSocketController extends EventEmitter {
 
         this.webSocket.addEventListener('error',event => {
             console.log(`WebSocket error ${JSON.stringify(event)}`)
+            sabaki.events.emit('websocket-error')
         })
 
         this.webSocket.addEventListener('open', () => {

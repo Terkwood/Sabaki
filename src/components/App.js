@@ -2563,78 +2563,7 @@ class App extends Component {
 
         state = Object.assign(state, this.inferredState)
 
-        if (this.bugout.readyToEnter(state)) {
-            this.setState({
-                multiplayer: {
-                    ...this.state.multiplayer,
-                    connectionState: bugout.ConnectionState.IN_PROGRESS
-                }
-            })
-            
-            this.detachEngines()
-            this.clearConsole()
-
-            let placeholderColor = "BLACK"
-
-            this.bugout.attach((a, b) => {
-                this.attachEngines(a, b)
-
-                if (this.state.attachedEngines === [null, null]) {
-                    this.setState({
-                        multiplayer: {
-                            ...this.state.multiplayer,
-                            connectionState: bugout.ConnectionState.FAILED
-                        }
-                    })
-                    throw Exception('multiplayer connect failed')
-                } else {
-                    this.setState({
-                        multiplayer: {
-                            ...this.state.multiplayer,
-                            connectionState: bugout.ConnectionState.CONNECTED,
-                            reconnectDialog: false, // We just now connected for the first time
-                        }
-                    })
-
-                    this.events.once('your-color', ({ yourColor }) => {
-                        console.log(`yourColor ${yourColor}`)
-
-                        if (yourColor === "WHITE") {
-                            this.generateMove({ firstMove: true })
-                        }
-                    })
-
-                    this.events.on('websocket-closed', () => this.setState({
-                        multiplayer: {
-                            ...this.state.multiplayer,
-                            connectionState: bugout.ConnectionState.CLOSED,
-                            reconnectDialog: true,
-                        }
-                    }))
-
-                    this.events.on('websocket-connecting', () => {
-                        this.setState({
-                            multiplayer: {
-                                ...this.state.multiplayer,
-                                connectionState: bugout.ConnectionState.IN_PROGRESS,
-                                reconnectDialog: true, // If we got to this "events.on" call, we've already connected once 
-                            }
-                        })
-                    })
-
-                    // The name differs since we're interested in a logical
-                    // reconnect, not simply a connection to the websocket.
-                    // We know that we have a valid game ID in hand.
-                    this.events.on('bugout-reconnected', () => this.setState({
-                        multiplayer: {
-                            ...this.state.multiplayer,
-                            connectionState: bugout.ConnectionState.CONNECTED,
-                            reconnectDialog: false,
-                        }
-                    }))
-                }
-            }, placeholderColor)
-        }
+        this.bugout.render(this, state) // 😀
 
         return h('section',
             {

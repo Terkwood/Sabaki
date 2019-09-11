@@ -66,6 +66,10 @@ const joinPrivateGameParam = () => {
 const load = () => {
     let engine = {"name":"Opponent", "path":"/bugout", "args": ""}
     let jp = joinPrivateGameParam()
+    let readyToEnter = state => state.multiplayer && (
+        state.multiplayer.connectionState == undefined || 
+        state.multiplayer.connectionState < ConnectionState.IN_PROGRESS
+    ) && (state.multiplayer.entryMethod || jp.join)
     return {
         joinPrivateGame: jp,
         engine,
@@ -76,11 +80,90 @@ const load = () => {
                 appAttachEngines(null,engine)
             }
         },
-        readyToEnter: state => state.multiplayer && (
-                state.multiplayer.connectionState == undefined || 
-                state.multiplayer.connectionState < ConnectionState.IN_PROGRESS
-            ) && (state.multiplayer.entryMethod || jp.join),
         playerToColor: player => player == Player.BLACK ?  BLACK : WHITE,
+        render: (app, state) => {
+            if (readyToEnter(state)) {
+                app.setState({
+                    multiplayer: {
+                        ...app.state.multiplayer,
+                        connectionState: ConnectionState.IN_PROGRESS
+                    }
+                })
+                
+                app.detachEngines()
+                app.clearConsole()
+
+                let placeholderColor = "BLACK"
+
+                app.bugout.attach((a, b) => {
+                    app.attachEngines(a, b)
+
+                    if (app.state.attachedEngines === [null, null]) {
+                        app.setState({
+                            multiplayer: {
+                                ...app.state.multiplayer,
+                                connectionState: ConnectionState.FAILED
+                            }
+                        })
+                        throw Exception('multiplayer connect failed')
+                    } else {
+                        app.setState({
+                            multiplayer: {
+                                ...app.state.multiplayer,
+                                connectionState: ConnectionState.CONNECTED,
+                                reconnectDialog: false, // We just now connected for the first time
+                            }
+                        })
+
+                        app.events.once('your-color', ({ yourColor }) => {
+                            console.log(`yourColor ${yourColor}`)
+
+                            if (yourColor === "WHITE") {
+                                app.generateMove({ firstMove: true })
+                            }
+                        })
+
+                        app.events.on('websocket-closed', () => app.setState({
+                            multiplayer: {
+                                ...app.state.multiplayer,
+                                connectionState: ConnectionState.CLOSED,
+                                reconnectDialog: true,
+                            }
+                        }))
+
+                        app.events.on('websocket-connecting', () => {
+                            app.setState({
+                                multiplayer: {
+                                    ...app.state.multiplayer,
+                                    connectionState: ConnectionState.IN_PROGRESS,
+                                    reconnectDialog: true, // we've already connected once 
+                                }
+                            })
+                        })
+
+                        app.events.on('websocket-error', () => app.setState({
+                            multiplayer: {
+                                ...app.state.multiplayer,
+                                connectionState: ConnectionState.FAILED,
+                                reconnectDialog: true,
+                            }
+                        }))
+
+                        // The name differs since we're interested in a logical
+                        // reconnect, not simply a connection to the websocket.
+                        // We know that we have a valid game ID in hand.
+                        app.events.on('bugout-reconnected', () => app.setState({
+                            multiplayer: {
+                                ...app.state.multiplayer,
+                                connectionState: ConnectionState.CONNECTED,
+                                reconnectDialog: false,
+                            }
+                        }))
+                    }
+                }, placeholderColor)
+            }
+
+        }
     };
 }
 
