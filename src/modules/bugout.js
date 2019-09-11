@@ -63,6 +63,8 @@ const joinPrivateGameParam = () => {
     }
 }
 
+const placeholderColor = Player.BLACK
+
 const load = () => {
     let engine = {"name":"Opponent", "path":"/bugout", "args": ""}
     let jp = joinPrivateGameParam()
@@ -81,7 +83,7 @@ const load = () => {
             }
         },
         playerToColor: player => player == Player.BLACK ?  BLACK : WHITE,
-        render: (app, state) => {
+        enterGame: (app, state) => {
             if (readyToEnter(state)) {
                 app.setState({
                     multiplayer: {
@@ -116,49 +118,10 @@ const load = () => {
                         })
 
                         app.events.once('your-color', ({ yourColor }) => {
-                            console.log(`yourColor ${yourColor}`)
-
-                            if (yourColor === "WHITE") {
+                            if (yourColor === Player.WHITE) {
                                 app.generateMove({ firstMove: true })
                             }
                         })
-
-                        app.events.on('websocket-closed', () => app.setState({
-                            multiplayer: {
-                                ...app.state.multiplayer,
-                                connectionState: ConnectionState.CLOSED,
-                                reconnectDialog: true,
-                            }
-                        }))
-
-                        app.events.on('websocket-connecting', () => {
-                            app.setState({
-                                multiplayer: {
-                                    ...app.state.multiplayer,
-                                    connectionState: ConnectionState.IN_PROGRESS,
-                                    reconnectDialog: true, // we've already connected once 
-                                }
-                            })
-                        })
-
-                        app.events.on('websocket-error', () => app.setState({
-                            multiplayer: {
-                                ...app.state.multiplayer,
-                                connectionState: ConnectionState.FAILED,
-                                reconnectDialog: true,
-                            }
-                        }))
-
-                        // The name differs since we're interested in a logical
-                        // reconnect, not simply a connection to the websocket.
-                        // We know that we have a valid game ID in hand.
-                        app.events.on('bugout-reconnected', () => app.setState({
-                            multiplayer: {
-                                ...app.state.multiplayer,
-                                connectionState: ConnectionState.CONNECTED,
-                                reconnectDialog: false,
-                            }
-                        }))
                     }
                 }, placeholderColor)
             }

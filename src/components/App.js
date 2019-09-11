@@ -2563,7 +2563,7 @@ class App extends Component {
 
         state = Object.assign(state, this.inferredState)
 
-        this.bugout.render(this, state) // 😀
+        this.bugout.enterGame(this, state) // 😀
 
         return h('section',
             {
