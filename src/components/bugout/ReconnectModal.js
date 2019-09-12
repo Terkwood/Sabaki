@@ -22,12 +22,9 @@ const chooseBody = connectionState => {
     }
 }
 
-const DEBOUNCE_MS = 1666
-
 class ReconnectModal extends Component {
     constructor() {
         super()
-        this.setState({ lastActivated: 0 })
     }
 
     render({ 
@@ -42,15 +39,9 @@ class ReconnectModal extends Component {
 
         let { reconnectDialog, connectionState } = data
 
-        //let now = new Date().getTime()
-
-        if (undefined == reconnectDialog || undefined == connectionState /*|| now - DEBOUNCE_MILLIS < this.state.lastActivated*/) {
+        if (undefined == reconnectDialog || undefined == connectionState) {
             return empty
         }
-
-        /*if (reconnectDialog) {
-            this.setState( { lastActivated: now })
-        }*/
 
         return reconnectDialog ?
            h(Dialog,
