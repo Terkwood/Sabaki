@@ -251,7 +251,6 @@ class WebSocketController extends EventEmitter {
 
             if (command.name == "play") {
                 let player = letterToPlayer(command.args[0])
-                this.player = player
                 let vertex = this.board.coord2vertex(command.args[1])
 
                 let makeMove = {
