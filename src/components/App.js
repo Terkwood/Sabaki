@@ -2136,14 +2136,6 @@ class App extends Component {
                                     attachedEngines: this.state.attachedEngines.reverse()
                                 })
                             }
-                        },
-                        setSendColorPref: sendColorPref => {
-                            this.setState({
-                                multiplayer: {
-                                    ...this.state.multiplayer,
-                                    sendColorPref
-                                }
-                            })
                         }
                     }) // 😇BUGOUT😇
                 this.attachedEngineSyncers[i] = syncer
