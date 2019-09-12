@@ -117,8 +117,6 @@ const emitWebSocketState = (ws, events) => {
  */
 const ROBUST_WEBSOCKET_TIMEOUT_MS = 300000
 
-const WEBSOCKET_HEALTHCHECK_INTERVAL_MS = 100
-
 class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, spawnOptions) {
         super()
