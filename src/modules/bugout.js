@@ -64,15 +64,13 @@ const joinPrivateGameParam = () => {
 }
 
 const registerReconnectEvents = app => {
-    app.events.on('websocket-closed', () => 
-        
-        app.setState({
-            multiplayer: {
-                ...app.state.multiplayer,
-                connectionState: ConnectionState.DISCONNECTED,
-                reconnectDialog: true,
-            }
-        }))
+    app.events.on('websocket-closed', () => app.setState({
+        multiplayer: {
+            ...app.state.multiplayer,
+            connectionState: ConnectionState.DISCONNECTED,
+            reconnectDialog: true,
+        }
+    }))
 
     app.events.on('websocket-connecting', () => app.setState({
         multiplayer: {
