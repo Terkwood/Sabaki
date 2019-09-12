@@ -8,7 +8,7 @@ const { Visibility } = require('../../modules/bugout')
 class WaitForOpponentModal extends Component {
     constructor() {
         super()
-        this.state = { copied: false }
+        this.state = { copied: false, reconnectedOnce: false }
     }
 
     updateClipboard(newClip) {
@@ -21,7 +21,8 @@ class WaitForOpponentModal extends Component {
 
     render({ 
         id = 'wait-for-opponent-modal', 
-        data
+        data,
+        reconnectDialog
     }) {
         // dfried says a thunk is a thunk is a thunk
         let copyLinkFooter = () => h(Dialog.Footer, null, 
@@ -38,7 +39,19 @@ class WaitForOpponentModal extends Component {
 
         let isPublic = () => data.hasEvent && data.event.visibility === Visibility.PUBLIC
 
+        let empty = () => h('div', { id })
+
         let body = () => {
+            if (!this.state.reconnectedOnce && reconnectDialog) {
+                this.setState({reconnectedOnce: true})
+            }
+
+            if (reconnectDialog || this.state.reconnectedOnce) {
+                // Never show this modal once reconnect procedures have
+                // been initiated
+                return empty()
+            }
+
             if (data.gap) {
                 return h(Dialog.Body, null, 'Negotiating game venue...')
             }
@@ -61,7 +74,7 @@ class WaitForOpponentModal extends Component {
                 body(),
                 (isPublic() || data.gap) ? emptyFooter() : copyLinkFooter()
             )
-        : h('div', { id })
+        : empty()
     }
 }
 

@@ -2578,7 +2578,8 @@ class App extends Component {
                 })
             }),
             h(WaitForOpponentModal, {
-                data: this.state.multiplayer && this.state.multiplayer.waitForOpponentModal
+                data: this.state.multiplayer && this.state.multiplayer.waitForOpponentModal,
+                reconnectDialog: this.state.multiplayer && this.state.multiplayer.reconnectDialog
             }),
             h(ColorChoiceModal, {
                 turnOn: state.multiplayer && state.multiplayer.entryMethod,

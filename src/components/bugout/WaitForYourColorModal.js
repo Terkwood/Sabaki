@@ -31,7 +31,7 @@ class WaitForYourColorModal extends Component {
                     isOpen: true,
                 },
                 h(Dialog.Header, null, 'Please Wait' ),
-                h(Dialog.Body, null, 'Choosing colors...')
+                h(Dialog.Body, null, '🚧 EXPERIMENTAL: FAIRLY DECIDING WHO PLAYS FIRST. If this step takes a very long time, please abandon this session entirely and try again in a new tab! 🚧')
             )
         : empty
     }

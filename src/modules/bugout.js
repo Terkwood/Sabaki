@@ -67,7 +67,7 @@ const registerReconnectEvents = app => {
     app.events.on('websocket-closed', () => app.setState({
         multiplayer: {
             ...app.state.multiplayer,
-            connectionState: ConnectionState.DISCONNECTED,
+            reconnectionState: ConnectionState.DISCONNECTED,
             reconnectDialog: true,
         }
     }))
@@ -75,7 +75,7 @@ const registerReconnectEvents = app => {
     app.events.on('websocket-connecting', () => app.setState({
         multiplayer: {
             ...app.state.multiplayer,
-            connectionState: ConnectionState.IN_PROGRESS,
+            reconnectionState: ConnectionState.IN_PROGRESS,
             reconnectDialog: true, // we've already connected once 
         }
     }))
@@ -83,7 +83,7 @@ const registerReconnectEvents = app => {
     app.events.on('websocket-error', () => app.setState({
         multiplayer: {
             ...app.state.multiplayer,
-            connectionState: ConnectionState.FAILED,
+            reconnectionState: ConnectionState.FAILED,
             reconnectDialog: true,
         }
     }))
@@ -95,7 +95,7 @@ const registerReconnectEvents = app => {
         app.setState({
             multiplayer: {
                 ...app.state.multiplayer,
-                connectionState: ConnectionState.CONNECTED
+                reconnectionState: ConnectionState.CONNECTED
             }
         })
 
@@ -109,6 +109,23 @@ const registerReconnectEvents = app => {
             }
         }), dialogDurationMs)
     })
+}
+
+const emitReadyState = (ws, events) => {
+    switch (ws.readyState) {
+        case 0:
+            events.emit('websocket-connecting')
+            break;
+        case 1:
+            events.emit('websocket-open')
+            break;
+        case 2:
+            events.emit('websocket-closed')
+            break;
+        case 3:
+            events.emit('websocket-closed')
+            break;
+    }
 }
 
 const placeholderColor = Player.BLACK
@@ -178,6 +195,7 @@ const load = () => {
     };
 }
 
+exports.emitReadyState = emitReadyState
 exports.load = load
 exports.Visibility = Visibility
 exports.ConnectionState = ConnectionState

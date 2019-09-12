@@ -4,7 +4,7 @@ const EventEmitter = require('events')
 const Board = require('../board')
 const RobustWebSocket = require('robust-websocket')
 const uuidv4 = require('uuid/v4')
-const { EntryMethod } = require('../bugout')
+const { EntryMethod, emitReadyState } = require('../bugout')
 
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
 const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
@@ -92,23 +92,6 @@ const throwFatal = () => {
 
 const printReadyState = ws => console.log(`WebSocket readyState: ${ws.readyState}`)
 
-const emitWebSocketState = (ws, events) => {
-    switch (ws.readyState) {
-        case 0:
-            events.emit('websocket-connecting')
-            break;
-        case 1:
-            events.emit('websocket-open')
-            break;
-        case 2:
-            events.emit('websocket-closed')
-            break;
-        case 3:
-            events.emit('websocket-closed')
-            break;
-    }
-}
-
 /** 
  * We've found that longer timeout allows for more stable
  * overall behavior.  It can take a long time for spotty
@@ -116,6 +99,9 @@ const emitWebSocketState = (ws, events) => {
  * giving up too early.
  */
 const ROBUST_WEBSOCKET_TIMEOUT_MS = 300000
+
+const WEBSOCKET_HEALTH_DELAY_MS = 10000
+const WEBSOCKET_HEALTH_INTERVAL_MS = 100
 
 class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, spawnOptions) {
@@ -134,6 +120,12 @@ class WebSocketController extends EventEmitter {
         this.joinPrivateGame = joinPrivateGame
         this.entryMethod = entryMethod
         
+        setTimeout(() => setInterval(() => {
+            printReadyState(this.webSocket)
+            emitReadyState(this.webSocket, sabaki.events)
+        }, WEBSOCKET_HEALTH_INTERVAL_MS), WEBSOCKET_HEALTH_DELAY_MS)
+        
+
         // We pass handleWaitForOpponent down so that it can 'stick'
         // to the incoming websocket message, even after an initial WFP
         // result is returned via findPublicGame() and createPrivateGame() funcs
@@ -141,24 +133,24 @@ class WebSocketController extends EventEmitter {
 
         this.webSocket.addEventListener('close', () => {
             console.log("WebSocket closed.")
-            emitWebSocketState(this.webSocket, sabaki.events)
+            emitReadyState(this.webSocket, sabaki.events)
         })
 
         this.webSocket.addEventListener('error',event => {
             console.log(`WebSocket error ${JSON.stringify(event)}`)
             printReadyState(this.webSocket)
-            emitWebSocketState(this.webSocket, sabaki.events)
+            emitReadyState(this.webSocket, sabaki.events)
         })
 
         // support reconnect event
         this.webSocket.addEventListener('connecting', () => {
             printReadyState(this.webSocket)
-            emitWebSocketState(this.webSocket, sabaki.events)
+            emitReadyState(this.webSocket, sabaki.events)
         })
 
         this.webSocket.addEventListener('open', () => {
             printReadyState(this.webSocket)
-            emitWebSocketState(this.webSocket, sabaki.events)
+            emitReadyState(this.webSocket, sabaki.events)
 
             if (!this.gameId && this.entryMethod === EntryMethod.FIND_PUBLIC) {
                 this.gatewayConn
