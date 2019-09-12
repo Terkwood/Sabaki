@@ -592,6 +592,7 @@ class App extends Component {
             return
         }
 
+        console.log('BUSY LOAD FILE') // TODO
         this.setBusy(true)
 
         let {extname} = require('path')
@@ -630,10 +631,12 @@ class App extends Component {
             }
         }
 
+        console.log('NOT BUSY LOAD FILE') // TODO
         this.setBusy(false)
     }
 
     async loadContent(content, extension, options = {}) {
+        console.log('BUSY LOAD CONTENT') // TODO
         this.setBusy(true)
 
         let t = i18n.context('app.file')
@@ -660,6 +663,7 @@ class App extends Component {
             await this.loadGameTrees(gameTrees, options)
         }
 
+        console.log('NOT BUSY LOAD CONTENT') // TODO
         this.setBusy(false)
     }
 
@@ -668,6 +672,7 @@ class App extends Component {
 
         if (!suppressAskForSave && !this.askForSave()) return
 
+        console.log('BUSY LOAD GAMETREES') // TODO
         this.setBusy(true)
         if (this.state.openDrawer !== 'gamechooser') this.closeDrawer()
         this.setMode('play')
@@ -694,6 +699,7 @@ class App extends Component {
             if (clearHistory) this.clearHistory()
         }
 
+        console.log('NOT BUSY trees') // TODO
         this.setBusy(false)
         this.window.setProgressBar(-1)
         this.events.emit('fileLoad')
@@ -1454,6 +1460,7 @@ class App extends Component {
         if (isNaN(step)) step = 1
         else step = step >= 0 ? 1 : -1
 
+        console.log('BUSY FIND POS') // TODO
         this.setBusy(true)
         await helper.wait(setting.get('find.delay'))
 
@@ -1479,6 +1486,7 @@ class App extends Component {
         }
 
         this.setCurrentTreePosition(tree, node.id)
+        console.log('NOT BUSY FIND POS') // TODO
         this.setBusy(false)
     }
 
@@ -2136,14 +2144,6 @@ class App extends Component {
                                     attachedEngines: this.state.attachedEngines.reverse()
                                 })
                             }
-                        },
-                        setSendColorPref: sendColorPref => {
-                            this.setState({
-                                multiplayer: {
-                                    ...this.state.multiplayer,
-                                    sendColorPref
-                                }
-                            })
                         }
                     }) // 😇BUGOUT😇
                 this.attachedEngineSyncers[i] = syncer
@@ -2250,6 +2250,7 @@ class App extends Component {
 
         this.stopGeneratingMoves()
         this.hideInfoOverlay()
+        console.log('NOT BUSY SUSPEND') // TODO
         this.setBusy(false)
     }
 
@@ -2362,6 +2363,7 @@ class App extends Component {
         if (this.attachedEngineSyncers.every(x => x == null)) return
         if (this.engineBusySyncing) return
 
+        console.log('Engine is NOT busy syncing')
         let t = i18n.context('app.engine')
         this.engineBusySyncing = true
 
@@ -2427,6 +2429,7 @@ class App extends Component {
             }
         }
 
+        console.log('BUSY GENERATE MOVE') // TODO
         this.setBusy(true)
 
         try {
@@ -2434,6 +2437,7 @@ class App extends Component {
         } catch (err) {
             this.stopGeneratingMoves()
             this.hideInfoOverlay()
+            console.log('NOT BUSY GENMOVE BRANCH SHUTTTERER!') // TODO
             this.setBusy(false)
 
             return
@@ -2474,6 +2478,7 @@ class App extends Component {
         if (responseContent == null) {
             this.stopGeneratingMoves()
             this.hideInfoOverlay()
+            console.log('NOT BUSY GENMOVE LATER') // TODO
             this.setBusy(false)
 
             return
@@ -2488,6 +2493,7 @@ class App extends Component {
                 this.stopGeneratingMoves()
                 this.hideInfoOverlay()
                 this.makeResign()
+                console.log('NOT BUSY GENMOVE RESIGN') // TODO
                 this.setBusy(false)
 
                 return
@@ -2513,6 +2519,7 @@ class App extends Component {
             this.hideInfoOverlay()
         }
 
+        console.log('NOT BUSY GENMOVE FINAL') // TODO
         this.setBusy(false)
     }
 

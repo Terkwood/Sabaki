@@ -90,6 +90,38 @@ const throwFatal = () => {
     throw FATAL_ERROR
 }
 
+const printReadyState = ws => console.log(`WebSocket readyState: ${ws.readyState}`)
+
+const emitWebSocketState = (ws, events) => {
+    console.log('EMIT')
+    switch (ws.readyState) {
+        case 0:
+            events.emit('websocket-connecting')
+            break;
+        case 1:
+            events.emit('websocket-open')
+            break;
+        case 2:
+            events.emit('websocket-closed')
+            break;
+        case 3:
+            events.emit('websocket-closed')
+            break;
+        default:
+            events.emit('websocket-closed')
+    }
+}
+
+/** 
+ * We've found that longer timeout allows for more stable
+ * overall behavior.  It can take a long time for spotty
+ * wi-fi to reestablish, and we don't want RobustWebSocket
+ * giving up too early.
+ */
+const ROBUST_WEBSOCKET_TIMEOUT_MS = 300000
+
+const WEBSOCKET_HEALTHCHECK_INTERVAL_MS = 100
+
 class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, spawnOptions) {
         super()
@@ -101,8 +133,7 @@ class WebSocketController extends EventEmitter {
         setTimeout(() => this.beep(), GATEWAY_BEEP_TIMEOUT_MS)
 
         this.webSocketAddress = webSocketAddress
-        this.webSocket = new RobustWebSocket(webSocketAddress)
-        
+        this.webSocket = new RobustWebSocket(webSocketAddress, null, { timeout: ROBUST_WEBSOCKET_TIMEOUT_MS })
 
         let { joinPrivateGame, entryMethod, handleWaitForOpponent, handleYourColor } = spawnOptions.multiplayer
         this.joinPrivateGame = joinPrivateGame
@@ -113,22 +144,27 @@ class WebSocketController extends EventEmitter {
         // result is returned via findPublicGame() and createPrivateGame() funcs
         this.gatewayConn = new GatewayConn(this.webSocket, handleWaitForOpponent, handleYourColor)
 
-        // If it's the first move, and we're white,
-        // we'll always request history first. (In case
-        // black has already moved.)
-        this.firstMove = true
-
         this.webSocket.addEventListener('close', () => {
             console.log("WebSocket closed.")
-            sabaki.events.emit('websocket-closed')
+            emitWebSocketState(this.webSocket, sabaki.events)
         })
 
         this.webSocket.addEventListener('error',event => {
             console.log(`WebSocket error ${JSON.stringify(event)}`)
-            sabaki.events.emit('websocket-error')
+            printReadyState(this.webSocket)
+            emitWebSocketState(this.webSocket, sabaki.events)
+        })
+
+        // support reconnect event
+        this.webSocket.addEventListener('connecting', () => {
+            printReadyState(this.webSocket)
+            emitWebSocketState(this.webSocket, sabaki.events)
         })
 
         this.webSocket.addEventListener('open', () => {
+            printReadyState(this.webSocket)
+            emitWebSocketState(this.webSocket, sabaki.events)
+
             if (!this.gameId && this.entryMethod === EntryMethod.FIND_PUBLIC) {
                 this.gatewayConn
                     .findPublicGame()
@@ -171,20 +207,15 @@ class WebSocketController extends EventEmitter {
                     .reconnect(this.gameId, this.resolveMoveMade, this.board)
                     .then((rc, err) => {
                         if (!err) {
-                            console.log(`Reconnected! playerUp: ${rc.playerUp}`)
-                            sabaki.events.emit('bugout-reconnected', rc)
+                            console.log(`Reconnected! data: ${JSON.stringify(rc)}`)
                         } else {
                             throwFatal()
                         }
                     })
             }
         })
-
-        // reconnect event
-        this.webSocket.addEventListener('connecting', () =>
-            sabaki.events.emit('websocket-connecting')
-        )
     }
+
 
     listenForMove(opponent, resolve) {
         this.resolveMoveMade = resolve
@@ -219,8 +250,8 @@ class WebSocketController extends EventEmitter {
             }
 
             if (command.name == "play") {
-                this.firstMove = false // no need to listen for history
                 let player = letterToPlayer(command.args[0])
+                this.player = player
                 let vertex = this.board.coord2vertex(command.args[1])
 
                 let makeMove = {
@@ -235,9 +266,8 @@ class WebSocketController extends EventEmitter {
                     try {
                         let msg = JSON.parse(event.data)
                         if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
-                            this.resolveMoveMade = undefined
                             resolve({id: null, error: false})
-                        }
+                        } 
 
                         // discard any other messages until we receive confirmation
                         // from BUGOUT that the move was made
@@ -249,11 +279,12 @@ class WebSocketController extends EventEmitter {
 
                 this.webSocket.send(JSON.stringify(makeMove))
             } else if (command.name === "genmove") {
-                let opponent = letterToPlayer(command.args[0])
 
+                let opponent = letterToPlayer(command.args[0])
                 this.listenForMove(opponent, resolve)
-             } else {
-                 resolve({id: null, err: false})
+             
+            } else {
+                resolve({id: null, err: false})
              }
         })
 
@@ -299,7 +330,8 @@ class GatewayConn {
 
         this.handleYourColor = handleYourColor
 
-        sabaki.events.on('choose-color-pref', ({ colorPref }) => this.chooseColorPref(colorPref))
+        sabaki.events.on('choose-color-pref', ({ colorPref }) =>    
+            this.chooseColorPref(colorPref))
     }
 
     async reconnect(gameId, resolveMoveMade, board) {
