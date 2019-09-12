@@ -37,9 +37,9 @@ class ReconnectModal extends Component {
             return empty
         }
 
-        let { reconnectDialog, connectionState } = data
+        let { reconnectDialog, reconnectionState } = data
 
-        if (undefined == reconnectDialog || undefined == connectionState) {
+        if (undefined == reconnectDialog || undefined == reconnectionState) {
             return empty
         }
 
@@ -50,7 +50,7 @@ class ReconnectModal extends Component {
                     isOpen: true,
                 },
                 h(Dialog.Header, null, 'Network Unavailable' ),
-                chooseBody(connectionState)
+                chooseBody(reconnectionState)
             )
         : empty
     }
