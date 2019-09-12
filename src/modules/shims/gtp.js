@@ -93,7 +93,6 @@ const throwFatal = () => {
 const printReadyState = ws => console.log(`WebSocket readyState: ${ws.readyState}`)
 
 const emitWebSocketState = (ws, events) => {
-    console.log('EMIT')
     switch (ws.readyState) {
         case 0:
             events.emit('websocket-connecting')
@@ -107,8 +106,6 @@ const emitWebSocketState = (ws, events) => {
         case 3:
             events.emit('websocket-closed')
             break;
-        default:
-            events.emit('websocket-closed')
     }
 }
 
