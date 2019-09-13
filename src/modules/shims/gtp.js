@@ -129,9 +129,6 @@ class WebSocketController extends EventEmitter {
         // result is returned via findPublicGame() and createPrivateGame() funcs
         this.gatewayConn = new GatewayConn(this.webSocket, handleWaitForOpponent, handleYourColor)
 
-        this.moveEventsObserved = []
-        this.histProvTurnsObserved = []
-
         sabaki.events.on('bugout-turn', ({ turn }) => this.turn = turn )
 
         this.webSocket.addEventListener('close', () => {
@@ -310,20 +307,6 @@ class WebSocketController extends EventEmitter {
 
         // In case white needs to dismiss its initial screen
         sabaki.events.emit('they-moved', { playerUp })
-    }
-
-    incrRemoteTurn({ moveEventId, histProvTurn }) {
-    
-        if (moveEventId && !this.moveEventsObserved.includes(moveEventId)) {
-            this.moveEventsObserved.push(moveEventId)
-            this.remoteTurn = (this.remoteTurn || 0) + 1
-        }
-
-        if (histProvTurn && !this.histProvTurnsObserved.includes(histProvTurn)) {
-            this.histProvTurnsObserved.push(histProvTurn)
-            this.remoteTurn = (this.remoteTurn || 0) + 1
-        }
-
     }
 
     async sendCommand(command, subscriber = () => {}) {
