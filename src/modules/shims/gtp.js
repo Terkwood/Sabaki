@@ -149,13 +149,13 @@ class WebSocketController extends EventEmitter {
 
         // support reconnect event
         this.webSocket.addEventListener('connecting', () => {
-            this.webSocket.removeEventListener('message')
+            this.removeMessageListener()
             printReadyState(this.webSocket)
             emitReadyState(this.webSocket, sabaki.events)
         })
 
         this.webSocket.addEventListener('open', () => {
-            this.webSocket.removeEventListener('message')
+            this.removeMessageListener()
             printReadyState(this.webSocket)
             emitReadyState(this.webSocket, sabaki.events)
 
