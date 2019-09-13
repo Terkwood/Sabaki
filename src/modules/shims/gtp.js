@@ -134,6 +134,7 @@ class WebSocketController extends EventEmitter {
         this.gatewayConn = new GatewayConn(this.webSocket, handleWaitForOpponent, handleYourColor)
 
         this.moveEventsObserved = []
+        this.histProvTurnsObserved = []
 
         this.webSocket.addEventListener('close', () => {
             this.removeMessageListener()
@@ -267,8 +268,9 @@ class WebSocketController extends EventEmitter {
                         onMove({player: lastMove.player, resolveWith:{"id":null,"content":null,"error":false}})
                     }
 
+                    let histProvTurn = msg.moves[msg.moves.length - 1]
                     // VERY IMPORTANT! We want to count moves correctly.
-                    this.incrTurn(msg.eventId)
+                    this.incrTurn({ histProvTurn })
                 
                 } else if (opponentMoved(msg,opponent)) {
 
@@ -302,7 +304,7 @@ class WebSocketController extends EventEmitter {
                     // VERY IMPORTANT! We want to count moves correctly.
                     // This will help us resync if we need to request history
                     // on reconnect.
-                    this.incrTurn(msg.eventId)
+                    this.incrTurn({ moveEventId: msg.eventId })
                 }
 
                 // discard any other messages until we receive confirmation
@@ -325,11 +327,18 @@ class WebSocketController extends EventEmitter {
         sabaki.events.emit('they-moved', { playerUp })
     }
 
-    incrTurn(eventId) {
-        if (!this.moveEventsObserved.includes(eventId)) {
-            this.moveEventsObserved.push(eventId)
+    incrTurn({ moveEventId, histProvTurn }) {
+    
+        if (moveEventId && !this.moveEventsObserved.includes(moveEventId)) {
+            this.moveEventsObserved.push(moveEventId)
             this.turn = (this.turn || 0) + 1
         }
+
+        if (histProvTurn && !this.histProvTurnsObserved.includes(histProvTurn)) {
+            this.histProvTurnsObserved.push(histProvTurn)
+            this.turn = (this.turn || 0) + 1
+        }
+
     }
 
     async sendCommand(command, subscriber = () => {}) {
@@ -359,7 +368,7 @@ class WebSocketController extends EventEmitter {
                         let msg = JSON.parse(event.data)
                         if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
                             resolve({id: null, error: false})
-                            this.incrTurn(msg.eventId)
+                            this.incrTurn({ moveEventId: msg.eventId })
                         } 
 
                         // discard any other messages until we receive confirmation
