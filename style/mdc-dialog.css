@@ -82,8 +82,8 @@
   font-family: Consolas, Menlo, Monaco, 'Ubuntu Mono', monospace;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
-  font-size: 2rem;
-  line-height: 3rem;
+  font-size: 24px;
+  line-height: 1.66;
   font-weight: 400;
   letter-spacing: 0.0623em;
   text-decoration: inherit;
