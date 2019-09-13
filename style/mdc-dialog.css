@@ -106,7 +106,7 @@
   padding: 24px; }
 
 .mdc-dialog__footer__button {
-  transform: translateX(-38%) scale(2); 
+  transform: translateX(-38%) scale(1.7); 
   /* @noflip */
   margin-left: 0;
   /* @noflip */
