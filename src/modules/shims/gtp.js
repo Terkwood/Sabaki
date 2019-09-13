@@ -219,9 +219,9 @@ class WebSocketController extends EventEmitter {
                                         this.genMoveInProgress = false
                                     }
                                 }
-                                this.listenForHistoryOrMove(this.opponentColor, onMove)                    
+                                this.listenForHistoryOrMove(this.opponent, onMove)                    
                             } else {
-                                this.listenForMove(this.opponentColor, this.resolveMoveMade)
+                                this.listenForMove(this.opponent, this.resolveMoveMade)
                             }
                         } else {
                             throwFatal()
@@ -298,7 +298,7 @@ class WebSocketController extends EventEmitter {
                 if (opponentMoved(msg, opponent)) {
                     this.handleMoveMade(msg, opponent, resolve)
                     this.genMoveInProgress = false
-                    
+
                     // VERY IMPORTANT! We want to count moves correctly.
                     // This will help us resync if we need to request history
                     // on reconnect.
@@ -341,8 +341,7 @@ class WebSocketController extends EventEmitter {
 
             if (command.name == "play") {
                 let player = letterToPlayer(command.args[0])
-                this.myColor = player
-                this.opponentColor = otherPlayer(player)
+                this.opponent = otherPlayer(player)
 
                 let vertex = this.board.coord2vertex(command.args[1])
 
@@ -375,9 +374,8 @@ class WebSocketController extends EventEmitter {
             } else if (command.name === "genmove") {
 
                 let opponent = letterToPlayer(command.args[0])
-                this.opponentColor = opponent
-                this.myColor = otherPlayer(opponent)
-
+                this.opponent = opponent
+                
                 this.listenForMove(opponent, resolve)
                 this.genMoveInProgress = true
              
