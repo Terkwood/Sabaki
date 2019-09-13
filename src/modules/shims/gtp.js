@@ -209,11 +209,10 @@ class WebSocketController extends EventEmitter {
                                     "gameId": this.gameId,
                                     "reqId": uuidv4()
                                 }
-                                console.log('REQUESTING HISTORY')
+                                
                                 this.webSocket.send(JSON.stringify(provideHistoryCommand))
                                 
                                 let onMove = r => {
-                                    console.log(`onmove response ${JSON.stringify(r)}`)
                                     if (r && r.resolveWith) {
                                         // the opponent moved
                                         this.resolveMoveMade(r.resolveWith)
@@ -246,8 +245,6 @@ class WebSocketController extends EventEmitter {
     }
 
     listenForHistoryOrMove(opponent, onMove) {
-        console.log('WAIT FOR HISTORY')
-
         // We only want this listener online so we don't double-count turns
         this.updateMessageListener(event => {
             try {
@@ -260,7 +257,6 @@ class WebSocketController extends EventEmitter {
                     msg.moves[msg.moves.length - 1].player === opponent &&
                     msg.moves[msg.moves.length - 1].turn === this.turn + 1) {
 
-                    console.log('HISTORY HIT')
                     let lastMove = msg.moves[msg.moves.length - 1]
                     if (lastMove) { // they didn't pass
                         let sabakiCoord = this.board.vertex2coord([lastMove.coord.x, lastMove.coord.y])
@@ -276,11 +272,10 @@ class WebSocketController extends EventEmitter {
                 
                 } else if (opponentMoved(msg,opponent)) {
 
-                    console.log('RECONN MOVE HIT')
                     this.handleMoveMade(msg,opponent)
 
                 } else {
-                    console.log('FAIL FLAIL')
+                    console.log('Unknown message')
 
                     // discard any other messages until we receive confirmation
                     // from BUGOUT that the history was provided
@@ -303,7 +298,6 @@ class WebSocketController extends EventEmitter {
                 if (opponentMoved(msg, opponent)) {
                     this.handleMoveMade(msg, opponent, resolve)
                     this.genMoveInProgress = false
-                    console.log('LISTEN MOVE INCR')
                     this.incrTurn(msg.eventId)
                 }
 
@@ -317,7 +311,6 @@ class WebSocketController extends EventEmitter {
     }
 
     handleMoveMade(msg, opponent, resolve) {
-        console.log(`msg ${JSON.stringify(msg)} oppo ${opponent} resolve ${JSON.stringify(resolve)}`)
         let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
 
         resolve({"id":null,"content":sabakiCoord,"error":false})
@@ -363,7 +356,6 @@ class WebSocketController extends EventEmitter {
                         let msg = JSON.parse(event.data)
                         if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
                             resolve({id: null, error: false})
-                            console.log ('PLAY INCR')
                             this.incrTurn(msg.eventId)
                         } 
 
@@ -378,7 +370,6 @@ class WebSocketController extends EventEmitter {
                 this.webSocket.send(JSON.stringify(makeMove))
             } else if (command.name === "genmove") {
 
-                console.log(`GENMOVE COMMAND ${JSON.stringify(command)}`)
                 let opponent = letterToPlayer(command.args[0])
                 this.opponentColor = opponent
                 this.myColor = otherPlayer(opponent)
