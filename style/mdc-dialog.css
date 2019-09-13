@@ -52,7 +52,7 @@
 .mdc-dialog__header {
   display: flex;
   align-items: center;
-  padding: 24px 24px 0; }
+  padding: 48px 48px 0; }
   .mdc-dialog[dir="rtl"] .mdc-dialog__header,
   [dir="rtl"] .mdc-dialog .mdc-dialog__header {
     text-align: right; }
@@ -64,14 +64,16 @@
   font-family: Consolas, Menlo, Monaco, 'Ubuntu Mono', monospace;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
-  font-size: 1.25rem;
+  font-size: 2.5rem;
   line-height: 2rem;
   font-weight: 500;
-  letter-spacing: 0.0125em;
+  letter-spacing: 0.025em;
   text-decoration: inherit;
   text-transform: inherit;
   flex: 1;
-  margin: 0; }
+  margin: 48px 0 96px;
+  padding: 48px 0;
+}
 
 .mdc-dialog__body {
   color: rgba(0, 0, 0, 0.54);
@@ -80,13 +82,13 @@
   font-family: Consolas, Menlo, Monaco, 'Ubuntu Mono', monospace;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
-  font-size: 1rem;
-  line-height: 1.5rem;
+  font-size: 2rem;
+  line-height: 3rem;
   font-weight: 400;
-  letter-spacing: 0.03125em;
+  letter-spacing: 0.0623em;
   text-decoration: inherit;
   text-transform: inherit;
-  margin-top: 86px;
+  margin-top: 172px;
   padding: 0 24px 24px; }
 
 .mdc-dialog__body--scrollable {
