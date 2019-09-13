@@ -14,8 +14,7 @@
   width: 100%;
   height: 100%;
   visibility: hidden;
-  z-index: 11; 
-  /*transform: scale(1.3);*/ }
+  z-index: 11; }
 
 .mdc-dialog__backdrop {
   background-color: rgba(1,1,1,0.65);
