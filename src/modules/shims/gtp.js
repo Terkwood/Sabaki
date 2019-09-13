@@ -336,7 +336,6 @@ class WebSocketController extends EventEmitter {
                         let msg = JSON.parse(event.data)
                         if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
                             resolve({id: null, error: false})
-                            this.incrRemoteTurn({ moveEventId: msg.eventId })
                         } 
 
                         // discard any other messages until we receive confirmation
