@@ -65,7 +65,7 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   font-size: 32px;
-  line-height: 1.66;
+  line-height: 1.5;
   font-weight: 500;
   letter-spacing: 0.025em;
   text-decoration: inherit;
@@ -81,7 +81,7 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   font-size: 24px;
-  line-height: 48px;
+  line-height: 1.5;
   font-weight: 400;
   letter-spacing: 0.0623em;
   text-decoration: inherit;
@@ -136,7 +136,7 @@
   .mdc-dialog__surface {
     min-width: 280px; }
   .mdc-dialog__body {
-    line-height: 24px; } }
+    line-height: 1.5; } }
 
 .mdc-dialog--animating {
   visibility: visible; }
