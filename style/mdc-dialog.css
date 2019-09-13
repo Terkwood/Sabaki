@@ -52,7 +52,7 @@
 .mdc-dialog__header {
   display: flex;
   align-items: center;
-  padding: 48px 48px 0; }
+  padding: 24px 24px 0; }
   .mdc-dialog[dir="rtl"] .mdc-dialog__header,
   [dir="rtl"] .mdc-dialog .mdc-dialog__header {
     text-align: right; }
@@ -86,7 +86,7 @@
   letter-spacing: 0.0623em;
   text-decoration: inherit;
   text-transform: inherit;
-  margin-top: 172px;
+  margin-top: 86px;
   padding: 0 24px 24px; }
 
 .mdc-dialog__body--scrollable {
