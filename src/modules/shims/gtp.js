@@ -267,7 +267,7 @@ class WebSocketController extends EventEmitter {
                         onMove({player: lastMove.player, resolveWith:{"id":null,"content":null,"error":false}})
                     }
 
-                    // VERY IMPORTANT :-D
+                    // VERY IMPORTANT! We want to count moves correctly.
                     this.incrTurn(msg.eventId)
                 
                 } else if (opponentMoved(msg,opponent)) {
@@ -298,6 +298,10 @@ class WebSocketController extends EventEmitter {
                 if (opponentMoved(msg, opponent)) {
                     this.handleMoveMade(msg, opponent, resolve)
                     this.genMoveInProgress = false
+                    
+                    // VERY IMPORTANT! We want to count moves correctly.
+                    // This will help us resync if we need to request history
+                    // on reconnect.
                     this.incrTurn(msg.eventId)
                 }
 
