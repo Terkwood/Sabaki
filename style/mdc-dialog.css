@@ -14,7 +14,8 @@
   width: 100%;
   height: 100%;
   visibility: hidden;
-  z-index: 11; }
+  z-index: 11; 
+  /*transform: scale(1.3);*/ }
 
 .mdc-dialog__backdrop {
   background-color: rgba(1,1,1,0.65);
@@ -39,8 +40,8 @@
   width: calc(100% - 30px);
   min-width: 640px;
   max-width: 865px;
-  -webkit-transform: translateY(150px) scale(0.8);
-          transform: translateY(0px) scale(0.8);
+  -webkit-transform: translateY(150px) scale(1.0);
+          transform: translateY(0px) scale(1.0);
   border-radius: 2px;
   visibility: visible;
   z-index: 30;
@@ -103,9 +104,10 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-  padding: 8px; }
+  padding: 24px; }
 
 .mdc-dialog__footer__button {
+  transform: scale(2); 
   /* @noflip */
   margin-left: 0;
   /* @noflip */
