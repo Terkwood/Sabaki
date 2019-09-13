@@ -195,6 +195,30 @@ class WebSocketController extends EventEmitter {
                     .then((rc, err) => {
                         if (!err) {
                             console.log(`Reconnected! data: ${JSON.stringify(rc)}`)
+
+                            if (this.genMoveInProgress) {
+                                let provideHistoryCommand = {
+                                    "type":"ProvideHistory",
+                                    "gameId": this.gameId,
+                                    "reqId": uuidv4()
+                                }
+                                this.webSocket.send(JSON.stringify(provideHistoryCommand))
+                                
+                                let onMove = response => {
+                                    if (response.resolveWith != undefined) {
+                                        // TODO black moved -- old
+                                        resolve(response.resolveWith)
+                                        // TODO
+                                        this.genMoveInProgress = false
+                                    } /*else {
+                                        // it wasn't black
+                                        this.listenForMove(opponent, resolve)
+                                    }*/ // TODO
+                                }
+                                this.listenForHistory(opponent, onMove)                    
+                            } else {
+                                this.listenForMove(opponent, resolve)
+                            }
                         } else {
                             throwFatal()
                         }
