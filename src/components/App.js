@@ -2556,7 +2556,8 @@ class App extends Component {
 
         state = Object.assign(state, this.inferredState)
 
-        this.bugout.enterGame(this, state) // 😀
+        this.bugout.enterGame(this, state)   // 😀
+        this.bugout.announceTurn(tree, treePosition, this.events) // 😀
 
         return h('section',
             {

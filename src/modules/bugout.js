@@ -140,6 +140,7 @@ const load = () => {
     return {
         joinPrivateGame: jp,
         engine,
+        announceTurn: (gameTree, treePosition, events) => events.emit('bugout-turn', { turn:[...gameTree.listNodesVertically(treePosition, -1, {})].length }),
         attach: (appAttachEngines, playerColor) => {
             if (playerColor === WHITE) {
                 appAttachEngines(engine, null)

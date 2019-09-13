@@ -90,8 +90,6 @@ const throwFatal = () => {
     throw FATAL_ERROR
 }
 
-const printReadyState = ws => console.log(`WebSocket readyState: ${ws.readyState}`)
-
 /** 
  * We've found that longer timeout allows for more stable
  * overall behavior.  It can take a long time for spotty
@@ -121,13 +119,11 @@ class WebSocketController extends EventEmitter {
         let { joinPrivateGame, entryMethod, handleWaitForOpponent, handleYourColor } = spawnOptions.multiplayer
         this.joinPrivateGame = joinPrivateGame
         this.entryMethod = entryMethod
-        
+
         setTimeout(() => setInterval(() => {
-            printReadyState(this.webSocket)
             emitReadyState(this.webSocket, sabaki.events)
         }, WEBSOCKET_HEALTH_INTERVAL_MS), WEBSOCKET_HEALTH_DELAY_MS)
         
-
         // We pass handleWaitForOpponent down so that it can 'stick'
         // to the incoming websocket message, even after an initial WFP
         // result is returned via findPublicGame() and createPrivateGame() funcs
@@ -135,6 +131,8 @@ class WebSocketController extends EventEmitter {
 
         this.moveEventsObserved = []
         this.histProvTurnsObserved = []
+
+        sabaki.events.on('bugout-turn', ({ turn }) => this.turn = turn )
 
         this.webSocket.addEventListener('close', () => {
             this.removeMessageListener()
@@ -144,20 +142,17 @@ class WebSocketController extends EventEmitter {
 
         this.webSocket.addEventListener('error',event => {
             console.log(`WebSocket error ${JSON.stringify(event)}`)
-            printReadyState(this.webSocket)
             emitReadyState(this.webSocket, sabaki.events)
         })
 
         // support reconnect event
         this.webSocket.addEventListener('connecting', () => {
             this.removeMessageListener()
-            printReadyState(this.webSocket)
             emitReadyState(this.webSocket, sabaki.events)
         })
 
         this.webSocket.addEventListener('open', () => {
             this.removeMessageListener()
-            printReadyState(this.webSocket)
             emitReadyState(this.webSocket, sabaki.events)
 
             if (!this.gameId && this.entryMethod === EntryMethod.FIND_PUBLIC) {
@@ -216,8 +211,8 @@ class WebSocketController extends EventEmitter {
                                 let onMove = r => {
                                     if (r && r.resolveWith) {
                                         // the opponent moved
-                                        this.resolveMoveMade(r.resolveWith)
                                         this.genMoveInProgress = false
+                                        this.resolveMoveMade(r.resolveWith)
                                     }
                                 }
                                 this.listenForHistoryOrMove(this.opponent, onMove)                    
@@ -256,7 +251,7 @@ class WebSocketController extends EventEmitter {
                 if (msg.type === "HistoryProvided" &&
                     msg.moves.length > 0 &&
                     msg.moves[msg.moves.length - 1].player === opponent &&
-                    msg.moves[msg.moves.length - 1].turn === this.turn + 1) {
+                    msg.moves[msg.moves.length - 1].turn === this.turn) {
 
                     let lastMove = msg.moves[msg.moves.length - 1]
                     if (lastMove) { // they didn't pass
@@ -267,11 +262,6 @@ class WebSocketController extends EventEmitter {
                         // This may fail.  Revisit after https://github.com/Terkwood/BUGOUT/issues/56
                         onMove({player: lastMove.player, resolveWith:{"id":null,"content":null,"error":false}})
                     }
-
-                    let histProvTurn = msg.moves[msg.moves.length - 1]
-                    // VERY IMPORTANT! We want to count moves correctly.
-                    this.incrTurn({ histProvTurn })
-                
                 } else if (opponentMoved(msg,opponent)) {
 
                     this.handleMoveMade(msg,opponent)
@@ -300,11 +290,6 @@ class WebSocketController extends EventEmitter {
                 if (opponentMoved(msg, opponent)) {
                     this.handleMoveMade(msg, opponent, resolve)
                     this.genMoveInProgress = false
-
-                    // VERY IMPORTANT! We want to count moves correctly.
-                    // This will help us resync if we need to request history
-                    // on reconnect.
-                    this.incrTurn({ moveEventId: msg.eventId })
                 }
 
                 // discard any other messages until we receive confirmation
@@ -327,16 +312,16 @@ class WebSocketController extends EventEmitter {
         sabaki.events.emit('they-moved', { playerUp })
     }
 
-    incrTurn({ moveEventId, histProvTurn }) {
+    incrRemoteTurn({ moveEventId, histProvTurn }) {
     
         if (moveEventId && !this.moveEventsObserved.includes(moveEventId)) {
             this.moveEventsObserved.push(moveEventId)
-            this.turn = (this.turn || 0) + 1
+            this.remoteTurn = (this.remoteTurn || 0) + 1
         }
 
         if (histProvTurn && !this.histProvTurnsObserved.includes(histProvTurn)) {
             this.histProvTurnsObserved.push(histProvTurn)
-            this.turn = (this.turn || 0) + 1
+            this.remoteTurn = (this.remoteTurn || 0) + 1
         }
 
     }
@@ -368,7 +353,7 @@ class WebSocketController extends EventEmitter {
                         let msg = JSON.parse(event.data)
                         if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
                             resolve({id: null, error: false})
-                            this.incrTurn({ moveEventId: msg.eventId })
+                            this.incrRemoteTurn({ moveEventId: msg.eventId })
                         } 
 
                         // discard any other messages until we receive confirmation
