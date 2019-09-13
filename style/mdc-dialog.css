@@ -31,6 +31,7 @@
 }
 
 .mdc-dialog__surface {
+  /* TODO */
   box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
   background-color: #fff;
   /* @alternate */
@@ -107,14 +108,14 @@
   padding: 24px; }
 
 .mdc-dialog__footer__button {
-  transform: scale(2); 
+  transform: translateX(-38%) scale(2); 
   /* @noflip */
   margin-left: 0;
   /* @noflip */
-  margin-right: 8px; }
+  margin-right: 24px; }
   [dir="rtl"] .mdc-dialog__footer__button, .mdc-dialog__footer__button[dir="rtl"] {
     /* @noflip */
-    margin-left: 8px;
+    margin-left: 24px;
     /* @noflip */
     margin-right: 0; }
   .mdc-dialog__footer__button:last-child {
