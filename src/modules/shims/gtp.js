@@ -208,7 +208,7 @@ class WebSocketController extends EventEmitter {
                                 this.webSocket.send(JSON.stringify(provideHistoryCommand))
                                 
                                 let onMove = response => {
-                                    if (response.resolveWith != undefined) {
+                                    if (response && response.resolveWith != undefined) {
                                         // TODO black moved -- old
                                         this.resolveMoveMade(resolve(response.resolveWith))
                                         // TODO
@@ -235,6 +235,7 @@ class WebSocketController extends EventEmitter {
         this.webSocket.addEventListener('message', event => {
             try {
                 let msg = JSON.parse(event.data)
+                console.log(`msg on the line ${JSON.stringify(msg)}`)
                 if (msg.type === "HistoryProvided" &&
                     msg.moves.length > 0 &&
                     msg.moves[msg.moves.length - 1].player === opponent &&
@@ -249,11 +250,6 @@ class WebSocketController extends EventEmitter {
                         // This may fail.  Revisit after https://github.com/Terkwood/BUGOUT/issues/56
                         onMove({player: lastMove.player, resolveWith:{"id":null,"content":null,"error":false}})
                     } 
-
-                } else if (msg.type === "HistoryProvided") {
-
-                    // a history was provided, but it's the current player's turn, or there's no history: carry on
-                    onMove({resolveWith: undefined})
 
                 } else if (opponentMoved(msg,opponent)) {
 
