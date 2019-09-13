@@ -49,7 +49,7 @@ class ReconnectModal extends Component {
                     id,
                     isOpen: true,
                 },
-                h(Dialog.Header, null, 'Network Unavailable' ),
+                h(Dialog.Header, null, 'Dead Net' ),
                 chooseBody(reconnectionState)
             )
         : empty
