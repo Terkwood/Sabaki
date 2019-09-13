@@ -231,6 +231,7 @@ class WebSocketController extends EventEmitter {
     }
 
     listenForHistoryOrMove(opponent, onMove) {
+        console.log('WAIT FOR HISTORY')
         this.webSocket.addEventListener('message', event => {
             try {
                 let msg = JSON.parse(event.data)
@@ -279,6 +280,7 @@ class WebSocketController extends EventEmitter {
                     console.log('hey')
                     this.handleMoveMade(msg, opponent, resolve)
                     console.log('hi')
+                    this.genMoveInProgress = false
                 }
 
                 // discard any other messages until we receive confirmation
@@ -347,6 +349,7 @@ class WebSocketController extends EventEmitter {
                 this.myColor = otherPlayer(opponent)
 
                 this.listenForMove(opponent, resolve)
+                this.genMoveInProgress = true
              
             } else {
                 resolve({id: null, err: false})
