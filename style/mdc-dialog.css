@@ -36,11 +36,11 @@
   background-color: var(--mdc-theme-background, #fff);
   display: inline-flex;
   flex-direction: column;
-  width: calc(100% - 30px);
+  width: calc(100% - 90px);
   min-width: 640px;
   max-width: 865px;
-  -webkit-transform: translateY(150px) scale(1.0);
-          transform: translateY(0px) scale(1.0);
+  -webkit-transform: translateY(150px) scale(1.15);
+          transform: translateY(0px) scale(1.15);
   border-radius: 2px;
   visibility: visible;
   z-index: 30;
@@ -134,9 +134,9 @@
 
 @media (max-width: 640px) {
   .mdc-dialog {
-    min-width: 280px; }
+    min-width: 140px; }
   .mdc-dialog__surface {
-    min-width: 280px; }
+    min-width: 140px; }
   .mdc-dialog__body {
     line-height: 1.5; } }
 
