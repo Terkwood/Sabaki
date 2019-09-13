@@ -103,6 +103,8 @@ const ROBUST_WEBSOCKET_TIMEOUT_MS = 300000
 const WEBSOCKET_HEALTH_DELAY_MS = 10000
 const WEBSOCKET_HEALTH_INTERVAL_MS = 100
 
+const opponentMoved = (msg, opponent) => msg.type === "MoveMade" && msg.player === opponent
+
 class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, spawnOptions) {
         super()
@@ -202,12 +204,13 @@ class WebSocketController extends EventEmitter {
                                     "gameId": this.gameId,
                                     "reqId": uuidv4()
                                 }
+                                console.log('REQUESTING HISTORY')
                                 this.webSocket.send(JSON.stringify(provideHistoryCommand))
                                 
                                 let onMove = response => {
                                     if (response.resolveWith != undefined) {
                                         // TODO black moved -- old
-                                        resolve(response.resolveWith)
+                                        this.resolveMoveMade(resolve(response.resolveWith))
                                         // TODO
                                         this.genMoveInProgress = false
                                     } /*else {
@@ -215,9 +218,9 @@ class WebSocketController extends EventEmitter {
                                         this.listenForMove(opponent, resolve)
                                     }*/ // TODO
                                 }
-                                this.listenForHistory(opponent, onMove)                    
+                                this.listenForHistoryOrMove(this.opponentColor, onMove)                    
                             } else {
-                                this.listenForMove(opponent, resolve)
+                                this.listenForMove(this.opponentColor, this.resolveMoveMade)
                             }
                         } else {
                             throwFatal()
@@ -227,7 +230,7 @@ class WebSocketController extends EventEmitter {
         })
     }
 
-    listenForHistory(opponent, onMove) {
+    listenForHistoryOrMove(opponent, onMove) {
         this.webSocket.addEventListener('message', event => {
             try {
                 let msg = JSON.parse(event.data)
@@ -235,6 +238,7 @@ class WebSocketController extends EventEmitter {
                     msg.moves.length > 0 &&
                     msg.moves[msg.moves.length - 1].player === opponent &&
                     msg.moves[msg.moves.length - 1].turn === 1) {
+
                     let lastMove = msg.moves[msg.moves.length - 1]
                     if (lastMove) { // they didn't pass
                         let sabakiCoord = this.board.vertex2coord([lastMove.coord.x, lastMove.coord.y])
@@ -244,13 +248,17 @@ class WebSocketController extends EventEmitter {
                         // This may fail.  Revisit after https://github.com/Terkwood/BUGOUT/issues/56
                         onMove({player: lastMove.player, resolveWith:{"id":null,"content":null,"error":false}})
                     } 
-                }
 
-                if (msg.type === "HistoryProvided") {
+                } else if (msg.type === "HistoryProvided") {
+
                     // a history was provided, but it's the current player's turn, or there's no history: carry on
                     onMove({resolveWith: undefined})
-                }
 
+                } else if (opponentMoved(msg,opponent)) {
+
+                    this.handleMoveMade(msg,opponent)
+
+                }
                 // discard any other messages until we receive confirmation
                 // from BUGOUT that the history was provided
             } catch (err) {
@@ -266,13 +274,11 @@ class WebSocketController extends EventEmitter {
         this.webSocket.addEventListener('message', event => {
             try {
                 let msg = JSON.parse(event.data)
-                if (msg.type === "MoveMade" && msg.player === opponent) {
-                    let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
-                    resolve({"id":null,"content":sabakiCoord,"error":false})
-                    let playerUp = otherPlayer(opponent) 
-
-                    // In case white needs to dismiss its initial screen
-                    sabaki.events.emit('they-moved', { playerUp })
+               
+                if (opponentMoved(msg, opponent)) {
+                    console.log('hey')
+                    this.handleMoveMade(msg, opponent, resolve)
+                    console.log('hi')
                 }
 
                 // discard any other messages until we receive confirmation
@@ -284,6 +290,17 @@ class WebSocketController extends EventEmitter {
         })
     }
 
+    handleMoveMade(msg, opponent, resolve) {
+        console.log(`msg ${JSON.stringify(msg)} oppo ${opponent} resolve ${JSON.stringify(resolve)}`)
+        let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
+
+        resolve({"id":null,"content":sabakiCoord,"error":false})
+        
+        let playerUp = otherPlayer(opponent) 
+
+        // In case white needs to dismiss its initial screen
+        sabaki.events.emit('they-moved', { playerUp })
+    }
 
     async sendCommand(command, subscriber = () => {}) {
         let promise = new Promise((resolve, reject) => {
@@ -294,6 +311,9 @@ class WebSocketController extends EventEmitter {
 
             if (command.name == "play") {
                 let player = letterToPlayer(command.args[0])
+                this.myColor = player
+                this.opponentColor = otherPlayer(player)
+
                 let vertex = this.board.coord2vertex(command.args[1])
 
                 let makeMove = {
@@ -323,6 +343,9 @@ class WebSocketController extends EventEmitter {
             } else if (command.name === "genmove") {
 
                 let opponent = letterToPlayer(command.args[0])
+                this.opponentColor = opponent
+                this.myColor = otherPlayer(opponent)
+
                 this.listenForMove(opponent, resolve)
              
             } else {
