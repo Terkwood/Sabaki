@@ -103,6 +103,8 @@ const ROBUST_WEBSOCKET_TIMEOUT_MS = 300000
 const WEBSOCKET_HEALTH_DELAY_MS = 10000
 const WEBSOCKET_HEALTH_INTERVAL_MS = 100
 
+const opponentMoved = (msg, opponent) => msg.type === "MoveMade" && msg.player === opponent
+
 class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, spawnOptions) {
         super()
@@ -131,7 +133,10 @@ class WebSocketController extends EventEmitter {
         // result is returned via findPublicGame() and createPrivateGame() funcs
         this.gatewayConn = new GatewayConn(this.webSocket, handleWaitForOpponent, handleYourColor)
 
+        this.moveEventsObserved = []
+
         this.webSocket.addEventListener('close', () => {
+            this.removeMessageListener()
             console.log("WebSocket closed.")
             emitReadyState(this.webSocket, sabaki.events)
         })
@@ -144,11 +149,13 @@ class WebSocketController extends EventEmitter {
 
         // support reconnect event
         this.webSocket.addEventListener('connecting', () => {
+            this.removeMessageListener()
             printReadyState(this.webSocket)
             emitReadyState(this.webSocket, sabaki.events)
         })
 
         this.webSocket.addEventListener('open', () => {
+            this.removeMessageListener()
             printReadyState(this.webSocket)
             emitReadyState(this.webSocket, sabaki.events)
 
@@ -195,6 +202,27 @@ class WebSocketController extends EventEmitter {
                     .then((rc, err) => {
                         if (!err) {
                             console.log(`Reconnected! data: ${JSON.stringify(rc)}`)
+
+                            if (this.genMoveInProgress) {
+                                let provideHistoryCommand = {
+                                    "type":"ProvideHistory",
+                                    "gameId": this.gameId,
+                                    "reqId": uuidv4()
+                                }
+                                
+                                this.webSocket.send(JSON.stringify(provideHistoryCommand))
+                                
+                                let onMove = r => {
+                                    if (r && r.resolveWith) {
+                                        // the opponent moved
+                                        this.resolveMoveMade(r.resolveWith)
+                                        this.genMoveInProgress = false
+                                    }
+                                }
+                                this.listenForHistoryOrMove(this.opponent, onMove)                    
+                            } else {
+                                this.listenForMove(this.opponent, this.resolveMoveMade)
+                            }
                         } else {
                             throwFatal()
                         }
@@ -203,20 +231,78 @@ class WebSocketController extends EventEmitter {
         })
     }
 
+    removeMessageListener() {
+        this.messageListener &&
+        this.webSocket.removeEventListener('message', this.messageListener)
+    }
+
+    updateMessageListener(listener) {
+        if (listener) {
+            this.removeMessageListener()
+            this.messageListener = listener
+            this.webSocket.addEventListener('message', listener)
+        }
+    }
+
+    listenForHistoryOrMove(opponent, onMove) {
+        // We only want this listener online so we don't double-count turns
+        this.updateMessageListener(event => {
+            try {
+                let msg = JSON.parse(event.data)
+                console.log(`msg on the line ${JSON.stringify(msg)}`)
+                console.log(`turn ${this.turn}`)
+
+                if (msg.type === "HistoryProvided" &&
+                    msg.moves.length > 0 &&
+                    msg.moves[msg.moves.length - 1].player === opponent &&
+                    msg.moves[msg.moves.length - 1].turn === this.turn + 1) {
+
+                    let lastMove = msg.moves[msg.moves.length - 1]
+                    if (lastMove) { // they didn't pass
+                        let sabakiCoord = this.board.vertex2coord([lastMove.coord.x, lastMove.coord.y])
+
+                        onMove({player: lastMove.player, resolveWith: {"id":null,"content":sabakiCoord,"error":false}})
+                    } else {
+                        // This may fail.  Revisit after https://github.com/Terkwood/BUGOUT/issues/56
+                        onMove({player: lastMove.player, resolveWith:{"id":null,"content":null,"error":false}})
+                    }
+
+                    // VERY IMPORTANT! We want to count moves correctly.
+                    this.incrTurn(msg.eventId)
+                
+                } else if (opponentMoved(msg,opponent)) {
+
+                    this.handleMoveMade(msg,opponent)
+
+                } else {
+                    console.log('Unknown message')
+
+                    // discard any other messages until we receive confirmation
+                    // from BUGOUT that the history was provided
+                }
+            } catch (err) {
+                console.log(`Error processing websocket message (H): ${JSON.stringify(err)}`)
+                onMove(undefined)
+            }
+        })
+    }
 
     listenForMove(opponent, resolve) {
         this.resolveMoveMade = resolve
-        
-        this.webSocket.addEventListener('message', event => {
+
+        // We only want this listener online so we don't double-count turns
+        this.updateMessageListener(event => {
             try {
                 let msg = JSON.parse(event.data)
-                if (msg.type === "MoveMade" && msg.player === opponent) {
-                    let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
-                    resolve({"id":null,"content":sabakiCoord,"error":false})
-                    let playerUp = otherPlayer(opponent) 
+               
+                if (opponentMoved(msg, opponent)) {
+                    this.handleMoveMade(msg, opponent, resolve)
+                    this.genMoveInProgress = false
 
-                    // In case white needs to dismiss its initial screen
-                    sabaki.events.emit('they-moved', { playerUp })
+                    // VERY IMPORTANT! We want to count moves correctly.
+                    // This will help us resync if we need to request history
+                    // on reconnect.
+                    this.incrTurn(msg.eventId)
                 }
 
                 // discard any other messages until we receive confirmation
@@ -228,6 +314,23 @@ class WebSocketController extends EventEmitter {
         })
     }
 
+    handleMoveMade(msg, opponent, resolve) {
+        let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
+
+        resolve({"id":null,"content":sabakiCoord,"error":false})
+        
+        let playerUp = otherPlayer(opponent) 
+
+        // In case white needs to dismiss its initial screen
+        sabaki.events.emit('they-moved', { playerUp })
+    }
+
+    incrTurn(eventId) {
+        if (!this.moveEventsObserved.includes(eventId)) {
+            this.moveEventsObserved.push(eventId)
+            this.turn = (this.turn || 0) + 1
+        }
+    }
 
     async sendCommand(command, subscriber = () => {}) {
         let promise = new Promise((resolve, reject) => {
@@ -238,6 +341,8 @@ class WebSocketController extends EventEmitter {
 
             if (command.name == "play") {
                 let player = letterToPlayer(command.args[0])
+                this.opponent = otherPlayer(player)
+
                 let vertex = this.board.coord2vertex(command.args[1])
 
                 let makeMove = {
@@ -248,11 +353,13 @@ class WebSocketController extends EventEmitter {
                     "coord": {"x":vertex[0],"y":vertex[1]}
                 }
 
-                this.webSocket.addEventListener('message', event => {
+                // We only want this listener online so we don't double-count turns
+                this.updateMessageListener(event => {
                     try {
                         let msg = JSON.parse(event.data)
                         if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
                             resolve({id: null, error: false})
+                            this.incrTurn(msg.eventId)
                         } 
 
                         // discard any other messages until we receive confirmation
@@ -267,7 +374,10 @@ class WebSocketController extends EventEmitter {
             } else if (command.name === "genmove") {
 
                 let opponent = letterToPlayer(command.args[0])
+                this.opponent = opponent
+                
                 this.listenForMove(opponent, resolve)
+                this.genMoveInProgress = true
              
             } else {
                 resolve({id: null, err: false})
@@ -363,6 +473,7 @@ class GatewayConn {
                 'type':'FindPublicGame'
             }
 
+            // Let this listener stack
             this.webSocket.addEventListener('message', event => {
                 try {
                     let msg = JSON.parse(event.data)
@@ -393,6 +504,7 @@ class GatewayConn {
                 'type':'CreatePrivateGame'
             }
 
+            // Let this listener stack
             this.webSocket.addEventListener('message', event => {
                 try {
                     let msg = JSON.parse(event.data)
@@ -425,6 +537,7 @@ class GatewayConn {
                 'gameId': gameId
             }
 
+            // Let this listener stack
             this.webSocket.addEventListener('message', event => {
                 try {
                     let msg = JSON.parse(event.data)
@@ -455,6 +568,7 @@ class GatewayConn {
                 'colorPref': colorPref
             }
 
+            // Let this listener stack
             this.webSocket.addEventListener('message', event => {
                 try {
                     let msg = JSON.parse(event.data)
