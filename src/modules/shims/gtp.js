@@ -203,6 +203,38 @@ class WebSocketController extends EventEmitter {
         })
     }
 
+    listenForHistory(opponent, onMove) {
+        this.webSocket.addEventListener('message', event => {
+            try {
+                let msg = JSON.parse(event.data)
+                if (msg.type === "HistoryProvided" &&
+                    msg.moves.length > 0 &&
+                    msg.moves[msg.moves.length - 1].player === opponent &&
+                    msg.moves[msg.moves.length - 1].turn === 1) {
+                    let lastMove = msg.moves[msg.moves.length - 1]
+                    if (lastMove) { // they didn't pass
+                        let sabakiCoord = this.board.vertex2coord([lastMove.coord.x, lastMove.coord.y])
+
+                        onMove({player: lastMove.player, resolveWith: {"id":null,"content":sabakiCoord,"error":false}})
+                    } else {
+                        // This may fail.  Revisit after https://github.com/Terkwood/BUGOUT/issues/56
+                        onMove({player: lastMove.player, resolveWith:{"id":null,"content":null,"error":false}})
+                    } 
+                }
+
+                if (msg.type === "HistoryProvided") {
+                    // a history was provided, but it's the current player's turn, or there's no history: carry on
+                    onMove({resolveWith: undefined})
+                }
+
+                // discard any other messages until we receive confirmation
+                // from BUGOUT that the history was provided
+            } catch (err) {
+                console.log(`Error processing websocket message (H): ${JSON.stringify(err)}`)
+                onMove(undefined)
+            }
+        })
+    }
 
     listenForMove(opponent, resolve) {
         this.resolveMoveMade = resolve
