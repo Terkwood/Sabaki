@@ -83,7 +83,8 @@
   font-size: 24px;
   line-height: 1.5;
   font-weight: 400;
-  letter-spacing: 0.0623em;
+  /* 24 * 0.0416 ≈ 1px */
+  letter-spacing: 0.0416667em;
   text-decoration: inherit;
   text-transform: inherit;
   margin-top: 86px;
