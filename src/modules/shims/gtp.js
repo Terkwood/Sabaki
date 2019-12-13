@@ -406,7 +406,7 @@ class WebSocketController extends EventEmitter {
                 try {
                     let msg = JSON.parse(event.data)
 
-                    if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.ONLINE) {
+                    if (msg.type === 'IdleStatusProvided' && msg.status === IdleStatus.ONLINE) {
                         this.removeMessageListener()
                     
                         this.idleStatus = { status: msg.status }
@@ -416,11 +416,11 @@ class WebSocketController extends EventEmitter {
                         sabaki.events.emit('idle-status', this.idleStatus)
 
                         resolve(msg)
-                    } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.IDLE) {
+                    } else if (msg.type === 'IdleStatusProvided' && msg.status === IdleStatus.IDLE) {
                         
                         this.idleStatus = { status: msg.status, since: msg.since }
                         sabaki.events.emit('idle-status', this.idleStatus)
-                    } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.BOOTING) {
+                    } else if (msg.type === 'IdleStatusProvided' && msg.status === IdleStatus.BOOTING) {
                     
                         this.idleStatus = { status: msg.status, since: msg.since }
                         sabaki.events.emit('idle-status', this.idleStatus)
@@ -440,7 +440,7 @@ class WebSocketController extends EventEmitter {
 
     pollBugoutOnline() {
         let command = {
-            "type":"ProvideIdleStatus"
+            'type':'ProvideIdleStatus'
         }
 
         this.webSocket.send(JSON.stringify(command))
@@ -448,7 +448,7 @@ class WebSocketController extends EventEmitter {
         this.idleStatusPoll = setInterval(() => {
             if (this.idleStatus && this.idleStatus.status && this.idleStatus.status !== IdleStatus.ONLINE) {
                 let command = {
-                    "type":"ProvideIdleStatus"
+                    'type':'ProvideIdleStatus'
                 }
         
                 this.webSocket.send(JSON.stringify(command))
