@@ -391,7 +391,32 @@ class WebSocketController extends EventEmitter {
 
     async waitForBugoutOnline() {
         console.log("WAITING ! ⏳")
-        return new Promise((resolve, _reject) => { resolve(true) })
+        let command = {
+            "type":"ProvideIdleStatus"
+        }
+        
+        return new Promise((resolve, _reject) => resolve(true))
+
+        //this.webSocket.send(JSON.stringify(command))
+        
+        return new Promise((resolve, reject) => { 
+            this.updateMessageListener(event => {
+                try {
+                    let msg = JSON.parse(event.data)
+                    console.log("idle data " + event.data)
+                    if (msg.type === "IdleStatusProvided" ) {
+                        // TODO booting, idle cases
+                        resolve(msg)
+                    } 
+
+                    // discard any other messages until we receive confirmation
+                    // from BUGOUT that the move was made
+                } catch (err) {
+                    console.log(`Error processing idle status response: ${JSON.stringify(err)}`)
+                    reject()
+                }
+            })
+         })
     }
 }
 
