@@ -14,6 +14,7 @@ class IdleStatusModal extends Component {
         id = 'idle-status-modal', 
         data
     }) {
+        console.log(`idle status modal data: ${JSON.stringify(data)}`)
         let empty = h('div', { id })
 
         if (undefined == data) {

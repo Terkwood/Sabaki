@@ -411,24 +411,25 @@ class WebSocketController extends EventEmitter {
                         console.log("Online")
 
                         this.removeMessageListener()
-                        let s = { status: msg.status }
-                        this.idleStatus = s
+                    
+                        this.idleStatus = { status: msg.status }
                         if (this.idleStatusPoll) {
                             clearInterval(this.idleStatusPoll)
                             console.log("cleared poll")
                         }
+                        sabaki.events.emit('idle-status', this.idleStatus)
 
                         resolve(msg)
                     } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.IDLE) {
-                        let s = { status: msg.status, since: msg.since }
-                        this.idleStatus = s
-                        sabaki.events.emit('idle-status', s)
+                        
+                        this.idleStatus = { status: msg.status, since: msg.since }
+                        sabaki.events.emit('idle-status', this.idleStatus)
                         
                         console.log("Oh IDLE ")
                     } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.BOOTING) {
-                        let s = { status: msg.status, since: msg.since }
-                        this.idleStatus = s
-                        sabaki.events.emit('idle-status', s)
+                    
+                        this.idleStatus = { status: msg.status, since: msg.since }
+                        sabaki.events.emit('idle-status', this.idleStatus)
 
                         console.log("BOOTINg ")
                     } else {
