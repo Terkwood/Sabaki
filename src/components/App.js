@@ -2594,7 +2594,7 @@ class App extends Component {
             h(YourColorChosenModal, { yourColor: this.state.multiplayer && this.state.multiplayer.yourColor }), 
             h(ReconnectModal, { data: this.state.multiplayer }), 
             h(IdleStatusModal, { data: this.state.multiplayer }),
-            h(WelcomeModal),
+            // TODO destroy this: h(WelcomeModal),
             // ↑ BUGOUT ↑
 
             h(ThemeManager),

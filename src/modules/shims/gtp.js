@@ -127,7 +127,7 @@ class WebSocketController extends EventEmitter {
         // We pass handleWaitForOpponent down so that it can 'stick'
         // to the incoming websocket message, even after an initial WFP
         // result is returned via findPublicGame() and createPrivateGame() funcs
-        this.gatewayConn = new GatewayConn(this.webSocket, handleWaitForOpponent, handleYourColor)
+        this.gatewayConn = new GatewayConn(this.webSocket, handleWaitForOpponent, handleYourColor, this.updateMessageListener)
 
         sabaki.events.on('bugout-turn', ({ turn }) => this.turn = turn )
 
@@ -402,15 +402,19 @@ class WebSocketController extends EventEmitter {
                 try {
                     let msg = JSON.parse(event.data)
                     console.log("idle data " + JSON.stringify(msg))
-                    if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.Online) {
+                    if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.ONLINE) {
+                        console.log("Online")
+
+                        this.removeMessageListener()
                         // TODO booting, idle cases
+
                         resolve(msg)
-                    } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.Idle) {
+                    } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.IDLE) {
                         console.log("Oh IDLE")
-                    } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.Booting) {
+                    } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.BOOTING) {
                         console.log("BOOTINg")
                     } else {
-                        console.log("no")
+                        console.log("you should poll now")
                     }
 
                     // discard any other messages until we receive confirmation
@@ -487,7 +491,6 @@ class GatewayConn {
                 'type':'FindPublicGame'
             }
 
-            // Let this listener stack
             this.webSocket.addEventListener('message', event => {
                 try {
                     let msg = JSON.parse(event.data)
@@ -518,7 +521,6 @@ class GatewayConn {
                 'type':'CreatePrivateGame'
             }
 
-            // Let this listener stack
             this.webSocket.addEventListener('message', event => {
                 try {
                     let msg = JSON.parse(event.data)
@@ -551,7 +553,6 @@ class GatewayConn {
                 'gameId': gameId
             }
 
-            // Let this listener stack
             this.webSocket.addEventListener('message', event => {
                 try {
                     let msg = JSON.parse(event.data)

@@ -1,3 +1,4 @@
+// TODO destroy this class
 const { h, Component } = require('preact')
 
 // 🦹🏻‍ Bundle Bloat Protector
