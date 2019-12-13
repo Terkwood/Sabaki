@@ -399,23 +399,19 @@ class WebSocketController extends EventEmitter {
             }
         }))
 
-        console.log("WAITING ! ⏳")
         this.pollBugoutOnline()
         
         return new Promise((resolve, reject) => { 
             this.updateMessageListener(event => {
                 try {
                     let msg = JSON.parse(event.data)
-                    console.log("idle data " + JSON.stringify(msg))
-                    if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.ONLINE) {
-                        console.log("Online")
 
+                    if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.ONLINE) {
                         this.removeMessageListener()
                     
                         this.idleStatus = { status: msg.status }
                         if (this.idleStatusPoll) {
                             clearInterval(this.idleStatusPoll)
-                            console.log("cleared poll")
                         }
                         sabaki.events.emit('idle-status', this.idleStatus)
 
@@ -424,16 +420,12 @@ class WebSocketController extends EventEmitter {
                         
                         this.idleStatus = { status: msg.status, since: msg.since }
                         sabaki.events.emit('idle-status', this.idleStatus)
-                        
-                        console.log("Oh IDLE ")
                     } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.BOOTING) {
                     
                         this.idleStatus = { status: msg.status, since: msg.since }
                         sabaki.events.emit('idle-status', this.idleStatus)
-
-                        console.log("BOOTINg ")
                     } else {
-                        console.log("you should poll now")
+                        throw('wait-error-halp')
                     }
 
                     // discard any other messages until we receive confirmation
@@ -447,7 +439,6 @@ class WebSocketController extends EventEmitter {
     }
 
     pollBugoutOnline() {
-        console.log("POLLING")
         let command = {
             "type":"ProvideIdleStatus"
         }
