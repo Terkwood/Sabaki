@@ -2573,7 +2573,7 @@ class App extends Component {
             // ↓ BUGOUT ↓
             h(GameLobbyModal, {
                 joinPrivateGame: this.bugout.joinPrivateGame.join,
-                idleStatus: this.state.multiplayer && this.state.multiplayer.idleStatus && this.state.multiplayer.idleStatus.status,
+                idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status,
                 update: entryMethod => this.setState({ 
                     multiplayer: {
                         ...this.state.multiplayer,
@@ -2582,19 +2582,19 @@ class App extends Component {
                 })
             }),
             h(WaitForOpponentModal, {
-                data: this.state.multiplayer && this.state.multiplayer.waitForOpponentModal,
-                reconnectDialog: this.state.multiplayer && this.state.multiplayer.reconnectDialog
+                data: state.multiplayer && state.multiplayer.waitForOpponentModal,
+                reconnectDialog: state.multiplayer && state.multiplayer.reconnectDialog
             }),
             h(ColorChoiceModal, {
                 turnOn: state.multiplayer && state.multiplayer.entryMethod,
                 chooseColorPref: colorPref => this.events.emit('choose-color-pref', { colorPref })
             }), 
             h(WaitForYourColorModal, {
-                data: this.state.multiplayer
+                data: state.multiplayer
             }),
-            h(YourColorChosenModal, { yourColor: this.state.multiplayer && this.state.multiplayer.yourColor }), 
-            h(ReconnectModal, { data: this.state.multiplayer }), 
-            h(IdleStatusModal, { data: this.state.multiplayer }),
+            h(YourColorChosenModal, { yourColor: state.multiplayer && state.multiplayer.yourColor }), 
+            h(ReconnectModal, { data: state.multiplayer }), 
+            h(IdleStatusModal, { data: state.multiplayer }),
             // TODO destroy this: h(WelcomeModal),
             // ↑ BUGOUT ↑
 
