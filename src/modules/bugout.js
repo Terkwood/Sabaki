@@ -30,9 +30,9 @@ const EntryMethod = {
 }
 
 const IdleStatus = {
-    IDLE: 0,
-    BOOTING: 1,
-    ONLINE: 2,
+    IDLE: 'Idle',
+    BOOTING: 'Booting',
+    ONLINE: 'Online',
 }
 
 const BLACK = "B"

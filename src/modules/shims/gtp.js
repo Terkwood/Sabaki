@@ -4,7 +4,7 @@ const EventEmitter = require('events')
 const Board = require('../board')
 const RobustWebSocket = require('robust-websocket')
 const uuidv4 = require('uuid/v4')
-const { EntryMethod, emitReadyState } = require('../bugout')
+const { IdleStatus, EntryMethod, emitReadyState } = require('../bugout')
 
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
 const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
@@ -394,20 +394,24 @@ class WebSocketController extends EventEmitter {
         let command = {
             "type":"ProvideIdleStatus"
         }
-        
-        return new Promise((resolve, _reject) => resolve(true))
 
-        //this.webSocket.send(JSON.stringify(command))
+        this.webSocket.send(JSON.stringify(command))
         
         return new Promise((resolve, reject) => { 
             this.updateMessageListener(event => {
                 try {
                     let msg = JSON.parse(event.data)
-                    console.log("idle data " + event.data)
-                    if (msg.type === "IdleStatusProvided" ) {
+                    console.log("idle data " + JSON.stringify(msg))
+                    if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.Online) {
                         // TODO booting, idle cases
                         resolve(msg)
-                    } 
+                    } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.Idle) {
+                        console.log("Oh IDLE")
+                    } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.Booting) {
+                        console.log("BOOTINg")
+                    } else {
+                        console.log("no")
+                    }
 
                     // discard any other messages until we receive confirmation
                     // from BUGOUT that the move was made
