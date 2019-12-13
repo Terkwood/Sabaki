@@ -15,12 +15,13 @@ const BusyScreen = require('./BusyScreen')
 const InfoOverlay = require('./InfoOverlay')
 
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
-import GameLobbyModal from './bugout/GameLobbyModal'
-import WaitForOpponentModal from './bugout/WaitForOpponentModal'
 import ColorChoiceModal from './bugout/ColorChoiceModal'
+import GameLobbyModal from './bugout/GameLobbyModal'
+import IdleStatusModal from './bugout/IdleStatusModal'
+import ReconnectModal from './bugout/ReconnectModal'
+import WaitForOpponentModal from './bugout/WaitForOpponentModal'
 import WaitForYourColorModal from './bugout/WaitForYourColorModal'
 import YourColorChosenModal from './bugout/YourColorChosenModal'
-import ReconnectModal from './bugout/ReconnectModal'
 
 const deadstones = require('@sabaki/deadstones')
 const gtp = require('@sabaki/gtp')
@@ -2571,6 +2572,7 @@ class App extends Component {
             // ↓ BUGOUT ↓
             h(GameLobbyModal, {
                 joinPrivateGame: this.bugout.joinPrivateGame.join,
+                idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status,
                 update: entryMethod => this.setState({ 
                     multiplayer: {
                         ...this.state.multiplayer,
@@ -2579,18 +2581,20 @@ class App extends Component {
                 })
             }),
             h(WaitForOpponentModal, {
-                data: this.state.multiplayer && this.state.multiplayer.waitForOpponentModal,
-                reconnectDialog: this.state.multiplayer && this.state.multiplayer.reconnectDialog
+                data: state.multiplayer && state.multiplayer.waitForOpponentModal,
+                reconnectDialog: state.multiplayer && state.multiplayer.reconnectDialog
             }),
             h(ColorChoiceModal, {
                 turnOn: state.multiplayer && state.multiplayer.entryMethod,
+                idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status,
                 chooseColorPref: colorPref => this.events.emit('choose-color-pref', { colorPref })
             }), 
             h(WaitForYourColorModal, {
-                data: this.state.multiplayer
+                data: state.multiplayer
             }),
-            h(YourColorChosenModal, { yourColor: this.state.multiplayer && this.state.multiplayer.yourColor }), 
-            h(ReconnectModal, { data: this.state.multiplayer }), 
+            h(YourColorChosenModal, { yourColor: state.multiplayer && state.multiplayer.yourColor }), 
+            h(ReconnectModal, { data: state.multiplayer }), 
+            h(IdleStatusModal, { data: state.multiplayer }),
             // ↑ BUGOUT ↑
 
             h(ThemeManager),

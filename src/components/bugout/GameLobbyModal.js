@@ -3,7 +3,7 @@ const { h, Component } = require('preact')
 // 🦹🏻‍ Bundle Bloat Protector
 import Dialog from 'preact-material-components/Dialog'
 
-const { EntryMethod } = require('../../modules/bugout')
+const { EntryMethod, IdleStatus } = require('../../modules/bugout')
 
 class GameLobbyModal extends Component {
     constructor() {
@@ -11,7 +11,13 @@ class GameLobbyModal extends Component {
         this.state = { showDialog: true }
     }
 
-    render({ id = "game-lobby-modal", joinPrivateGame = false, update }) {
+    render({ id = 'game-lobby-modal', joinPrivateGame = false, idleStatus, update }) {
+        let empty = h('div', { id })
+
+        if (idleStatus && idleStatus !== IdleStatus.ONLINE) {
+            return empty
+        }
+
         if (joinPrivateGame && this.state.showDialog) {
             return h(Dialog,
                 {
@@ -19,7 +25,7 @@ class GameLobbyModal extends Component {
                     isOpen: true,
                 },
                 h(Dialog.Header, null, "Join Private Game"),
-                h(Dialog.Body, null, "You're joining a private game created by your friend."),
+                h(Dialog.Body, null, "🐛 Welcome to BUGOUT! You're joining a private game created by your friend."),
                 h(Dialog.Footer, null, 
                     h(Dialog.FooterButton, 
                         { 
@@ -40,7 +46,7 @@ class GameLobbyModal extends Component {
                 isOpen: true,
             },
             h(Dialog.Header, null, "Choose Venue"),
-            h(Dialog.Body, null, "You may find a public game with the next available player, or create a private game and share its link with your friend."),
+            h(Dialog.Body, null, "🐛 Welcome to BUGOUT! You may find a public game with the next available player, or create a private game and share its link with your friend."),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
                     { 
@@ -61,7 +67,7 @@ class GameLobbyModal extends Component {
                             update(EntryMethod.CREATE_PRIVATE)
                         }
                     }, "Private"))
-        ) : h('div', { id })
+        ) : empty
     }
 }
 

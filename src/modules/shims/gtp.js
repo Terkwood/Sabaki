@@ -4,13 +4,15 @@ const EventEmitter = require('events')
 const Board = require('../board')
 const RobustWebSocket = require('robust-websocket')
 const uuidv4 = require('uuid/v4')
-const { EntryMethod, emitReadyState } = require('../bugout')
+const { IdleStatus, EntryMethod, emitReadyState } = require('../bugout')
 
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
 const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
 const GATEWAY_HOST = GATEWAY_HOST_LOCAL
 
 const GATEWAY_BEEP_TIMEOUT_MS = 13333
+
+const IDLE_STATUS_POLL_MS = 1000
 
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {
@@ -107,7 +109,7 @@ class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, spawnOptions) {
         super()
 
-        this.board = new Board(19,19) // TODO BUGOUT don't hardcode this
+        this.board = new Board(19,19) // See https://github.com/Terkwood/BUGOUT/issues/103
         this.gameId = null
 
         this.beeping = true
@@ -152,76 +154,80 @@ class WebSocketController extends EventEmitter {
             this.removeMessageListener()
             emitReadyState(this.webSocket, sabaki.events)
 
-            if (!this.gameId && this.entryMethod === EntryMethod.FIND_PUBLIC) {
-                this.gatewayConn
-                    .findPublicGame()
-                    .then((reply, err) => {
-                        if (!err && reply.type === 'GameReady') {
-                            this.gameId = reply.gameId
-                        } else if (!err && reply.type == 'WaitForOpponent') {
-                            this.gameId = reply.gameId
-                        } else {
-                            throwFatal()
-                        }
-                })
-            } else if (!this.gameId && this.entryMethod === EntryMethod.CREATE_PRIVATE) {
-                this.gatewayConn
-                    .createPrivateGame()
-                    .then((reply, err) => {
-                        if (!err && reply.type == 'WaitForOpponent') {
-                            this.gameId = reply.gameId
-                        } else if (!err && reply.type === 'GameReady') {
-                            // LATER...
-                            this.gameId = reply.gameId
-                        } else {
-                            throwFatal()
-                        }
-                })
-            } else if (!this.gameId && this.entryMethod === EntryMethod.JOIN_PRIVATE && this.joinPrivateGame.join) {
-                this.gatewayConn
-                    .joinPrivateGame(this.joinPrivateGame.gameId)
-                    .then((reply, err) => {
-                        if (!err && reply.type === 'GameReady') {
-                            this.gameId = reply.gameId
-                        } else if (!err && reply.type == 'PrivateGameRejected') {
-                            alert('Invalid game')
-                        } else {
-                            throwFatal()
-                        }
-                    })
-            } else {
-                this.gatewayConn
-                    .reconnect(this.gameId, this.resolveMoveMade, this.board)
-                    .then((rc, err) => {
-                        if (!err) {
-                            console.log(`Reconnected! data: ${JSON.stringify(rc)}`)
+            this.waitForBugoutOnline().then((rc, err) => {
 
-                            if (this.genMoveInProgress) {
-                                let provideHistoryCommand = {
-                                    "type":"ProvideHistory",
-                                    "gameId": this.gameId,
-                                    "reqId": uuidv4()
-                                }
-                                
-                                this.webSocket.send(JSON.stringify(provideHistoryCommand))
-                                
-                                let onMove = r => {
-                                    if (r && r.resolveWith) {
-                                        // the opponent moved
-                                        this.genMoveInProgress = false
-                                        this.resolveMoveMade(r.resolveWith)
-                                    }
-                                }
-                                this.listenForHistoryOrMove(this.opponent, onMove)                    
+                if (!this.gameId && this.entryMethod === EntryMethod.FIND_PUBLIC) {
+                    this.gatewayConn
+                        .findPublicGame()
+                        .then((reply, err) => {
+                            if (!err && reply.type === 'GameReady') {
+                                this.gameId = reply.gameId
+                            } else if (!err && reply.type == 'WaitForOpponent') {
+                                this.gameId = reply.gameId
                             } else {
-                                this.listenForMove(this.opponent, this.resolveMoveMade)
+                                throwFatal()
                             }
-                        } else {
-                            throwFatal()
-                        }
                     })
+                } else if (!this.gameId && this.entryMethod === EntryMethod.CREATE_PRIVATE) {
+                    this.gatewayConn
+                        .createPrivateGame()
+                        .then((reply, err) => {
+                            if (!err && reply.type == 'WaitForOpponent') {
+                                this.gameId = reply.gameId
+                            } else if (!err && reply.type === 'GameReady') {
+                                // LATER...
+                                this.gameId = reply.gameId
+                            } else {
+                                throwFatal()
+                            }
+                    })
+                } else if (!this.gameId && this.entryMethod === EntryMethod.JOIN_PRIVATE && this.joinPrivateGame.join) {
+                    this.gatewayConn
+                        .joinPrivateGame(this.joinPrivateGame.gameId)
+                        .then((reply, err) => {
+                            if (!err && reply.type === 'GameReady') {
+                                this.gameId = reply.gameId
+                            } else if (!err && reply.type == 'PrivateGameRejected') {
+                                alert('Invalid game')
+                            } else {
+                                throwFatal()
+                            }
+                        })
+                } else {
+                    this.gatewayConn
+                        .reconnect(this.gameId, this.resolveMoveMade, this.board)
+                        .then((rc, err) => {
+                            if (!err) {
+                                console.log(`Reconnected! data: ${JSON.stringify(rc)}`)
+
+                                if (this.genMoveInProgress) {
+                                    let provideHistoryCommand = {
+                                        "type":"ProvideHistory",
+                                        "gameId": this.gameId,
+                                        "reqId": uuidv4()
+                                    }
+                                    
+                                    this.webSocket.send(JSON.stringify(provideHistoryCommand))
+                                    
+                                    let onMove = r => {
+                                        if (r && r.resolveWith) {
+                                            // the opponent moved
+                                            this.genMoveInProgress = false
+                                            this.resolveMoveMade(r.resolveWith)
+                                        }
+                                    }
+                                    this.listenForHistoryOrMove(this.opponent, onMove)                    
+                                } else {
+                                    this.listenForMove(this.opponent, this.resolveMoveMade)
+                                }
+                            } else {
+                                throwFatal()
+                            }
+                        })
+                    }
+                })
             }
-        })
+        )
     }
 
     removeMessageListener() {
@@ -384,6 +390,71 @@ class WebSocketController extends EventEmitter {
         this.webSocket.close()
         this.beeping = false
     }
+
+    async waitForBugoutOnline() {
+        sabaki.events.on('idle-status', idleStatus => sabaki.setState({
+            multiplayer: {
+                ...sabaki.state.multiplayer,
+                idleStatus
+            }
+        }))
+
+        this.pollBugoutOnline()
+        
+        return new Promise((resolve, reject) => { 
+            this.updateMessageListener(event => {
+                try {
+                    let msg = JSON.parse(event.data)
+
+                    if (msg.type === 'IdleStatusProvided' && msg.status === IdleStatus.ONLINE) {
+                        this.removeMessageListener()
+                    
+                        this.idleStatus = { status: msg.status }
+                        if (this.idleStatusPoll) {
+                            clearInterval(this.idleStatusPoll)
+                        }
+                        sabaki.events.emit('idle-status', this.idleStatus)
+
+                        resolve(msg)
+                    } else if (msg.type === 'IdleStatusProvided' && msg.status === IdleStatus.IDLE) {
+                        
+                        this.idleStatus = { status: msg.status, since: msg.since }
+                        sabaki.events.emit('idle-status', this.idleStatus)
+                    } else if (msg.type === 'IdleStatusProvided' && msg.status === IdleStatus.BOOTING) {
+                    
+                        this.idleStatus = { status: msg.status, since: msg.since }
+                        sabaki.events.emit('idle-status', this.idleStatus)
+                    } else {
+                        throw('wait-error-halp')
+                    }
+
+                    // discard any other messages until we receive confirmation
+                    // from BUGOUT that the move was made
+                } catch (err) {
+                    console.log(`Error processing idle status response: ${JSON.stringify(err)}`)
+                    reject()
+                }
+            })
+         })
+    }
+
+    pollBugoutOnline() {
+        let command = {
+            'type':'ProvideIdleStatus'
+        }
+
+        this.webSocket.send(JSON.stringify(command))
+
+        this.idleStatusPoll = setInterval(() => {
+            if (this.idleStatus && this.idleStatus.status && this.idleStatus.status !== IdleStatus.ONLINE) {
+                let command = {
+                    'type':'ProvideIdleStatus'
+                }
+        
+                this.webSocket.send(JSON.stringify(command))
+            }
+        }, IDLE_STATUS_POLL_MS)
+    }
 }
 
 class GatewayConn {
@@ -449,7 +520,6 @@ class GatewayConn {
                 'type':'FindPublicGame'
             }
 
-            // Let this listener stack
             this.webSocket.addEventListener('message', event => {
                 try {
                     let msg = JSON.parse(event.data)
@@ -480,7 +550,6 @@ class GatewayConn {
                 'type':'CreatePrivateGame'
             }
 
-            // Let this listener stack
             this.webSocket.addEventListener('message', event => {
                 try {
                     let msg = JSON.parse(event.data)
@@ -513,7 +582,6 @@ class GatewayConn {
                 'gameId': gameId
             }
 
-            // Let this listener stack
             this.webSocket.addEventListener('message', event => {
                 try {
                     let msg = JSON.parse(event.data)
