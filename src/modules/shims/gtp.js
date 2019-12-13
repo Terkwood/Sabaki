@@ -129,7 +129,7 @@ class WebSocketController extends EventEmitter {
         // We pass handleWaitForOpponent down so that it can 'stick'
         // to the incoming websocket message, even after an initial WFP
         // result is returned via findPublicGame() and createPrivateGame() funcs
-        this.gatewayConn = new GatewayConn(this.webSocket, handleWaitForOpponent, handleYourColor, this.updateMessageListener)
+        this.gatewayConn = new GatewayConn(this.webSocket, handleWaitForOpponent, handleYourColor)
 
         sabaki.events.on('bugout-turn', ({ turn }) => this.turn = turn )
 
