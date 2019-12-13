@@ -14,14 +14,9 @@ class GameLobbyModal extends Component {
     render({ id = "game-lobby-modal", joinPrivateGame = false, idleStatus, update }) {
         let empty = h('div', { id })
 
-        console.log(`lobby idleStatus ${idleStatus}`)
-
         if (idleStatus && idleStatus !== IdleStatus.ONLINE) {
-            console.log('GL modal: system not online')
             return empty
         }
-
-        console.log('GL modal: ALL SYSTEMS GO')
 
         if (joinPrivateGame && this.state.showDialog) {
             return h(Dialog,
@@ -51,7 +46,7 @@ class GameLobbyModal extends Component {
                 isOpen: true,
             },
             h(Dialog.Header, null, "Choose Venue"),
-            h(Dialog.Body, null, "You may find a public game with the next available player, or create a private game and share its link with your friend."),
+            h(Dialog.Body, null, "Welcome to BUGOUT! You may find a public game with the next available player, or create a private game and share its link with your friend."),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
                     { 
