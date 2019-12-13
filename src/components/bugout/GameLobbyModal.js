@@ -11,7 +11,7 @@ class GameLobbyModal extends Component {
         this.state = { showDialog: true }
     }
 
-    render({ id = "game-lobby-modal", joinPrivateGame = false, idleStatus, update }) {
+    render({ id = 'game-lobby-modal', joinPrivateGame = false, idleStatus, update }) {
         let empty = h('div', { id })
 
         if (idleStatus && idleStatus !== IdleStatus.ONLINE) {

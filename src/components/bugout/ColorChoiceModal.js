@@ -12,13 +12,16 @@ class ColorChoiceModal extends Component {
     }
 
     render({ id = "color-choice-modal", turnOn = false, idleStatus, chooseColorPref }) {
+       
         let { showDialog, turnedOnOnce } = this.state
-      
-        if (idleStatus == undefined || idleStatus !== IdleStatus.ONLINE) {
+
+        let happyTimes = (turnOn && !turnedOnOnce) || showDialog
+
+        if (!happyTimes || idleStatus == undefined || idleStatus !== IdleStatus.ONLINE) {
             return h('div', { id })
         }
 
-        return ((turnOn && !turnedOnOnce) || showDialog) ? h(Dialog,
+        return h(Dialog,
             {
                 id,
                 isOpen: true,
@@ -54,7 +57,7 @@ class ColorChoiceModal extends Component {
                             chooseColorPref( ColorPref.ANY )
                         }
                     }, "Either"))
-        ) : h('div', { id })
+        )
     }
 }
 
