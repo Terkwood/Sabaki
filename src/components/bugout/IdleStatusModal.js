@@ -1,0 +1,51 @@
+const { h, Component } = require('preact')
+
+// 🦹🏻‍ Bundle Bloat Protector
+import Dialog from 'preact-material-components/Dialog'
+
+const { IdleStatus } = require('../../modules/bugout')
+
+class IdleStatusModal extends Component {
+    constructor() {
+        super()
+    }
+
+    render({ 
+        id = 'idle-status-modal', 
+        data
+    }) {
+        let empty = h('div', { id })
+
+        if (undefined == data) {
+            return empty
+        }
+
+        let { idleStatus } = data
+
+        if (undefined == idleStatus || idleStatus === IdleStatus.Online ) {
+            return empty
+        }
+
+        if (idleStatus === IdleStatus.BOOTING) {
+            return h(Dialog,
+                {
+                    id,
+                    isOpen: true,
+                },
+                h(Dialog.Header, null, 'System Initializing' ),
+                h(Dialog.Body, null, "Please wait while BUGOUT boots up."),
+            )
+        }
+
+        return h(Dialog,
+            {
+                id,
+                isOpen: true,
+            },
+            h(Dialog.Header, null, 'System Idle' ),
+            h(Dialog.Body, null, "BUGOUT is currently offline."),
+        )
+    }
+}
+
+export default IdleStatusModal

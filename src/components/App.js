@@ -15,12 +15,14 @@ const BusyScreen = require('./BusyScreen')
 const InfoOverlay = require('./InfoOverlay')
 
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
-import GameLobbyModal from './bugout/GameLobbyModal'
-import WaitForOpponentModal from './bugout/WaitForOpponentModal'
 import ColorChoiceModal from './bugout/ColorChoiceModal'
+import GameLobbyModal from './bugout/GameLobbyModal'
+import IdleStatusModal from './bugout/IdleStatusModal'
+import ReconnectModal from './bugout/ReconnectModal'
+import WaitForOpponentModal from './bugout/WaitForOpponentModal'
 import WaitForYourColorModal from './bugout/WaitForYourColorModal'
 import YourColorChosenModal from './bugout/YourColorChosenModal'
-import ReconnectModal from './bugout/ReconnectModal'
+
 
 const deadstones = require('@sabaki/deadstones')
 const gtp = require('@sabaki/gtp')
@@ -2591,6 +2593,7 @@ class App extends Component {
             }),
             h(YourColorChosenModal, { yourColor: this.state.multiplayer && this.state.multiplayer.yourColor }), 
             h(ReconnectModal, { data: this.state.multiplayer }), 
+            h(IdleStatusModal, { data: this.state.multiplayer }),
             // ↑ BUGOUT ↑
 
             h(ThemeManager),
