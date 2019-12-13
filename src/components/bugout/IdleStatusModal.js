@@ -27,7 +27,18 @@ class IdleStatusModal extends Component {
 
         let { idleStatus } = data
 
-        if (undefined == idleStatus || undefined == idleStatus.status || idleStatus.status === IdleStatus.ONLINE ) {
+        if (undefined == idleStatus || undefined == idleStatus.status) {
+            return h(Dialog,
+                {
+                    id,
+                    isOpen: true,
+                },
+                h(Dialog.Header, null, 'Please Wait' ),
+                h(Dialog.Body, null, 'Checking system availability...'),
+            )
+        }
+
+        if (idleStatus.status === IdleStatus.ONLINE) {
             return empty
         }
 

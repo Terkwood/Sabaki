@@ -14,7 +14,7 @@ class ColorChoiceModal extends Component {
     render({ id = "color-choice-modal", turnOn = false, idleStatus, chooseColorPref }) {
         let { showDialog, turnedOnOnce } = this.state
       
-        if (idleStatus && idleStatus !== IdleStatus.ONLINE) {
+        if (idleStatus == undefined || idleStatus !== IdleStatus.ONLINE) {
             return h('div', { id })
         }
 
