@@ -5,6 +5,11 @@ import Dialog from 'preact-material-components/Dialog'
 
 const { IdleStatus } = require('../../modules/bugout')
 
+const formatSince = since => {
+    let secs = Math.floor((Date.now() - Date.parse(since)) / 1000)
+    return `${secs}s`
+}
+
 class IdleStatusModal extends Component {
     constructor() {
         super()
@@ -33,17 +38,18 @@ class IdleStatusModal extends Component {
                     isOpen: true,
                 },
                 h(Dialog.Header, null, 'Please Wait' ),
-                h(Dialog.Body, null, "BUGOUT is initializing."),
+                h(Dialog.Body, null, `BUGOUT is initializing (${formatSince(idleStatus.since)}).`),
             )
         }
 
+        // IDLE
         return h(Dialog,
             {
                 id,
                 isOpen: true,
             },
             h(Dialog.Header, null, 'System Offline' ),
-            h(Dialog.Body, null, `BUGOUT has been idle since ${idleStatus.since}.`),
+            h(Dialog.Body, null, `BUGOUT has been idle ${formatSince(idleStatus.since)}.`),
         )
     }
 }
