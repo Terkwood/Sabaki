@@ -410,9 +410,11 @@ class WebSocketController extends EventEmitter {
 
                         resolve(msg)
                     } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.IDLE) {
-                        console.log("Oh IDLE")
+                        // TODO poll
+                        console.log("Oh IDLE you should poll")
                     } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.BOOTING) {
-                        console.log("BOOTINg")
+                        // TODO poll
+                        console.log("BOOTINg you should poll")
                     } else {
                         console.log("you should poll now")
                     }
