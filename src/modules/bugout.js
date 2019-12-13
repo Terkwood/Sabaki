@@ -29,6 +29,12 @@ const EntryMethod = {
     JOIN_PRIVATE: 3,
 }
 
+const IdleStatus = {
+    IDLE: 0,
+    BOOTING: 1,
+    ONLINE: 2,
+}
+
 const BLACK = "B"
 const WHITE = "W"
 
@@ -204,3 +210,4 @@ exports.ColorPref = ColorPref
 exports.Color = Color
 exports.EntryMethod = EntryMethod
 exports.Player = Player
+exports.IdleStatus = IdleStatus
