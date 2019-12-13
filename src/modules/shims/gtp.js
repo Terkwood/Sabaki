@@ -12,6 +12,8 @@ const GATEWAY_HOST = GATEWAY_HOST_LOCAL
 
 const GATEWAY_BEEP_TIMEOUT_MS = 13333
 
+const IDLE_STATUS_POLL_MS = 1000
+
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {
         joinPrivateGame: { join: false },
@@ -406,15 +408,22 @@ class WebSocketController extends EventEmitter {
                         console.log("Online")
 
                         this.removeMessageListener()
-                        // TODO booting, idle cases
+                        this.idleStatus = { status: msg.status }
+                        if (this.idleStatusPoll) {
+                            clearInterval(this.idleStatusPoll)
+                        }
 
                         resolve(msg)
                     } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.IDLE) {
-                        // TODO poll
+                        this.idleStatus = { status: msg.status, since: msg.since }
+                        
                         console.log("Oh IDLE you should poll")
+                        this.pollBugoutOnline()
                     } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.BOOTING) {
-                        // TODO poll
+                        this.idleStatus = { status: msg.status, since: msg.since }
+
                         console.log("BOOTINg you should poll")
+                        this.pollBugoutOnline()
                     } else {
                         console.log("you should poll now")
                     }
@@ -427,6 +436,20 @@ class WebSocketController extends EventEmitter {
                 }
             })
          })
+    }
+
+    pollBugoutOnline() {
+        if (!this.idleStatusPoll) {
+            this.idleStatusPoll = setInterval(() => {
+                if (this.idleStatus && this.idleStatus.status && this.idleStatus.status != IdleStatus.ONLINE) {
+                    let command = {
+                        "type":"ProvideIdleStatus"
+                    }
+            
+                    this.webSocket.send(JSON.stringify(command))
+                }
+            },IDLE_STATUS_POLL_MS)
+        }
     }
 }
 
