@@ -2573,6 +2573,7 @@ class App extends Component {
             // ↓ BUGOUT ↓
             h(GameLobbyModal, {
                 joinPrivateGame: this.bugout.joinPrivateGame.join,
+                idleStatus: this.state.multiplayer && this.state.multiplayer.idleStatus && this.state.multiplayer.idleStatus.status,
                 update: entryMethod => this.setState({ 
                     multiplayer: {
                         ...this.state.multiplayer,

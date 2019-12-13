@@ -22,11 +22,11 @@ class IdleStatusModal extends Component {
 
         let { idleStatus } = data
 
-        if (undefined == idleStatus || idleStatus === IdleStatus.Online ) {
+        if (undefined == idleStatus || undefined == idleStatus.status || idleStatus.status === IdleStatus.ONLINE ) {
             return empty
         }
 
-        if (idleStatus === IdleStatus.BOOTING) {
+        if (idleStatus.status === IdleStatus.BOOTING) {
             return h(Dialog,
                 {
                     id,

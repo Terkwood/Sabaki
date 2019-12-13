@@ -3,7 +3,7 @@ const { h, Component } = require('preact')
 // 🦹🏻‍ Bundle Bloat Protector
 import Dialog from 'preact-material-components/Dialog'
 
-const { EntryMethod } = require('../../modules/bugout')
+const { EntryMethod, IdleStatus } = require('../../modules/bugout')
 
 class GameLobbyModal extends Component {
     constructor() {
@@ -11,7 +11,18 @@ class GameLobbyModal extends Component {
         this.state = { showDialog: true }
     }
 
-    render({ id = "game-lobby-modal", joinPrivateGame = false, update }) {
+    render({ id = "game-lobby-modal", joinPrivateGame = false, idleStatus, update }) {
+        let empty = h('div', { id })
+
+        console.log(`lobby idleStatus ${idleStatus}`)
+
+        if (idleStatus && idleStatus !== IdleStatus.ONLINE) {
+            console.log('GL modal: system not online')
+            return empty
+        }
+
+        console.log('GL modal: ALL SYSTEMS GO')
+
         if (joinPrivateGame && this.state.showDialog) {
             return h(Dialog,
                 {
@@ -61,7 +72,7 @@ class GameLobbyModal extends Component {
                             update(EntryMethod.CREATE_PRIVATE)
                         }
                     }, "Private"))
-        ) : h('div', { id })
+        ) : empty
     }
 }
 

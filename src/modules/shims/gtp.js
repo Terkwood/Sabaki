@@ -392,12 +392,15 @@ class WebSocketController extends EventEmitter {
     }
 
     async waitForBugoutOnline() {
-        console.log("WAITING ! ⏳")
-        let command = {
-            "type":"ProvideIdleStatus"
-        }
+        sabaki.events.on('idle-status', idleStatus => sabaki.setState({
+            multiplayer: {
+                ...sabaki.state.multiplayer,
+                idleStatus
+            }
+        }))
 
-        this.webSocket.send(JSON.stringify(command))
+        console.log("WAITING ! ⏳")
+        this.pollBugoutOnline()
         
         return new Promise((resolve, reject) => { 
             this.updateMessageListener(event => {
@@ -408,22 +411,26 @@ class WebSocketController extends EventEmitter {
                         console.log("Online")
 
                         this.removeMessageListener()
-                        this.idleStatus = { status: msg.status }
+                        let s = { status: msg.status }
+                        this.idleStatus = s
                         if (this.idleStatusPoll) {
                             clearInterval(this.idleStatusPoll)
+                            console.log("cleared poll")
                         }
 
                         resolve(msg)
                     } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.IDLE) {
-                        this.idleStatus = { status: msg.status, since: msg.since }
+                        let s = { status: msg.status, since: msg.since }
+                        this.idleStatus = s
+                        sabaki.events.emit('idle-status', s)
                         
-                        console.log("Oh IDLE you should poll")
-                        this.pollBugoutOnline()
+                        console.log("Oh IDLE ")
                     } else if (msg.type === "IdleStatusProvided" && msg.status === IdleStatus.BOOTING) {
-                        this.idleStatus = { status: msg.status, since: msg.since }
+                        let s = { status: msg.status, since: msg.since }
+                        this.idleStatus = s
+                        sabaki.events.emit('idle-status', s)
 
-                        console.log("BOOTINg you should poll")
-                        this.pollBugoutOnline()
+                        console.log("BOOTINg ")
                     } else {
                         console.log("you should poll now")
                     }
@@ -439,17 +446,22 @@ class WebSocketController extends EventEmitter {
     }
 
     pollBugoutOnline() {
-        if (!this.idleStatusPoll) {
-            this.idleStatusPoll = setInterval(() => {
-                if (this.idleStatus && this.idleStatus.status && this.idleStatus.status != IdleStatus.ONLINE) {
-                    let command = {
-                        "type":"ProvideIdleStatus"
-                    }
-            
-                    this.webSocket.send(JSON.stringify(command))
-                }
-            },IDLE_STATUS_POLL_MS)
+        console.log("POLLING")
+        let command = {
+            "type":"ProvideIdleStatus"
         }
+
+        this.webSocket.send(JSON.stringify(command))
+
+        this.idleStatusPoll = setInterval(() => {
+            if (this.idleStatus && this.idleStatus.status && this.idleStatus.status !== IdleStatus.ONLINE) {
+                let command = {
+                    "type":"ProvideIdleStatus"
+                }
+        
+                this.webSocket.send(JSON.stringify(command))
+            }
+        }, IDLE_STATUS_POLL_MS)
     }
 }
 
