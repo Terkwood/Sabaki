@@ -109,7 +109,7 @@ class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, spawnOptions) {
         super()
 
-        this.board = new Board(19,19) // TODO BUGOUT don't hardcode this
+        this.board = new Board(19,19) // See https://github.com/Terkwood/BUGOUT/issues/103
         this.gameId = null
 
         this.beeping = true
