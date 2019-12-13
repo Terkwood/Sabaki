@@ -25,7 +25,7 @@ class GameLobbyModal extends Component {
                     isOpen: true,
                 },
                 h(Dialog.Header, null, "Join Private Game"),
-                h(Dialog.Body, null, "You're joining a private game created by your friend."),
+                h(Dialog.Body, null, "🐛 Welcome to BUGOUT! You're joining a private game created by your friend."),
                 h(Dialog.Footer, null, 
                     h(Dialog.FooterButton, 
                         { 
@@ -46,7 +46,7 @@ class GameLobbyModal extends Component {
                 isOpen: true,
             },
             h(Dialog.Header, null, "Choose Venue"),
-            h(Dialog.Body, null, "Welcome to BUGOUT! You may find a public game with the next available player, or create a private game and share its link with your friend."),
+            h(Dialog.Body, null, "🐛 Welcome to BUGOUT! You may find a public game with the next available player, or create a private game and share its link with your friend."),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
                     { 

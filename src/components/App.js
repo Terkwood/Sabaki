@@ -21,7 +21,6 @@ import IdleStatusModal from './bugout/IdleStatusModal'
 import ReconnectModal from './bugout/ReconnectModal'
 import WaitForOpponentModal from './bugout/WaitForOpponentModal'
 import WaitForYourColorModal from './bugout/WaitForYourColorModal'
-import WelcomeModal from './bugout/WelcomeModal'
 import YourColorChosenModal from './bugout/YourColorChosenModal'
 
 const deadstones = require('@sabaki/deadstones')
@@ -2587,6 +2586,7 @@ class App extends Component {
             }),
             h(ColorChoiceModal, {
                 turnOn: state.multiplayer && state.multiplayer.entryMethod,
+                idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status,
                 chooseColorPref: colorPref => this.events.emit('choose-color-pref', { colorPref })
             }), 
             h(WaitForYourColorModal, {
@@ -2595,7 +2595,6 @@ class App extends Component {
             h(YourColorChosenModal, { yourColor: state.multiplayer && state.multiplayer.yourColor }), 
             h(ReconnectModal, { data: state.multiplayer }), 
             h(IdleStatusModal, { data: state.multiplayer }),
-            // TODO destroy this: h(WelcomeModal),
             // ↑ BUGOUT ↑
 
             h(ThemeManager),

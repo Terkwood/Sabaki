@@ -32,8 +32,8 @@ class IdleStatusModal extends Component {
                     id,
                     isOpen: true,
                 },
-                h(Dialog.Header, null, 'System Initializing' ),
-                h(Dialog.Body, null, "Please wait while BUGOUT boots up."),
+                h(Dialog.Header, null, 'Please Wait' ),
+                h(Dialog.Body, null, "BUGOUT is initializing."),
             )
         }
 
@@ -42,8 +42,8 @@ class IdleStatusModal extends Component {
                 id,
                 isOpen: true,
             },
-            h(Dialog.Header, null, 'System Idle' ),
-            h(Dialog.Body, null, "BUGOUT is currently offline."),
+            h(Dialog.Header, null, 'System Offline' ),
+            h(Dialog.Body, null, `BUGOUT has been idle since ${idleStatus.since}.`),
         )
     }
 }
