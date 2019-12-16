@@ -5,7 +5,7 @@ const {noop} = require('../helper')
 let hiddenStyle = {opacity: 0, pointerEvents: 'none'}
 
 let app = {
-    getName: () => 'Sabaki',
+    getName: () => '🐛 BUGOUT 🐛',
     getVersion: () => 'web',
     getPath: () => ''
 }
