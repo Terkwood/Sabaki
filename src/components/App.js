@@ -783,7 +783,13 @@ class App extends Component {
             if (button === 0) {
                 if (board.get(vertex) === 0) {
                     let autoGenmove = setting.get('gtp.auto_genmove')
-                    this.makeMove(vertex, {sendToEngine: autoGenmove})
+                    // BUGOUT safety: check that we're allowed to move,
+                    // and not accidentally bouncing the finger
+                    // and sending some additional move as the opponent
+                    let color = this.inferredState.currentPlayer > 0 ? 'B' : 'W'
+                    if (this.state.multiplayer && this.state.multiplayer.yourColor && this.state.multiplayer.yourColor.event && this.state.multiplayer.yourColor.event.yourColor && color === this.state.multiplayer.yourColor.event.yourColor[0]) {
+                        this.makeMove(vertex, {sendToEngine: autoGenmove})
+                    }
                 } else if (
                     board.markers[vy][vx] != null
                     && board.markers[vy][vx].type === 'point'
@@ -2131,12 +2137,6 @@ class App extends Component {
                                     yourColor: data
                                 }
                             })
-
-                            if (data == "WHITE") {
-                                this.setState({
-                                    attachedEngines: this.state.attachedEngines.reverse()
-                                })
-                            }
                         }
                     }) // 😇BUGOUT😇
                 this.attachedEngineSyncers[i] = syncer
