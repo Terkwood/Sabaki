@@ -25,6 +25,11 @@ const storageAvailable = () => {
     }
 }
 
-const fromStorage = () => "459d761e-be99-464f-a3c0-22bfdd7d1f9e"
+const fromStorage = () => {
+    let v = `${Math.floor(Math.random() * 10)}59d761e-be99-464f-a3c0-22bfdd7d1f9e`
+    console.log(`id ${v}`)
+    return v
+}
+
 
 exports.fromStorage = fromStorage 
