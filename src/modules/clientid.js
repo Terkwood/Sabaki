@@ -25,6 +25,6 @@ const storageAvailable = () => {
     }
 }
 
-const clientid = () => "1234"
+const fromStorage = () => "459d761e-be99-464f-a3c0-22bfdd7d1f9e"
 
-export default clientid
+exports.fromStorage = fromStorage 
