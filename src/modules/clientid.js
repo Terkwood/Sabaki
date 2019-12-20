@@ -24,3 +24,7 @@ const storageAvailable = () => {
             (storage && storage.length !== 0);
     }
 }
+
+const clientid = () => "1234"
+
+export default clientid
