@@ -489,7 +489,7 @@ class GatewayConn {
                 this.webSocket.onmessage = event => {
                     try {
                         let msg = JSON.parse(event.data)
-                        if (msg.type === "Reconnected") {
+                        if (msg.type === 'Reconnected') {
                             resolve({ playerUp: msg.playerUp })
                         }
 
