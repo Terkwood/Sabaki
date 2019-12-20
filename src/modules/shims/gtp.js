@@ -380,7 +380,7 @@ class WebSocketController extends EventEmitter {
 
     async beep() {
         if (this.beeping) {
-            const pingMsg = { "type": "Beep" }
+            const pingMsg = { 'type': 'Beep' }
             this.webSocket.send(JSON.stringify(pingMsg))
             setTimeout(() => this.beep(), GATEWAY_BEEP_TIMEOUT_MS)
         }
