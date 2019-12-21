@@ -554,7 +554,6 @@ class GatewayConn {
 
             this.webSocket.addEventListener('message', event => {
                 try {
-                    console.log(`FPG RESPONSE MESSAGE ${event.data}`)
                     let msg = JSON.parse(event.data)
                     
                     if (msg.type === 'GameReady') {
@@ -639,7 +638,6 @@ class GatewayConn {
     }
 
     async chooseColorPref(colorPref) {
-        console.log('choose color pref invoked')
         return new Promise((resolve, reject) => {
             let requestPayload = {
                 'type':'ChooseColorPref',
