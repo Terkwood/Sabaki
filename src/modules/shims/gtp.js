@@ -157,9 +157,7 @@ class WebSocketController extends EventEmitter {
             emitReadyState(this.webSocket, sabaki.events)
 
             this.identifySelf().then(_idOk => {
-                console.log('IDENTIFIED ')
                 this.waitForBugoutOnline().then((_wrc, _werr) => {
-                    console.log('BUGOUT ONLINE ')
                     if (!this.gameId && this.entryMethod === EntryMethod.FIND_PUBLIC) {
                         this.gatewayConn
                             .findPublicGame()
@@ -169,7 +167,6 @@ class WebSocketController extends EventEmitter {
                                 } else if (!err && reply.type == 'WaitForOpponent') {
                                     this.gameId = reply.gameId
                                 } else {
-                                    console.log('fatal')
                                     throwFatal()
                                 }
                         })
@@ -405,7 +402,6 @@ class WebSocketController extends EventEmitter {
 
         this.webSocket.send(JSON.stringify(command))
 
-        console.log('sent identify command')
         return new Promise((resolve, reject) => {
             this.updateMessageListener(event => {
                 try {
@@ -414,10 +410,7 @@ class WebSocketController extends EventEmitter {
                     if (msg.type === 'IdentityAcknowledged') {
                         this.removeMessageListener()
                     
-                        console.log('message listener removed')
                         resolve(msg)
-                    } else {
-                        console.log('FAIL CASE HELLO')
                     }
                     // discard any other messages until we receive confirmation
                     // from BUGOUT that the move was made
