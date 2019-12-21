@@ -2,9 +2,10 @@
 
 const EventEmitter = require('events')
 const Board = require('../board')
-const ClientId = require('../multiplayer/clientid')
 const RobustWebSocket = require('robust-websocket')
 const uuidv4 = require('uuid/v4')
+
+const ClientId = require('../multiplayer/clientid')
 const { IdleStatus, EntryMethod, emitReadyState } = require('../multiplayer/bugout')
 
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
