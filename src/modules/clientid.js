@@ -1,12 +1,27 @@
 const storageType = 'localStorage'
+const clientIdKey = 'bugoutClientId'
+
+const fromStorage = () => {
+    if (storageAvailable()) {
+        var storage;
+        try {
+            storage = window[storageType]
+            return storage.getItem(clientIdKey)
+        } catch (_e) {
+            return null
+        }
+    }
+}
+
+
 
 const storageAvailable = () => {
     var storage;
     try {
-        storage = window[storageType];
-        var x = '__storage_test__';
-        storage.setItem(x, x);
-        storage.removeItem(x);
+        storage = window[storageType]
+        let k = '__storage_test__'
+        storage.setItem(k, k)
+        storage.removeItem(k)
         return true;
     }
     catch(e) {
@@ -21,15 +36,8 @@ const storageAvailable = () => {
             // Firefox
             e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
             // acknowledge QuotaExceededError only if there's something already stored
-            (storage && storage.length !== 0);
+            (storage && storage.length !== 0)
     }
 }
-
-const fromStorage = () => {
-    let v = `${Math.floor(Math.random() * 10)}59d761e-be99-464f-a3c0-22bfdd7d1f9e`
-    console.log(`id ${v}`)
-    return v
-}
-
 
 exports.fromStorage = fromStorage 
