@@ -3,6 +3,7 @@ const uuidv4 = require('uuid/v4')
 const storageType = 'localStorage'
 const clientIdKey = 'bugoutClientId'
 
+// Provides a randomized, persistent client ID
 const fromStorage = () => {
     if (storageAvailable()) {
         var storage;
