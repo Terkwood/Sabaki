@@ -1,3 +1,5 @@
+const uuidv4 = require('uuid/v4')
+
 const storageType = 'localStorage'
 const clientIdKey = 'bugoutClientId'
 
@@ -6,9 +8,19 @@ const fromStorage = () => {
         var storage;
         try {
             storage = window[storageType]
-            return storage.getItem(clientIdKey)
+            var found = storage.getItem(clientIdKey)
+            if (found) {
+                console.log(`client ID found ${found}`)
+                return found
+            } else {
+                let newId = uuidv4()
+                storage.setItem(clientIdKey, newId)
+                console.log(`new client ID   ${newId}`)
+                return newId
+            }
         } catch (_e) {
-            return null
+            console.log('client ID FAIL CASE')
+            return uuidv4()
         }
     }
 }
