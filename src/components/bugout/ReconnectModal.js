@@ -3,7 +3,7 @@ const { h, Component } = require('preact')
 // 🦹🏻‍ Bundle Bloat Protector
 import Dialog from 'preact-material-components/Dialog'
 
-const { ConnectionState } = require('../../modules/bugout')
+const { ConnectionState } = require('../../modules/multiplayer/bugout')
 
 const DisconnectedBody = h(Dialog.Body, null, 'Please wait while we reestablish internet communication.')
 const InProgressBody = h(Dialog.Body, null, 'Connecting...')

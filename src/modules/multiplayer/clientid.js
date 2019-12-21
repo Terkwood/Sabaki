@@ -10,25 +10,20 @@ const fromStorage = () => {
             storage = window[storageType]
             var found = storage.getItem(clientIdKey)
             if (found) {
-                console.log(`client ID found ${found}`)
                 return found
             } else {
                 let newId = uuidv4()
                 storage.setItem(clientIdKey, newId)
-                console.log(`new client ID   ${newId}`)
                 return newId
             }
         } catch (_e) {
-            console.log('client ID FAIL CASE')
             return uuidv4()
         }
     }
 }
 
-
-
 const storageAvailable = () => {
-    var storage;
+    var storage
     try {
         storage = window[storageType]
         let k = '__storage_test__'

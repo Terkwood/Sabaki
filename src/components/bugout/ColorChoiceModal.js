@@ -3,7 +3,7 @@ const { h, Component } = require('preact')
 // 🦹🏻‍ Bundle Bloat Protector
 import Dialog from 'preact-material-components/Dialog'
 
-const { ColorPref, IdleStatus } = require('../../modules/bugout')
+const { ColorPref, IdleStatus } = require('../../modules/multiplayer/bugout')
 
 class ColorChoiceModal extends Component {
     constructor() {
