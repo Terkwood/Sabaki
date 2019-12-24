@@ -4,7 +4,9 @@ const EventEmitter = require('events')
 const Board = require('../board')
 const RobustWebSocket = require('robust-websocket')
 const uuidv4 = require('uuid/v4')
-const { IdleStatus, EntryMethod, emitReadyState } = require('../bugout')
+
+const ClientId = require('../multiplayer/clientid')
+const { IdleStatus, EntryMethod, emitReadyState } = require('../multiplayer/bugout')
 
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
 const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
@@ -111,6 +113,7 @@ class WebSocketController extends EventEmitter {
 
         this.board = new Board(19,19) // See https://github.com/Terkwood/BUGOUT/issues/103
         this.gameId = null
+        this.clientId = ClientId.fromStorage()
 
         this.beeping = true
         setTimeout(() => this.beep(), GATEWAY_BEEP_TIMEOUT_MS)
@@ -154,80 +157,81 @@ class WebSocketController extends EventEmitter {
             this.removeMessageListener()
             emitReadyState(this.webSocket, sabaki.events)
 
-            this.waitForBugoutOnline().then((rc, err) => {
-
-                if (!this.gameId && this.entryMethod === EntryMethod.FIND_PUBLIC) {
-                    this.gatewayConn
-                        .findPublicGame()
-                        .then((reply, err) => {
-                            if (!err && reply.type === 'GameReady') {
-                                this.gameId = reply.gameId
-                            } else if (!err && reply.type == 'WaitForOpponent') {
-                                this.gameId = reply.gameId
-                            } else {
-                                throwFatal()
-                            }
-                    })
-                } else if (!this.gameId && this.entryMethod === EntryMethod.CREATE_PRIVATE) {
-                    this.gatewayConn
-                        .createPrivateGame()
-                        .then((reply, err) => {
-                            if (!err && reply.type == 'WaitForOpponent') {
-                                this.gameId = reply.gameId
-                            } else if (!err && reply.type === 'GameReady') {
-                                // LATER...
-                                this.gameId = reply.gameId
-                            } else {
-                                throwFatal()
-                            }
-                    })
-                } else if (!this.gameId && this.entryMethod === EntryMethod.JOIN_PRIVATE && this.joinPrivateGame.join) {
-                    this.gatewayConn
-                        .joinPrivateGame(this.joinPrivateGame.gameId)
-                        .then((reply, err) => {
-                            if (!err && reply.type === 'GameReady') {
-                                this.gameId = reply.gameId
-                            } else if (!err && reply.type == 'PrivateGameRejected') {
-                                alert('Invalid game')
-                            } else {
-                                throwFatal()
-                            }
-                        })
-                } else {
-                    this.gatewayConn
-                        .reconnect(this.gameId, this.resolveMoveMade, this.board)
-                        .then((rc, err) => {
-                            if (!err) {
-                                console.log(`Reconnected! data: ${JSON.stringify(rc)}`)
-
-                                if (this.genMoveInProgress) {
-                                    let provideHistoryCommand = {
-                                        "type":"ProvideHistory",
-                                        "gameId": this.gameId,
-                                        "reqId": uuidv4()
-                                    }
-                                    
-                                    this.webSocket.send(JSON.stringify(provideHistoryCommand))
-                                    
-                                    let onMove = r => {
-                                        if (r && r.resolveWith) {
-                                            // the opponent moved
-                                            this.genMoveInProgress = false
-                                            this.resolveMoveMade(r.resolveWith)
-                                        }
-                                    }
-                                    this.listenForHistoryOrMove(this.opponent, onMove)                    
+            this.identifySelf().then(_idOk => {
+                this.waitForBugoutOnline().then((_wrc, _werr) => {
+                    if (!this.gameId && this.entryMethod === EntryMethod.FIND_PUBLIC) {
+                        this.gatewayConn
+                            .findPublicGame()
+                            .then((reply, err) => {
+                                if (!err && reply.type === 'GameReady') {
+                                    this.gameId = reply.gameId
+                                } else if (!err && reply.type == 'WaitForOpponent') {
+                                    this.gameId = reply.gameId
                                 } else {
-                                    this.listenForMove(this.opponent, this.resolveMoveMade)
+                                    throwFatal()
                                 }
-                            } else {
-                                throwFatal()
-                            }
                         })
-                    }
+                    } else if (!this.gameId && this.entryMethod === EntryMethod.CREATE_PRIVATE) {
+                        this.gatewayConn
+                            .createPrivateGame()
+                            .then((reply, err) => {
+                                if (!err && reply.type == 'WaitForOpponent') {
+                                    this.gameId = reply.gameId
+                                } else if (!err && reply.type === 'GameReady') {
+                                    // LATER...
+                                    this.gameId = reply.gameId
+                                } else {
+                                    throwFatal()
+                                }
+                        })
+                    } else if (!this.gameId && this.entryMethod === EntryMethod.JOIN_PRIVATE && this.joinPrivateGame.join) {
+                        this.gatewayConn
+                            .joinPrivateGame(this.joinPrivateGame.gameId)
+                            .then((reply, err) => {
+                                if (!err && reply.type === 'GameReady') {
+                                    this.gameId = reply.gameId
+                                } else if (!err && reply.type == 'PrivateGameRejected') {
+                                    alert('Invalid game')
+                                } else {
+                                    throwFatal()
+                                }
+                            })
+                    } else {
+                        this.gatewayConn
+                            .reconnect(this.gameId, this.resolveMoveMade, this.board)
+                            .then((rc, err) => {
+                                if (!err) {
+                                    console.log(`Reconnected! data: ${JSON.stringify(rc)}`)
+    
+                                    if (this.genMoveInProgress) {
+                                        let provideHistoryCommand = {
+                                            "type":"ProvideHistory",
+                                            "gameId": this.gameId,
+                                            "reqId": uuidv4()
+                                        }
+                                        
+                                        this.webSocket.send(JSON.stringify(provideHistoryCommand))
+                                        
+                                        let onMove = r => {
+                                            if (r && r.resolveWith) {
+                                                // the opponent moved
+                                                this.genMoveInProgress = false
+                                                this.resolveMoveMade(r.resolveWith)
+                                            }
+                                        }
+                                        this.listenForHistoryOrMove(this.opponent, onMove)                    
+                                    } else {
+                                        this.listenForMove(this.opponent, this.resolveMoveMade)
+                                    }
+                                } else {
+                                    throwFatal()
+                                }
+                            })
+                        }
+                    })
                 })
-            }
-        )
+        })
+        
     }
 
     removeMessageListener() {
@@ -380,7 +384,7 @@ class WebSocketController extends EventEmitter {
 
     async beep() {
         if (this.beeping) {
-            const pingMsg = { "type": "Beep" }
+            const pingMsg = { 'type': 'Beep' }
             this.webSocket.send(JSON.stringify(pingMsg))
             setTimeout(() => this.beep(), GATEWAY_BEEP_TIMEOUT_MS)
         }
@@ -389,6 +393,35 @@ class WebSocketController extends EventEmitter {
     stop() {
         this.webSocket.close()
         this.beeping = false
+    }
+
+    async identifySelf() {
+        let command = {
+            'type':'Identify',
+            'clientId': this.clientId
+        }
+
+        this.webSocket.send(JSON.stringify(command))
+
+        return new Promise((resolve, reject) => {
+            this.updateMessageListener(event => {
+                try {
+                    let msg = JSON.parse(event.data)
+
+                    if (msg.type === 'IdentityAcknowledged') {
+                        this.removeMessageListener()
+                    
+                        resolve(msg)
+                    }
+                    // discard any other messages until we receive confirmation
+                    // from BUGOUT that the move was made
+                } catch (err) {
+                    console.log(`Error processing ID ACK response: ${JSON.stringify(err)}`)
+                    reject()
+                }
+            })
+        })
+       
     }
 
     async waitForBugoutOnline() {
@@ -489,7 +522,7 @@ class GatewayConn {
                 this.webSocket.onmessage = event => {
                     try {
                         let msg = JSON.parse(event.data)
-                        if (msg.type === "Reconnected") {
+                        if (msg.type === 'Reconnected') {
                             resolve({ playerUp: msg.playerUp })
                         }
 
