@@ -55,7 +55,7 @@ let defaults = {
     'engines.list': [],
     'file.show_reload_warning': true,
     'find.delay': 100,
-    'game.default_board_size': 19,
+    'game.default_board_size': 9,
     'game.default_komi': 6.5,
     'game.default_handicap': 0,
     'game.goto_end_after_loading': false,

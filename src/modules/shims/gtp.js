@@ -111,7 +111,7 @@ class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, spawnOptions) {
         super()
 
-        this.board = new Board(19,19) // See https://github.com/Terkwood/BUGOUT/issues/103
+        this.board = new Board(9,9) // See https://github.com/Terkwood/BUGOUT/issues/103
         this.gameId = null
         this.clientId = ClientId.fromStorage()
 
@@ -580,7 +580,8 @@ class GatewayConn {
     async createPrivateGame() {
         return new Promise((resolve, reject) => {
             let requestPayload = {
-                'type':'CreatePrivateGame'
+                'type':'CreatePrivateGame',
+                'boardSize': 9 // TODO
             }
 
             this.webSocket.addEventListener('message', event => {
