@@ -16,6 +16,8 @@ const GATEWAY_BEEP_TIMEOUT_MS = 13333
 
 const IDLE_STATUS_POLL_MS = 1000
 
+const BOARD_SIZE = 2
+
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {
         joinPrivateGame: { join: false },
@@ -111,7 +113,7 @@ class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, spawnOptions) {
         super()
 
-        this.board = new Board(9,9) // See https://github.com/Terkwood/BUGOUT/issues/103
+        this.board = new Board(BOARD_SIZE,BOARD_SIZE) // See https://github.com/Terkwood/BUGOUT/issues/103
         this.gameId = null
         this.clientId = ClientId.fromStorage()
 
@@ -581,7 +583,7 @@ class GatewayConn {
         return new Promise((resolve, reject) => {
             let requestPayload = {
                 'type':'CreatePrivateGame',
-                'boardSize': 13 // TODO
+                'boardSize': BOARD_SIZE // TODO
             }
 
             this.webSocket.addEventListener('message', event => {
