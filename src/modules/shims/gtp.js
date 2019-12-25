@@ -581,7 +581,7 @@ class GatewayConn {
         return new Promise((resolve, reject) => {
             let requestPayload = {
                 'type':'CreatePrivateGame',
-                'boardSize': 9 // TODO
+                'boardSize': 13 // TODO
             }
 
             this.webSocket.addEventListener('message', event => {
