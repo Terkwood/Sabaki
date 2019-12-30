@@ -1555,6 +1555,7 @@ class App extends Component {
         }
     }
 
+    // BUGOUT: use me
     setGameInfo(tree, data) {
         let newTree = tree.mutate(draft => {
             if ('size' in data) {
