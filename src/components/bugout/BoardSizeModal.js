@@ -3,7 +3,7 @@ const { h, Component } = require('preact')
 // 🦹🏻‍ Bundle Bloat Protector
 import Dialog from 'preact-material-components/Dialog'
 
-const { BoardSize, IdleStatus } = require('../../modules/multiplayer/bugout')
+const { BoardSize } = require('../../modules/multiplayer/bugout')
 
 class BoardSizeModal extends Component {
     constructor() {
@@ -11,13 +11,13 @@ class BoardSizeModal extends Component {
         this.state = { showDialog: false, turnedOnOnce: false }
     }
 
-    render({ id = 'board-size-modal', turnOn = false, idleStatus, chooseBoardSize }) {
+    render({ id = 'board-size-modal', turnOn = false, chooseBoardSize }) {
        
         let { showDialog, turnedOnOnce } = this.state
 
-        let happyTimes = (turnOn && !turnedOnOnce) || showDialog
+        let hide = !((turnOn && !turnedOnOnce) || showDialog)
 
-        if (!happyTimes || idleStatus == undefined || idleStatus !== IdleStatus.ONLINE) {
+        if (hide) {
             return h('div', { id })
         }
 
