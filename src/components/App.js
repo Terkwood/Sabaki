@@ -283,6 +283,12 @@ class App extends Component {
             evt.returnValue = ' '
         })
 
+        // BUGOUT: Draw the board immediately on
+        // open, so that the player has a background
+        // behind the dialogs.
+        // Note that we'll have to call this again
+        // in order to handle the case where player
+        // chooses a 9x9 or 13x13 board.
         this.newFile()
     }
 

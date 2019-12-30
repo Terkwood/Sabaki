@@ -16,7 +16,7 @@ const GATEWAY_BEEP_TIMEOUT_MS = 13333
 
 const IDLE_STATUS_POLL_MS = 1000
 
-const BOARD_SIZE = 2
+const BOARD_SIZE = 9
 
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {
