@@ -3,7 +3,7 @@ const { h, Component } = require('preact')
 // 🦹🏻‍ Bundle Bloat Protector
 import Dialog from 'preact-material-components/Dialog'
 
-const { ColorPref, IdleStatus } = require('../../modules/multiplayer/bugout')
+const { BoardSize, IdleStatus } = require('../../modules/multiplayer/bugout')
 
 class BoardSizeModal extends Component {
     constructor() {
@@ -11,7 +11,7 @@ class BoardSizeModal extends Component {
         this.state = { showDialog: false, turnedOnOnce: false }
     }
 
-    render({ id = 'board-size-modal', turnOn = false, idleStatus, chooseColorPref }) {
+    render({ id = 'board-size-modal', turnOn = false, idleStatus, chooseBoardSize }) {
        
         let { showDialog, turnedOnOnce } = this.state
 
@@ -26,18 +26,18 @@ class BoardSizeModal extends Component {
                 id,
                 isOpen: true,
             },
-            h(Dialog.Header, null, 'Turn Order'),
-            h(Dialog.Body, null, 'Choose your color preference. We may assign them at random.'),
+            h(Dialog.Header, null, 'Board Size'),
+            h(Dialog.Body, null, 'Choose the dimensions of the board.'),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
                     { 
                         accept: true, 
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            chooseColorPref( ColorPref.BLACK )
+                            chooseBoardSize( BoardSize.NINE )
                         }
                     }, 
-                    'Black')
+                    '9x9')
                 ),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
@@ -45,18 +45,18 @@ class BoardSizeModal extends Component {
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            chooseColorPref( ColorPref.WHITE )
+                            chooseBoardSize( BoardSize.THIRTEEN )
                         }
-                    }, 'White')),
+                    }, '13x13')),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
                     { 
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            chooseColorPref( ColorPref.ANY )
+                            chooseBoardSize( BoardSize.NINETEEN )
                         }
-                    }, 'Either'))
+                    }, '19x19'))
         )
     }
 }

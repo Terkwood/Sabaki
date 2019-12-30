@@ -43,6 +43,12 @@ const Color = {
     WHITE
 }
 
+const BoardSize = {
+    NINE: 9,
+    THIRTEEN: 13,
+    NINETEEN: 19,
+}
+
 /** Gateway uses this rep */
 const Player = {
     BLACK: "BLACK",
@@ -211,3 +217,4 @@ exports.Color = Color
 exports.EntryMethod = EntryMethod
 exports.Player = Player
 exports.IdleStatus = IdleStatus
+exports.BoardSize = BoardSize
