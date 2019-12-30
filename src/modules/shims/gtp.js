@@ -16,7 +16,7 @@ const GATEWAY_BEEP_TIMEOUT_MS = 13333
 
 const IDLE_STATUS_POLL_MS = 1000
 
-const BOARD_SIZE = 9
+const DEFAULT_BOARD_SIZE = 9
 
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {
@@ -113,7 +113,14 @@ class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, spawnOptions) {
         super()
 
-        this.board = new Board(BOARD_SIZE,BOARD_SIZE) // See https://github.com/Terkwood/BUGOUT/issues/103
+        this.board = new Board(DEFAULT_BOARD_SIZE,DEFAULT_BOARD_SIZE) // See https://github.com/Terkwood/BUGOUT/issues/103
+        sabaki.events.on(
+            'choose-board-size',
+            ({ boardSize }) => {
+                this.boardSize = boardSize
+                this.board = new Board(boardSize,boardSize)
+            })
+
         this.gameId = null
         this.clientId = ClientId.fromStorage()
 
@@ -175,7 +182,7 @@ class WebSocketController extends EventEmitter {
                         })
                     } else if (!this.gameId && this.entryMethod === EntryMethod.CREATE_PRIVATE) {
                         this.gatewayConn
-                            .createPrivateGame()
+                            .createPrivateGame(this.boardSize || DEFAULT_BOARD_SIZE)
                             .then((reply, err) => {
                                 if (!err && reply.type == 'WaitForOpponent') {
                                     this.gameId = reply.gameId
@@ -579,11 +586,11 @@ class GatewayConn {
         })
     }
 
-    async createPrivateGame() {
+    async createPrivateGame(boardSize) {
         return new Promise((resolve, reject) => {
             let requestPayload = {
                 'type':'CreatePrivateGame',
-                'boardSize': BOARD_SIZE // TODO
+                'boardSize': boardSize
             }
 
             this.webSocket.addEventListener('message', event => {
