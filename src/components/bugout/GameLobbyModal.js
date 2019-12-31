@@ -3,7 +3,7 @@ const { h, Component } = require('preact')
 // 🦹🏻‍ Bundle Bloat Protector
 import Dialog from 'preact-material-components/Dialog'
 
-const { EntryMethod, IdleStatus } = require('../../modules/multiplayer/bugout')
+const { BoardSize, EntryMethod, IdleStatus } = require('../../modules/multiplayer/bugout')
 
 class GameLobbyModal extends Component {
     constructor() {
@@ -11,7 +11,7 @@ class GameLobbyModal extends Component {
         this.state = { showDialog: true }
     }
 
-    render({ id = 'game-lobby-modal', joinPrivateGame = false, idleStatus, update }) {
+    render({ id = 'game-lobby-modal', joinPrivateGame = false, idleStatus, update, appEvents }) {
         let empty = h('div', { id })
 
         if (idleStatus && idleStatus !== IdleStatus.ONLINE) {
@@ -54,6 +54,8 @@ class GameLobbyModal extends Component {
                         onClick: () => {
                             this.setState({showDialog: false})
                             update(EntryMethod.FIND_PUBLIC)
+                            let boardSize = BoardSize.NINETEEN
+                            appEvents.emit('choose-board-size', boardSize)
                         }
                     }, 
                     "Quick Game")

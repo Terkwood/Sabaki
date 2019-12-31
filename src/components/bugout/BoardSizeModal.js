@@ -11,17 +11,17 @@ class BoardSizeModal extends Component {
         this.state = { showDialog: false, turnedOnOnce: false }
     }
 
-    render({ id = 'board-size-modal', data, appEvents }) {
+    render({ id = 'board-size-modal', data, chooseBoardSize }) {
        
         if (undefined == data) {
             return h('div', { id })
         }
 
-        let { colorPref } = data
+        let { entryMethod } = data
 
         let { showDialog, turnedOnOnce } = this.state
 
-        let turnOn = colorPref !== undefined
+        let turnOn = entryMethod !== undefined
 
         let hide = !((turnOn && !turnedOnOnce) || showDialog)
 
@@ -42,8 +42,7 @@ class BoardSizeModal extends Component {
                         accept: true, 
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            let boardSize = BoardSize.NINE
-                            appEvents.emit('choose-board-size', { boardSize })
+                            chooseBoardsize(BoardSize.NINE)
                         }
                     }, 
                     '9x9')
@@ -54,8 +53,7 @@ class BoardSizeModal extends Component {
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            let boardSize = BoardSize.THIRTEEN
-                            appEvents.emit('choose-board-size', { boardSize })
+                            chooseBoardSize(BoardSize.THIRTEEN)
                         }
                     }, '13x13')),
             h(Dialog.Footer, null, 
@@ -64,8 +62,7 @@ class BoardSizeModal extends Component {
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            let boardSize = BoardSize.NINETEEN
-                            appEvents.emit('choose-board-size', { boardSize })
+                            chooseBoardSize(BoardSize.NINETEEN)
                         }
                     }, '19x19'))
         )

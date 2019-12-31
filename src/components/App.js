@@ -2581,19 +2581,21 @@ class App extends Component {
             h(GameLobbyModal, {
                 joinPrivateGame: this.bugout.joinPrivateGame.join,
                 idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status,
-                update: entryMethod => this.setState({ 
-                    multiplayer: {
-                        ...this.state.multiplayer,
-                        entryMethod
-                    }
-                })
+                update: entryMethod =>
+                    this.setState({ 
+                        multiplayer: {
+                            ...this.state.multiplayer,
+                            entryMethod
+                        }
+                    }),
+                appEvents: this.events
             }),
             h(WaitForOpponentModal, {
                 data: state.multiplayer && state.multiplayer.waitForOpponentModal,
                 reconnectDialog: state.multiplayer && state.multiplayer.reconnectDialog
             }),
             h(ColorChoiceModal, {
-                turnOn: state.multiplayer && state.multiplayer.entryMethod,
+                turnOn: state.multiplayer && state.multiplayer.entryMethod && state.multiplayer.boardSize,
                 idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status,
                 chooseColorPref: colorPref => { 
                     this.setState({
@@ -2607,7 +2609,15 @@ class App extends Component {
             }),
             h(BoardSizeModal, {
                 data: state.multiplayer,
-                appEvents: this.events
+                chooseBoardSize: boardSize => { 
+                    this.setState({
+                        multiplayer: {
+                            ...this.state.multiplayer,
+                            boardSize
+                        }
+                    })
+                    this.events.emit('choose-board-size', { boardSize })
+                }
             }),
             h(WaitForYourColorModal, {
                 data: state.multiplayer
