@@ -21,8 +21,6 @@ class ColorChoiceModal extends Component {
 
         let turnOn = entryMethod && entryMethod == EntryMethod.CREATE_PRIVATE ? boardSize !== undefined : true
 
-        console.log('TURN ON')
-
         let { showDialog, turnedOnOnce } = this.state
 
         let happyTimes = (turnOn && !turnedOnOnce) || showDialog
