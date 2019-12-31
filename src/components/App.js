@@ -15,6 +15,7 @@ const BusyScreen = require('./BusyScreen')
 const InfoOverlay = require('./InfoOverlay')
 
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
+import BoardSizeModal from './bugout/BoardSizeModal'
 import ColorChoiceModal from './bugout/ColorChoiceModal'
 import GameLobbyModal from './bugout/GameLobbyModal'
 import IdleStatusModal from './bugout/IdleStatusModal'
@@ -283,6 +284,12 @@ class App extends Component {
             evt.returnValue = ' '
         })
 
+        // BUGOUT: Draw the board immediately on
+        // open, so that the player has a background
+        // behind the dialogs.
+        // Note that we'll have to call this again
+        // in order to handle the case where player
+        // chooses a 9x9 or 13x13 board.
         this.newFile()
     }
 
@@ -1549,6 +1556,7 @@ class App extends Component {
         }
     }
 
+    // BUGOUT: use me
     setGameInfo(tree, data) {
         let newTree = tree.mutate(draft => {
             if ('size' in data) {
@@ -1561,7 +1569,10 @@ class App extends Component {
                     if (value[0] === value[1]) value = value[0].toString()
                     else value = value.join(':')
 
-                    setting.set('game.default_board_size', value)
+                    //
+                    // BUGOUT: do not update default setting
+                    //
+                    
                     draft.updateProperty(draft.root.id, 'SZ', [value])
                 } else {
                     draft.removeProperty(draft.root.id, 'SZ')
@@ -2578,17 +2589,38 @@ class App extends Component {
                         ...this.state.multiplayer,
                         entryMethod
                     }
-                })
+                }),
+                appEvents: this.events
             }),
             h(WaitForOpponentModal, {
                 data: state.multiplayer && state.multiplayer.waitForOpponentModal,
                 reconnectDialog: state.multiplayer && state.multiplayer.reconnectDialog
             }),
             h(ColorChoiceModal, {
-                turnOn: state.multiplayer && state.multiplayer.entryMethod,
+                data: state.multiplayer,
                 idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status,
-                chooseColorPref: colorPref => this.events.emit('choose-color-pref', { colorPref })
-            }), 
+                chooseColorPref: colorPref => { 
+                    this.setState({
+                        multiplayer: {
+                            ...this.state.multiplayer,
+                            colorPref
+                        }
+                    })
+                    this.events.emit('choose-color-pref', { colorPref })
+                }
+            }),
+            h(BoardSizeModal, {
+                data: state.multiplayer,
+                chooseBoardSize: boardSize => { 
+                    this.setState({
+                        multiplayer: {
+                            ...this.state.multiplayer,
+                            boardSize
+                        }
+                    })
+                    this.events.emit('choose-board-size', { boardSize })
+                }
+            }),
             h(WaitForYourColorModal, {
                 data: state.multiplayer
             }),

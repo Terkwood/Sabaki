@@ -3,7 +3,7 @@ const { h, Component } = require('preact')
 // 🦹🏻‍ Bundle Bloat Protector
 import Dialog from 'preact-material-components/Dialog'
 
-const { EntryMethod, IdleStatus } = require('../../modules/multiplayer/bugout')
+const { BoardSize, EntryMethod, IdleStatus } = require('../../modules/multiplayer/bugout')
 
 class GameLobbyModal extends Component {
     constructor() {
@@ -11,7 +11,7 @@ class GameLobbyModal extends Component {
         this.state = { showDialog: true }
     }
 
-    render({ id = 'game-lobby-modal', joinPrivateGame = false, idleStatus, update }) {
+    render({ id = 'game-lobby-modal', joinPrivateGame = false, idleStatus, update, appEvents }) {
         let empty = h('div', { id })
 
         if (idleStatus && idleStatus !== IdleStatus.ONLINE) {
@@ -25,7 +25,7 @@ class GameLobbyModal extends Component {
                     isOpen: true,
                 },
                 h(Dialog.Header, null, "Join Private Game"),
-                h(Dialog.Body, null, "🐛 Welcome to BUGOUT! You're joining a private game created by your friend."),
+                h(Dialog.Body, null, "🐛 Welcome to BUGOUT! You're joining a  game created by your friend."),
                 h(Dialog.Footer, null, 
                     h(Dialog.FooterButton, 
                         { 
@@ -46,7 +46,7 @@ class GameLobbyModal extends Component {
                 isOpen: true,
             },
             h(Dialog.Header, null, "Choose Venue"),
-            h(Dialog.Body, null, "🐛 Welcome to BUGOUT! You may find a public game with the next available player, or create a private game and share its link with your friend."),
+            h(Dialog.Body, null, "QUICK GAME: join the next available player, 19x19 board only. CREATE GAME: invite via URL, choose board size."),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
                     { 
@@ -54,9 +54,11 @@ class GameLobbyModal extends Component {
                         onClick: () => {
                             this.setState({showDialog: false})
                             update(EntryMethod.FIND_PUBLIC)
+                            let boardSize = BoardSize.NINETEEN
+                            appEvents.emit('choose-board-size', boardSize)
                         }
                     }, 
-                    "Public")
+                    "Quick Game")
                 ),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
@@ -66,7 +68,7 @@ class GameLobbyModal extends Component {
                             this.setState({showDialog: false})
                             update(EntryMethod.CREATE_PRIVATE)
                         }
-                    }, "Private"))
+                    }, "Create Game"))
         ) : empty
     }
 }

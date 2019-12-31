@@ -16,6 +16,8 @@ const GATEWAY_BEEP_TIMEOUT_MS = 13333
 
 const IDLE_STATUS_POLL_MS = 1000
 
+const DEFAULT_BOARD_SIZE = 19
+
 class Controller extends EventEmitter {
     constructor(path, args = [], spawnOptions = {
         joinPrivateGame: { join: false },
@@ -111,7 +113,24 @@ class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, spawnOptions) {
         super()
 
-        this.board = new Board(19,19) // See https://github.com/Terkwood/BUGOUT/issues/103
+        this.board = new Board(DEFAULT_BOARD_SIZE,DEFAULT_BOARD_SIZE) // See https://github.com/Terkwood/BUGOUT/issues/103
+        sabaki.events.on(
+            'choose-board-size',
+            ({ boardSize }) => {
+                this.boardSize = boardSize
+                this.board = new Board(boardSize,boardSize)
+                if (this.deferredCreatePrivate) {
+                    this.deferredCreatePrivate()
+                    this.deferredCreatePrivate = undefined
+                }
+            })
+        
+        sabaki.events.on('bugout-game-ready', 
+            ({ boardSize }) => {
+                this.boardSize = boardSize
+                this.board = new Board(boardSize,boardSize)
+            })
+
         this.gameId = null
         this.clientId = ClientId.fromStorage()
 
@@ -172,18 +191,17 @@ class WebSocketController extends EventEmitter {
                                 }
                         })
                     } else if (!this.gameId && this.entryMethod === EntryMethod.CREATE_PRIVATE) {
-                        this.gatewayConn
-                            .createPrivateGame()
+                        this.deferredCreatePrivate = () => this.gatewayConn
+                            .createPrivateGame(this.boardSize || DEFAULT_BOARD_SIZE)
                             .then((reply, err) => {
                                 if (!err && reply.type == 'WaitForOpponent') {
                                     this.gameId = reply.gameId
                                 } else if (!err && reply.type === 'GameReady') {
-                                    // LATER...
                                     this.gameId = reply.gameId
                                 } else {
                                     throwFatal()
                                 }
-                        })
+                            })
                     } else if (!this.gameId && this.entryMethod === EntryMethod.JOIN_PRIVATE && this.joinPrivateGame.join) {
                         this.gatewayConn
                             .joinPrivateGame(this.joinPrivateGame.gameId)
@@ -577,10 +595,11 @@ class GatewayConn {
         })
     }
 
-    async createPrivateGame() {
+    async createPrivateGame(boardSize) {
         return new Promise((resolve, reject) => {
             let requestPayload = {
-                'type':'CreatePrivateGame'
+                'type':'CreatePrivateGame',
+                'boardSize': boardSize
             }
 
             this.webSocket.addEventListener('message', event => {
@@ -593,7 +612,9 @@ class GatewayConn {
                     } else if (msg.type === 'GameReady') {
                         // later ...
                         resolve(msg)
+                        // turn off dialog
                         this.handleWaitForOpponent({ gap: false, hasEvent: false })
+                        sabaki.events.emit('bugout-game-ready', msg)
                     }
                     // discard any other messages
                 } catch (err) {
@@ -622,6 +643,7 @@ class GatewayConn {
                     if (msg.type === 'GameReady') {
                         resolve(msg)
                         this.handleWaitForOpponent({ gap: false, hasEvent: false })
+                        sabaki.events.emit('bugout-game-ready', msg)
                     } else if (msg.type === 'PrivateGameRejected') {
                         resolve(msg)
                     }

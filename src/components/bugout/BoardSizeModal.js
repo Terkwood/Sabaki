@@ -3,29 +3,29 @@ const { h, Component } = require('preact')
 // 🦹🏻‍ Bundle Bloat Protector
 import Dialog from 'preact-material-components/Dialog'
 
-const { ColorPref, EntryMethod, IdleStatus } = require('../../modules/multiplayer/bugout')
+const { BoardSize, EntryMethod } = require('../../modules/multiplayer/bugout')
 
-class ColorChoiceModal extends Component {
+class BoardSizeModal extends Component {
     constructor() {
         super()
         this.state = { showDialog: false, turnedOnOnce: false }
     }
 
-    render({ id = "color-choice-modal", data, idleStatus, chooseColorPref }) {
+    render({ id = 'board-size-modal', data, chooseBoardSize }) {
        
-        if (data == undefined) {
+        if (undefined == data) {
             return h('div', { id })
         }
 
-        let { entryMethod, boardSize } = data
-
-        let turnOn = entryMethod && entryMethod == EntryMethod.CREATE_PRIVATE ? boardSize !== undefined : true
+        let { entryMethod } = data
 
         let { showDialog, turnedOnOnce } = this.state
 
-        let happyTimes = (turnOn && !turnedOnOnce) || showDialog
+        let turnOn = entryMethod !== undefined && entryMethod == EntryMethod.CREATE_PRIVATE
 
-        if (!happyTimes || idleStatus == undefined || idleStatus !== IdleStatus.ONLINE) {
+        let hide = !((turnOn && !turnedOnOnce) || showDialog)
+
+        if (hide) {
             return h('div', { id })
         }
 
@@ -34,18 +34,18 @@ class ColorChoiceModal extends Component {
                 id,
                 isOpen: true,
             },
-            h(Dialog.Header, null, 'Turn Order'),
-            h(Dialog.Body, null, 'Choose your color preference. We may assign them at random.'),
+            h(Dialog.Header, null, 'Board Size'),
+            h(Dialog.Body, null, 'Choose the dimensions of the board.'),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
                     { 
                         accept: true, 
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            chooseColorPref( ColorPref.BLACK )
+                            chooseBoardSize(BoardSize.NINE)
                         }
                     }, 
-                    "Black")
+                    '9x9')
                 ),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
@@ -53,21 +53,21 @@ class ColorChoiceModal extends Component {
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            chooseColorPref( ColorPref.WHITE )
+                            chooseBoardSize(BoardSize.THIRTEEN)
                         }
-                    }, "White")),
+                    }, '13x13')),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
                     { 
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            chooseColorPref( ColorPref.ANY )
+                            chooseBoardSize(BoardSize.NINETEEN)
                         }
-                    }, "Either"))
+                    }, '19x19'))
         )
     }
 }
 
 
-export default ColorChoiceModal
+export default BoardSizeModal

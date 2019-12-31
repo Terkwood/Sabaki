@@ -43,6 +43,12 @@ const Color = {
     WHITE
 }
 
+const BoardSize = {
+    NINE: 9,
+    THIRTEEN: 13,
+    NINETEEN: 19,
+}
+
 /** Gateway uses this rep */
 const Player = {
     BLACK: "BLACK",
@@ -67,6 +73,26 @@ const joinPrivateGameParam = () => {
     } else {
         return { join: false }
     }
+}
+
+const registerBoardSizeEvents = app => {
+    const setSize = boardSize => {
+        if (boardSize) {
+            let {gameTrees, gameIndex} = app.state
+            let tree = gameTrees[gameIndex]
+            app.setGameInfo(tree, { 'size': [boardSize, boardSize] })
+        }
+    }
+
+    app.events.on(
+        'choose-board-size',
+        ({boardSize}) => setSize(boardSize)
+    )
+
+    app.events.on(
+        'bugout-game-ready',
+        ({boardSize}) => setSize(boardSize)
+    )
 }
 
 const registerReconnectEvents = app => {
@@ -194,6 +220,7 @@ const load = () => {
                         })
 
                         registerReconnectEvents(app)
+                        registerBoardSizeEvents(app)
                     }
                 }, placeholderColor)
             }
@@ -211,3 +238,4 @@ exports.Color = Color
 exports.EntryMethod = EntryMethod
 exports.Player = Player
 exports.IdleStatus = IdleStatus
+exports.BoardSize = BoardSize
