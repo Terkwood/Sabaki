@@ -75,7 +75,7 @@ const joinPrivateGameParam = () => {
     }
 }
 
-const registerBoardSizeEvent = app => {
+const registerBoardSizeEvents = app => {
     app.events.on('choose-board-size', e => {
         console.log(`board size chosen ${JSON.stringify(e)}`)
         let { boardSize } = e
@@ -88,6 +88,10 @@ const registerBoardSizeEvent = app => {
             console.log('game info set')
             setTimeout(() => console.log(JSON.stringify(tree)), 2000)
         }
+    })
+
+    app.events.on('bugout-game-ready', e => {
+        console.log(`game ready event ${JSON.stringify(e)}`)
     })
 }
 
@@ -216,7 +220,7 @@ const load = () => {
                         })
 
                         registerReconnectEvents(app)
-                        registerBoardSizeEvent(app)
+                        registerBoardSizeEvents(app)
                     }
                 }, placeholderColor)
             }
