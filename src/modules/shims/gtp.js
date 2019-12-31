@@ -125,6 +125,13 @@ class WebSocketController extends EventEmitter {
                     this.deferredCreatePrivate = undefined
                 }
             })
+        
+        sabaki.events.on('bugout-game-ready', 
+            ({ boardSize }) => {
+                console.log('Adjusting GTP board size ' + boardSize)
+                this.boardSize = boardSize
+                this.board = new Board(boardSize,boardSize)
+            })
 
         this.gameId = null
         this.clientId = ClientId.fromStorage()
@@ -642,6 +649,8 @@ class GatewayConn {
                     if (msg.type === 'GameReady') {
                         resolve(msg)
                         this.handleWaitForOpponent({ gap: false, hasEvent: false })
+                        console.log('Privately READY '+JSON.stringify(msg))
+                        sabaki.events.emit('bugout-game-ready', msg)
                     } else if (msg.type === 'PrivateGameRejected') {
                         resolve(msg)
                     }
