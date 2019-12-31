@@ -117,7 +117,6 @@ class WebSocketController extends EventEmitter {
         sabaki.events.on(
             'choose-board-size',
             ({ boardSize }) => {
-                console.log(`choose-board-size event: ${boardSize}`)
                 this.boardSize = boardSize
                 this.board = new Board(boardSize,boardSize)
                 if (this.deferredCreatePrivate) {
@@ -128,7 +127,6 @@ class WebSocketController extends EventEmitter {
         
         sabaki.events.on('bugout-game-ready', 
             ({ boardSize }) => {
-                console.log('Adjusting GTP board size ' + boardSize)
                 this.boardSize = boardSize
                 this.board = new Board(boardSize,boardSize)
             })
@@ -193,15 +191,12 @@ class WebSocketController extends EventEmitter {
                                 }
                         })
                     } else if (!this.gameId && this.entryMethod === EntryMethod.CREATE_PRIVATE) {
-                        console.log(`DEFER DEFER`)
                         this.deferredCreatePrivate = () => this.gatewayConn
                             .createPrivateGame(this.boardSize || DEFAULT_BOARD_SIZE)
                             .then((reply, err) => {
                                 if (!err && reply.type == 'WaitForOpponent') {
                                     this.gameId = reply.gameId
                                 } else if (!err && reply.type === 'GameReady') {
-                                    console.log(`local board size ${this.boardSize}`)
-                                    // LATER...
                                     this.gameId = reply.gameId
                                 } else {
                                     throwFatal()
@@ -212,7 +207,6 @@ class WebSocketController extends EventEmitter {
                             .joinPrivateGame(this.joinPrivateGame.gameId)
                             .then((reply, err) => {
                                 if (!err && reply.type === 'GameReady') {
-                                    console.log(`join priv gameready ${JSON.stringify(reply)}`)
                                     this.gameId = reply.gameId
                                 } else if (!err && reply.type == 'PrivateGameRejected') {
                                     alert('Invalid game')
@@ -649,7 +643,6 @@ class GatewayConn {
                     if (msg.type === 'GameReady') {
                         resolve(msg)
                         this.handleWaitForOpponent({ gap: false, hasEvent: false })
-                        console.log('Privately READY '+JSON.stringify(msg))
                         sabaki.events.emit('bugout-game-ready', msg)
                     } else if (msg.type === 'PrivateGameRejected') {
                         resolve(msg)
