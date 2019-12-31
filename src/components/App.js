@@ -2595,7 +2595,7 @@ class App extends Component {
                 reconnectDialog: state.multiplayer && state.multiplayer.reconnectDialog
             }),
             h(ColorChoiceModal, {
-                turnOn: state.multiplayer && state.multiplayer.entryMethod && state.multiplayer.boardSize,
+                data: state.multiplayer,
                 idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status,
                 chooseColorPref: colorPref => { 
                     this.setState({

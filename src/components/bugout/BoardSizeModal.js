@@ -3,7 +3,7 @@ const { h, Component } = require('preact')
 // 🦹🏻‍ Bundle Bloat Protector
 import Dialog from 'preact-material-components/Dialog'
 
-const { BoardSize } = require('../../modules/multiplayer/bugout')
+const { BoardSize, EntryMethod } = require('../../modules/multiplayer/bugout')
 
 class BoardSizeModal extends Component {
     constructor() {
@@ -21,7 +21,7 @@ class BoardSizeModal extends Component {
 
         let { showDialog, turnedOnOnce } = this.state
 
-        let turnOn = entryMethod !== undefined
+        let turnOn = entryMethod !== undefined && entryMethod == EntryMethod.CREATE_PRIVATE
 
         let hide = !((turnOn && !turnedOnOnce) || showDialog)
 

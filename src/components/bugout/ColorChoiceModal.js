@@ -3,7 +3,7 @@ const { h, Component } = require('preact')
 // 🦹🏻‍ Bundle Bloat Protector
 import Dialog from 'preact-material-components/Dialog'
 
-const { ColorPref, IdleStatus } = require('../../modules/multiplayer/bugout')
+const { ColorPref, EntryMethod, IdleStatus } = require('../../modules/multiplayer/bugout')
 
 class ColorChoiceModal extends Component {
     constructor() {
@@ -11,8 +11,18 @@ class ColorChoiceModal extends Component {
         this.state = { showDialog: false, turnedOnOnce: false }
     }
 
-    render({ id = "color-choice-modal", turnOn = false, idleStatus, chooseColorPref }) {
+    render({ id = "color-choice-modal", data, idleStatus, chooseColorPref }) {
        
+        if (data == undefined) {
+            return h('div', { id })
+        }
+
+        let { entryMethod, boardSize } = data
+
+        let turnOn = entryMethod && entryMethod == EntryMethod.CREATE_PRIVATE ? boardSize !== undefined : true
+
+        console.log('TURN ON')
+
         let { showDialog, turnedOnOnce } = this.state
 
         let happyTimes = (turnOn && !turnedOnOnce) || showDialog
