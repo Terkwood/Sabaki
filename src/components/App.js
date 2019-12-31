@@ -15,6 +15,7 @@ const BusyScreen = require('./BusyScreen')
 const InfoOverlay = require('./InfoOverlay')
 
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
+import BoardSizeModal from './bugout/BoardSizeModal'
 import ColorChoiceModal from './bugout/ColorChoiceModal'
 import GameLobbyModal from './bugout/GameLobbyModal'
 import IdleStatusModal from './bugout/IdleStatusModal'
@@ -2594,8 +2595,20 @@ class App extends Component {
             h(ColorChoiceModal, {
                 turnOn: state.multiplayer && state.multiplayer.entryMethod,
                 idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status,
-                chooseColorPref: colorPref => this.events.emit('choose-color-pref', { colorPref })
-            }), 
+                chooseColorPref: colorPref => { 
+                    this.setState({
+                        multiplayer: {
+                            ...this.state.multiplayer,
+                            colorPref
+                        }
+                    })
+                    this.events.emit('choose-color-pref', { colorPref })
+                }
+            }),
+            h(BoardSizeModal, {
+                data: state.multiplayer,
+                appEvents: this.events
+            }),
             h(WaitForYourColorModal, {
                 data: state.multiplayer
             }),

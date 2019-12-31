@@ -11,9 +11,17 @@ class BoardSizeModal extends Component {
         this.state = { showDialog: false, turnedOnOnce: false }
     }
 
-    render({ id = 'board-size-modal', turnOn = false, chooseBoardSize }) {
+    render({ id = 'board-size-modal', data, appEvents }) {
        
+        if (undefined == data) {
+            return h('div', { id })
+        }
+
+        let { colorPref } = data
+
         let { showDialog, turnedOnOnce } = this.state
+
+        let turnOn = colorPref !== undefined
 
         let hide = !((turnOn && !turnedOnOnce) || showDialog)
 
@@ -34,7 +42,8 @@ class BoardSizeModal extends Component {
                         accept: true, 
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            chooseBoardSize( BoardSize.NINE )
+                            let boardSize = BoardSize.NINE
+                            appEvents.emit('choose-board-size', { boardSize })
                         }
                     }, 
                     '9x9')
@@ -45,7 +54,8 @@ class BoardSizeModal extends Component {
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            chooseBoardSize( BoardSize.THIRTEEN )
+                            let boardSize = BoardSize.THIRTEEN
+                            appEvents.emit('choose-board-size', { boardSize })
                         }
                     }, '13x13')),
             h(Dialog.Footer, null, 
@@ -54,7 +64,8 @@ class BoardSizeModal extends Component {
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            chooseBoardSize( BoardSize.NINETEEN )
+                            let boardSize = BoardSize.NINETEEN
+                            appEvents.emit('choose-board-size', { boardSize })
                         }
                     }, '19x19'))
         )
