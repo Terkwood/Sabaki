@@ -2581,13 +2581,12 @@ class App extends Component {
             h(GameLobbyModal, {
                 joinPrivateGame: this.bugout.joinPrivateGame.join,
                 idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status,
-                update: entryMethod =>
-                    this.setState({ 
-                        multiplayer: {
-                            ...this.state.multiplayer,
-                            entryMethod
-                        }
-                    }),
+                update: entryMethod => this.setState({ 
+                    multiplayer: {
+                        ...this.state.multiplayer,
+                        entryMethod
+                    }
+                }),
                 appEvents: this.events
             }),
             h(WaitForOpponentModal, {
