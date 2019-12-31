@@ -76,7 +76,19 @@ const joinPrivateGameParam = () => {
 }
 
 const registerBoardSizeEvent = app => {
-    app.events.on('choose-board-size', e => console.log(`board size chosen ${JSON.stringify(e)}`))
+    app.events.on('choose-board-size', e => {
+        console.log(`board size chosen ${JSON.stringify(e)}`)
+        let { boardSize } = e
+        if (boardSize) {
+            console.log('hi')
+            let {gameTrees, gameIndex} = app.state
+            let tree = gameTrees[gameIndex]
+            console.log(`hi ${JSON.stringify(tree)}`)
+            app.setGameInfo(tree, { 'size': [boardSize, boardSize] })
+            console.log('game info set')
+            setTimeout(() => console.log(JSON.stringify(tree)), 2000)
+        }
+    })
 }
 
 const registerReconnectEvents = app => {
