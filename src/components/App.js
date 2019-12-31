@@ -1569,7 +1569,10 @@ class App extends Component {
                     if (value[0] === value[1]) value = value[0].toString()
                     else value = value.join(':')
 
-                    setting.set('game.default_board_size', value)
+                    //
+                    // BUGOUT: do not update default setting
+                    //
+                    
                     draft.updateProperty(draft.root.id, 'SZ', [value])
                 } else {
                     draft.removeProperty(draft.root.id, 'SZ')
