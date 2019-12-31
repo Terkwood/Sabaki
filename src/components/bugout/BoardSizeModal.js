@@ -42,7 +42,7 @@ class BoardSizeModal extends Component {
                         accept: true, 
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            chooseBoardsize(BoardSize.NINE)
+                            chooseBoardSize(BoardSize.NINE)
                         }
                     }, 
                     '9x9')

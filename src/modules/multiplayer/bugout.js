@@ -75,6 +75,10 @@ const joinPrivateGameParam = () => {
     }
 }
 
+const registerBoardSizeEvent = app => {
+    app.events.on('choose-board-size', e => console.log(`board size chosen ${JSON.stringify(e)}`))
+}
+
 const registerReconnectEvents = app => {
     app.events.on('websocket-closed', () => app.setState({
         multiplayer: {
@@ -200,6 +204,7 @@ const load = () => {
                         })
 
                         registerReconnectEvents(app)
+                        registerBoardSizeEvent(app)
                     }
                 }, placeholderColor)
             }
