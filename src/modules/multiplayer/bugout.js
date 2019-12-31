@@ -81,7 +81,6 @@ const registerBoardSizeEvents = app => {
             let {gameTrees, gameIndex} = app.state
             let tree = gameTrees[gameIndex]
             app.setGameInfo(tree, { 'size': [boardSize, boardSize] })
-            setTimeout(() => console.log(JSON.stringify(tree)), 2000)
         }
     }
 
