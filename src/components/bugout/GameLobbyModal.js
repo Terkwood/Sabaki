@@ -24,7 +24,7 @@ class GameLobbyModal extends Component {
                     id,
                     isOpen: true,
                 },
-                h(Dialog.Header, null, "Join Private Game"),
+                h(Dialog.Header, null, "Join Game"),
                 h(Dialog.Body, null, "🐛 Welcome to BUGOUT! You're joining a  game created by your friend."),
                 h(Dialog.Footer, null, 
                     h(Dialog.FooterButton, 
