@@ -355,8 +355,6 @@ class WebSocketController extends EventEmitter {
                 let player = letterToPlayer(command.args[0])
                 this.opponent = otherPlayer(player)
 
-                console.log(`args ${JSON.stringify(command.args)}`)
-
                 let v = this.board.coord2vertex(command.args[1])
 
                 let coord = isPassing(v) ? null : {'x': v[0], 'y': v[1] }
