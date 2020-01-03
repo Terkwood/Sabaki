@@ -287,9 +287,9 @@ class WebSocketController extends EventEmitter {
                         // This may fail.  Revisit after https://github.com/Terkwood/BUGOUT/issues/56
                         onMove({player: lastMove.player, resolveWith:{"id":null,"content":null,"error":false}})
                     }
-                } else if (opponentMoved(msg,opponent)) {
+                } else if (opponentMoved(msg, opponent)) {
 
-                    this.handleMoveMade(msg,opponent)
+                    this.handleMoveMade(msg, opponent)
 
                 } else {
                     console.log('Unknown message')
@@ -327,9 +327,14 @@ class WebSocketController extends EventEmitter {
     }
 
     handleMoveMade(msg, opponent, resolve) {
-        let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
+        // Note that the 'pass' value is used in
+        // enginesyncer.js, which also has a special
+        // case for the 'resign' value
+        // See https://github.com/Terkwood/BUGOUT/issues/153
 
-        resolve({"id":null,"content":sabakiCoord,"error":false})
+        let sabakiCoord = msg.coord ? this.board.vertex2coord([msg.coord.x, msg.coord.y]) : 'pass'
+
+        resolve({'id':null, 'content': sabakiCoord, 'error':false})
         
         let playerUp = otherPlayer(opponent) 
 
@@ -338,31 +343,35 @@ class WebSocketController extends EventEmitter {
     }
 
     async sendCommand(command, subscriber = () => {}) {
+        let isPassing = v => v[0] == 14 && isNaN(v[1])
+
         let promise = new Promise((resolve, reject) => {
             if (!this.gameId) {
                 console.log(`no game id: ignoring command ${JSON.stringify(command)}`)
                 reject({id: null, error: true})
             }
 
-            if (command.name == "play") {
+            if (command.name == 'play') {
                 let player = letterToPlayer(command.args[0])
                 this.opponent = otherPlayer(player)
 
-                let vertex = this.board.coord2vertex(command.args[1])
+                let v = this.board.coord2vertex(command.args[1])
+
+                let coord = isPassing(v) ? null : {'x': v[0], 'y': v[1] }
 
                 let makeMove = {
-                    "type":"MakeMove",
-                    "gameId": this.gameId,
-                    "reqId": uuidv4(),
-                    "player":player,
-                    "coord": {"x":vertex[0],"y":vertex[1]}
+                    'type':'MakeMove',
+                    'gameId': this.gameId,
+                    'reqId': uuidv4(),
+                    'player': player,
+                    'coord': coord
                 }
 
                 // We only want this listener online so we don't double-count turns
                 this.updateMessageListener(event => {
                     try {
                         let msg = JSON.parse(event.data)
-                        if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
+                        if (msg.type === 'MoveMade' && msg.replyTo === makeMove.reqId) {
                             resolve({id: null, error: false})
                         } 
 
@@ -375,7 +384,7 @@ class WebSocketController extends EventEmitter {
                 })
 
                 this.webSocket.send(JSON.stringify(makeMove))
-            } else if (command.name === "genmove") {
+            } else if (command.name === 'genmove') {
 
                 let opponent = letterToPlayer(command.args[0])
                 this.opponent = opponent
