@@ -5,13 +5,15 @@ function hide() {
     document.getElementById('popupmenu-overlay').remove()
 }
 
+const BUGOUT_HACK = 65
+
 function show(velement, x, y) {
     let element = render(velement, document.body).childNodes[0]
 
     let {width, height} = element.getBoundingClientRect()
     let {width: bodyWidth, height: bodyHeight} = document.body.getBoundingClientRect()
-
-    element.style.left = (x + width <= bodyWidth ? x : Math.max(0, x - width)) + 'px'
+ 
+    element.style.left = x + width <= bodyWidth ? x + BUGOUT_HACK : Math.max(0, x + BUGOUT_HACK - width) + 'px'
     element.style.top = (y + height <= bodyHeight ? y : Math.max(0, y - height)) + 'px'
 }
 
