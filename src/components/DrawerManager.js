@@ -2,10 +2,6 @@ const {h, Component} = require('preact')
 const gametree = require('../modules/gametree')
 
 const ScoreDrawer = require('./drawers/ScoreDrawer')
-const PreferencesDrawer = require('./drawers/PreferencesDrawer')
-const GameChooserDrawer = require('./drawers/GameChooserDrawer')
-const CleanMarkupDrawer = require('./drawers/CleanMarkupDrawer')
-const AdvancedPropertiesDrawer = require('./drawers/AdvancedPropertiesDrawer')
 
 class DrawerManager extends Component {
     constructor() {
@@ -54,52 +50,12 @@ class DrawerManager extends Component {
         mode,
         openDrawer,
         gameTree,
-        gameTrees,
-        gameIndex,
-        treePosition,
-
-        gameInfo,
-        currentPlayer,
-
+        
         scoringMethod,
         scoreBoard,
         areaMap,
-
-        engines,
-        attachedEngines,
-        graphGridSize,
-        preferencesTab
     }) {
         return h('section', {},
-
-            h(PreferencesDrawer, {
-                show: openDrawer === 'preferences',
-                tab: preferencesTab,
-                engines,
-                graphGridSize
-            }),
-
-            h(GameChooserDrawer, {
-                show: openDrawer === 'gamechooser',
-                gameTrees,
-                gameIndex,
-
-                onItemClick: this.handleGameSelect,
-                onChange: this.handleGameTreesChange
-            }),
-
-            h(CleanMarkupDrawer, {
-                show: openDrawer === 'cleanmarkup',
-                gameTree,
-                treePosition
-            }),
-
-            h(AdvancedPropertiesDrawer, {
-                show: openDrawer === 'advancedproperties',
-                gameTree,
-                treePosition
-            }),
-
             h(ScoreDrawer, {
                 show: openDrawer === 'score',
                 estimating: mode === 'estimator',

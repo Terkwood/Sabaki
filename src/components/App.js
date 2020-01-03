@@ -7,8 +7,6 @@ const classNames = require('classnames')
 
 const ThemeManager = require('./ThemeManager')
 const MainView = require('./MainView')
-const LeftSidebar = require('./LeftSidebar')
-const Sidebar = require('./Sidebar')
 const DrawerManager = require('./DrawerManager')
 const InputBox = require('./InputBox')
 const BusyScreen = require('./BusyScreen')
@@ -2631,8 +2629,6 @@ class App extends Component {
 
             h(ThemeManager),
             h(MainView, state),
-            h(LeftSidebar, state),
-            h(Sidebar, state),
             h(DrawerManager, state),
 
             h(InputBox, {
