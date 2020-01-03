@@ -50,6 +50,7 @@
     text-align: right; }
 
 .mdc-dialog__header {
+  height: 40px;
   display: flex;
   align-items: center;
   padding: 24px 24px 0; }

@@ -113,11 +113,6 @@ class ScoreDrawer extends Component {
                     t('Result:'), ' ',
                     h('span', {class: 'result'}, this.resultString), ' ',
 
-                    !estimating && h('button', {
-                        type: 'submit',
-                        onClick: this.handleSubmitButtonClick
-                    }, t('Update Result')), ' ',
-
                     h('button', {
                         type: 'reset',
                         onClick: this.handleCloseButtonClick

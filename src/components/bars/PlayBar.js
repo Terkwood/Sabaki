@@ -29,10 +29,6 @@ class PlayBar extends Component {
                     label: t('Download SGF'),
                     click: () => sabaki.saveFile(sabaki.state.representedFilename)
                 },
-                {
-                    label: t('Copy SGF to Clipboard'),
-                    click: () => clipboard.writeText(sabaki.getSGF())
-                },
                 {type: 'separator'},
                 {
                     label: t('Show &Coordinates'),
@@ -69,19 +65,6 @@ class PlayBar extends Component {
                 {
                     label: t('&Score'),
                     click: () => sabaki.setMode('scoring')
-                },
-                {
-                    label: t('&Edit'),
-                    click: () => sabaki.setMode('edit')
-                },
-                {
-                    label: t('&Find'),
-                    click: () => sabaki.setMode('find')
-                },
-                {type: 'separator'},
-                {
-                    label: t('&Info'),
-                    click: () => sabaki.openDrawer('info')
                 }
             ], left, top)
         }

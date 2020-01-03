@@ -163,7 +163,7 @@ const emitReadyState = (ws, events) => {
 const placeholderColor = Player.BLACK
 
 const load = () => {
-    let engine = {"name":"Opponent", "path":"/bugout", "args": ""}
+    let engine = { "path":"/bugout", "args": "" }
     let jp = joinPrivateGameParam()
     let readyToEnter = state => state.multiplayer && (
         state.multiplayer.connectionState == undefined || 
