@@ -327,7 +327,11 @@ class WebSocketController extends EventEmitter {
     }
 
     handleMoveMade(msg, opponent, resolve) {
-        console.log(`move made msh ${JSON.stringify(msg)}`)
+        // Note that the 'pass' value is used in
+        // enginesyncer.js, which also has a special
+        // case for the 'resign' value
+        // See https://github.com/Terkwood/BUGOUT/issues/153
+
         let sabakiCoord = msg.coord ? this.board.vertex2coord([msg.coord.x, msg.coord.y]) : 'pass'
 
         resolve({'id':null, 'content': sabakiCoord, 'error':false})
