@@ -287,9 +287,9 @@ class WebSocketController extends EventEmitter {
                         // This may fail.  Revisit after https://github.com/Terkwood/BUGOUT/issues/56
                         onMove({player: lastMove.player, resolveWith:{"id":null,"content":null,"error":false}})
                     }
-                } else if (opponentMoved(msg,opponent)) {
+                } else if (opponentMoved(msg, opponent)) {
 
-                    this.handleMoveMade(msg,opponent)
+                    this.handleMoveMade(msg, opponent)
 
                 } else {
                     console.log('Unknown message')
@@ -327,9 +327,10 @@ class WebSocketController extends EventEmitter {
     }
 
     handleMoveMade(msg, opponent, resolve) {
-        let sabakiCoord = this.board.vertex2coord([msg.coord.x, msg.coord.y])
+        console.log(`move made msh ${JSON.stringify(msg)}`)
+        let sabakiCoord = msg.coord ? this.board.vertex2coord([msg.coord.x, msg.coord.y]) : 'pass'
 
-        resolve({"id":null,"content":sabakiCoord,"error":false})
+        resolve({'id':null, 'content': sabakiCoord, 'error':false})
         
         let playerUp = otherPlayer(opponent) 
 
@@ -349,6 +350,8 @@ class WebSocketController extends EventEmitter {
             if (command.name == 'play') {
                 let player = letterToPlayer(command.args[0])
                 this.opponent = otherPlayer(player)
+
+                console.log(`args ${JSON.stringify(command.args)}`)
 
                 let v = this.board.coord2vertex(command.args[1])
 
