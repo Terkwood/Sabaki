@@ -1,7 +1,6 @@
 const {h, Component} = require('preact')
 const gametree = require('../modules/gametree')
 
-const InfoDrawer = require('./drawers/InfoDrawer')
 const ScoreDrawer = require('./drawers/ScoreDrawer')
 const PreferencesDrawer = require('./drawers/PreferencesDrawer')
 const GameChooserDrawer = require('./drawers/GameChooserDrawer')
@@ -72,13 +71,6 @@ class DrawerManager extends Component {
         preferencesTab
     }) {
         return h('section', {},
-            h(InfoDrawer, {
-                show: openDrawer === 'info',
-                engines: attachedEngines,
-                gameTree,
-                gameInfo,
-                currentPlayer
-            }),
 
             h(PreferencesDrawer, {
                 show: openDrawer === 'preferences',
