@@ -367,8 +367,6 @@ class WebSocketController extends EventEmitter {
                     'coord': coord
                 }
 
-                console.log(`make move ${JSON.stringify(makeMove)}`)
-
                 // We only want this listener online so we don't double-count turns
                 this.updateMessageListener(event => {
                     try {
