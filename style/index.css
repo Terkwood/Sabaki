@@ -70,6 +70,10 @@ header {
     }
     header .playercontent.player_-1 {
         justify-content: flex-start;
+        transform: scale(2.0) translateX(25%);
+    }
+    header .playercontent.player_1 {
+        transform: scale(2.0) translateX(-25%);
     }
     header .playercontent > * + * {
         margin-left: 5px;
@@ -109,6 +113,7 @@ header {
     }
     header .current-player {
         cursor: pointer;
+        transform: scale(2.0);
     }
     header .menu {
         width: 64px;
@@ -118,7 +123,8 @@ header {
     }
     header .menu img {
         filter: invert(100%);
-}
+        transform: scale(2.0);
+    }
 
 #bar {
         position: absolute;
