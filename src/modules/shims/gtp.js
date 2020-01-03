@@ -338,31 +338,37 @@ class WebSocketController extends EventEmitter {
     }
 
     async sendCommand(command, subscriber = () => {}) {
+        let isPassing = v => v[0] == 14 && isNaN(v[1])
+
         let promise = new Promise((resolve, reject) => {
             if (!this.gameId) {
                 console.log(`no game id: ignoring command ${JSON.stringify(command)}`)
                 reject({id: null, error: true})
             }
 
-            if (command.name == "play") {
+            if (command.name == 'play') {
                 let player = letterToPlayer(command.args[0])
                 this.opponent = otherPlayer(player)
 
-                let vertex = this.board.coord2vertex(command.args[1])
+                let v = this.board.coord2vertex(command.args[1])
+
+                let coord = isPassing(v) ? null : {'x': v[0], 'y': v[1] }
 
                 let makeMove = {
-                    "type":"MakeMove",
-                    "gameId": this.gameId,
-                    "reqId": uuidv4(),
-                    "player":player,
-                    "coord": {"x":vertex[0],"y":vertex[1]}
+                    'type':'MakeMove',
+                    'gameId': this.gameId,
+                    'reqId': uuidv4(),
+                    'player': player,
+                    'coord': coord
                 }
+
+                console.log(`make move ${JSON.stringify(makeMove)}`)
 
                 // We only want this listener online so we don't double-count turns
                 this.updateMessageListener(event => {
                     try {
                         let msg = JSON.parse(event.data)
-                        if (msg.type === "MoveMade" && msg.replyTo === makeMove.reqId) {
+                        if (msg.type === 'MoveMade' && msg.replyTo === makeMove.reqId) {
                             resolve({id: null, error: false})
                         } 
 
@@ -375,7 +381,7 @@ class WebSocketController extends EventEmitter {
                 })
 
                 this.webSocket.send(JSON.stringify(makeMove))
-            } else if (command.name === "genmove") {
+            } else if (command.name === 'genmove') {
 
                 let opponent = letterToPlayer(command.args[0])
                 this.opponent = opponent
