@@ -154,6 +154,9 @@ header {
         opacity: .5;
     }
     #bar .bar .close:active { opacity: .7; }
+    #scoring .text {
+        margin-left: -20px
+    }
     #scoring .close, #estimator .close, #find .close,
     #guess .close, #autoplay .close {
         filter: invert(100%);
