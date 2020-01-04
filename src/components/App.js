@@ -17,6 +17,7 @@ import BoardSizeModal from './bugout/BoardSizeModal'
 import ColorChoiceModal from './bugout/ColorChoiceModal'
 import GameLobbyModal from './bugout/GameLobbyModal'
 import IdleStatusModal from './bugout/IdleStatusModal'
+import OpponentPassedModal from './bugout/OpponentPassedModal'
 import ReconnectModal from './bugout/ReconnectModal'
 import WaitForOpponentModal from './bugout/WaitForOpponentModal'
 import WaitForYourColorModal from './bugout/WaitForYourColorModal'
@@ -2525,6 +2526,7 @@ class App extends Component {
             h(YourColorChosenModal, { yourColor: state.multiplayer && state.multiplayer.yourColor }), 
             h(ReconnectModal, { data: state.multiplayer }), 
             h(IdleStatusModal, { data: state.multiplayer }),
+            h(OpponentPassedModal),
             // ↑ BUGOUT ↑
 
             h(ThemeManager),
