@@ -340,6 +340,9 @@ class WebSocketController extends EventEmitter {
 
         // In case white needs to dismiss its initial screen
         sabaki.events.emit('they-moved', { playerUp })
+
+        // In case we need to show that the opponent passed
+        sabaki.events.emit('bugout-move-made', msg)
     }
 
     async sendCommand(command, subscriber = () => {}) {
