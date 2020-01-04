@@ -200,62 +200,11 @@ class App extends Component {
                 } else if (this.state.fullScreen) {
                     this.setState({fullScreen: false})
                 }
-            } else if (!evt.ctrlKey && !evt.metaKey && ['ArrowUp', 'ArrowDown'].includes(evt.key)) {
-                if (
-                    this.state.busy > 0
-                    || helper.isTextLikeElement(document.activeElement)
-                ) return
-
-                evt.preventDefault()
-
-                let sign = evt.key === 'ArrowUp' ? -1 : 1
-                this.startAutoscrolling(sign)
-            } else if ((evt.ctrlKey || evt.metaKey) && ['z', 'y'].includes(evt.key.toLowerCase())) {
-                if (this.state.busy > 0) return
-
-                // Hijack browser undo/redo
-
-                let step = evt.key.toLowerCase() === 'z' ? -1 : 1
-                if (evt.shiftKey) step = -step
-
-                let action = step < 0 ? 'undo' : 'redo'
-
-                if (action != null) {
-                    if (helper.isTextLikeElement(document.activeElement)) {
-                        return
-                    } else {
-                        evt.preventDefault()
-                        this[action]()
-                    }
-                }
-            }
-        })
-
-        document.addEventListener('keyup', evt => {
-            if (this.autoscrollId == null) return
-
-            if (['ArrowUp', 'ArrowDown'].includes(evt.key)) {
-                this.stopAutoscrolling()
-            }
+            } // 😇 BUGOUT trimmed 😇
         })
 
         // Handle other keyboard shortcuts
-
-        document.addEventListener('keydown', evt => {
-            if (['input', 'textarea'].indexOf(document.activeElement.tagName.toLowerCase()) >= 0) {
-                return
-            }
-
-            if (evt.key === 'Home') {
-                this.goToBeginning()
-            } else if (evt.key === 'End') {
-                this.goToEnd()
-            } else if (evt.key === 'ArrowLeft') {
-                this.goToSiblingVariation(-1)
-            } else if (evt.key === 'ArrowRight') {
-                this.goToSiblingVariation(1)
-            }
-        })
+        // 😇 BUGOUT trimmed 😇
 
         // Handle window closing
 
@@ -263,12 +212,6 @@ class App extends Component {
             evt.returnValue = ' '
         })
 
-        // BUGOUT: Draw the board immediately on
-        // open, so that the player has a background
-        // behind the dialogs.
-        // Note that we'll have to call this again
-        // in order to handle the case where player
-        // chooses a 9x9 or 13x13 board.
         this.newFile()
     }
 
@@ -1415,32 +1358,8 @@ class App extends Component {
         this.setCurrentTreePosition(gameTrees[newIndex], gameTrees[newIndex].root.id)
     }
 
-    startAutoscrolling(step) {
-        if (this.autoscrollId != null) return
-
-        let first = true
-        let maxDelay = setting.get('autoscroll.max_interval')
-        let minDelay = setting.get('autoscroll.min_interval')
-        let diff = setting.get('autoscroll.diff')
-
-        let scroll = (delay = null) => {
-            this.goStep(step)
-
-            clearTimeout(this.autoscrollId)
-            this.autoscrollId = setTimeout(() => {
-                scroll(first ? maxDelay : Math.max(minDelay, delay - diff))
-                first = false
-            }, delay)
-        }
-
-        scroll(400)
-    }
-
-    stopAutoscrolling() {
-        clearTimeout(this.autoscrollId)
-        this.autoscrollId = null
-    }
-
+    // 😇 BUGOUT trimmed 😇
+    
     // Find Methods
 
     async findPosition(step, condition) {
