@@ -17,6 +17,13 @@ class PlayBar extends Component {
 
         this.handleCurrentPlayerClick = () => this.props.onCurrentPlayerClick
 
+        this.handlePassClick = () => {
+            let autoGenmove = setting.get('gtp.auto_genmove')
+            sabaki.makeMove([-1, -1], {sendToEngine: autoGenmove})
+        }
+
+        this.handleQuitClick = () => sabaki.makeResign()
+
         this.handleMenuClick = () => {
             let {left, top} = this.menuButtonElement.getBoundingClientRect()
             helper.popupMenu([
@@ -44,18 +51,6 @@ class PlayBar extends Component {
                     label: t('Show Move Colori&zation'),
                     checked: setting.get('view.show_move_colorization'),
                     click: () => toggleSetting('view.show_move_colorization')
-                },
-                {type: 'separator'},
-                {
-                    label: t('&Pass'),
-                    click: () => {
-                        let autoGenmove = setting.get('gtp.auto_genmove')
-                        sabaki.makeMove([-1, -1], {sendToEngine: autoGenmove})
-                    }
-                },
-                {
-                    label: t('&Resign'),
-                    click: () => sabaki.makeResign()
                 },
                 {type: 'separator'},
                 {
@@ -105,7 +100,13 @@ class PlayBar extends Component {
                 })
             },
 
-            h('div', {class: 'hotspot', title: t('Hotspot')}),
+            h('a',
+                {
+                    class: 'pass-button',
+                    onClick: this.handlePassClick
+                },
+                h('button', {}, t('Pass'))
+            ),
 
             h('span', {class: 'playercontent player_1'},
                 h('span', {class: 'captures', style: captureStyle(0)}, playerCaptures[0]), ' ',
@@ -124,7 +125,7 @@ class PlayBar extends Component {
                     },
                     isEngine[0] && playerBusy[0] && h(TextSpinner),
                     ' ',
-                    playerNames[0] || t('Black')
+                    playerNames[0] || t('B')
                 )
             ),
 
@@ -132,6 +133,8 @@ class PlayBar extends Component {
                 {
                     class: 'current-player',
                     title: t('Current Player'), // 😇BUGOUT😇
+                    ref: el => this.menuButtonElement = el, // 😇BUGOUT😇
+                    onClick: this.handleMenuClick, // 😇BUGOUT😇
                 },
                 h('img', {
                     src: `./img/ui/player_${currentPlayer}.svg`,
@@ -153,7 +156,7 @@ class PlayBar extends Component {
                         class: classNames('name', {engine: isEngine[1]}),
                         title: isEngine[1] && t('Engine')
                     },
-                    playerNames[1] || t('White'),
+                    playerNames[1] || t('W'),
                     ' ',
                     isEngine[1] && playerBusy[1] && h(TextSpinner)
                 ), ' ',
@@ -170,12 +173,21 @@ class PlayBar extends Component {
 
             h('a',
                 {
+                    class: 'quit-button',
+                    onClick: this.handleQuitClick
+                },
+                h('button', {}, t('Quit'))
+            ),
+            /* // BUGOUT ... this was:
+            h('a',
+                {
                     ref: el => this.menuButtonElement = el,
                     class: 'menu',
                     onClick: this.handleMenuClick
                 },
                 h('img', {src: './node_modules/octicons/build/svg/three-bars.svg', height: 22})
             )
+            */
         )
     }
 }

@@ -172,6 +172,16 @@ header {
     #bar .bar button:active {
         transform: translateY(-46%);
     }
+    #bar .pass-button {
+        z-index: 1000;
+        margin-left: 5%;
+        transform: scale(1.66);
+    }
+    #bar .quit-button {
+        z-index: 1000;
+        margin-right: 5%;
+        transform: scale(1.66);
+    }
     #scoring .result, #estimator .result {
         position: absolute;
         left: 20px;
