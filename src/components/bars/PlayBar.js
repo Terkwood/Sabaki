@@ -29,7 +29,7 @@ class PlayBar extends Component {
             helper.popupMenu([
                 {
                     label: t(p => `About ${p.appName}…`, {appName: sabaki.appName}),
-                    click: () => shell.openExternal('http://sabaki.yichuanshen.de')
+                    click: () => shell.openExternal('https://github.com/Terkwood/BUGOUT')
                 },
                 {type: 'separator'},
                 {
