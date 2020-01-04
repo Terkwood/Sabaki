@@ -157,6 +157,12 @@ header {
     #scoring .text {
         margin-left: -20px
     }
+    #scoring {
+        font-size: 1.6em;
+    }
+    #scoring button {
+        font-size: 1.2em;
+    }
     #scoring .close, #estimator .close, #find .close,
     #guess .close, #autoplay .close {
         filter: invert(100%);
