@@ -54,18 +54,6 @@ class PlayBar extends Component {
                 },
                 {type: 'separator'},
                 {
-                    label: t('&Pass'),
-                    click: () => {
-                        let autoGenmove = setting.get('gtp.auto_genmove')
-                        sabaki.makeMove([-1, -1], {sendToEngine: autoGenmove})
-                    }
-                },
-                {
-                    label: t('&Resign'),
-                    click: () => sabaki.makeResign()
-                },
-                {type: 'separator'},
-                {
                     label: t('Es&timate'),
                     click: () => sabaki.setMode('estimator')
                 },
@@ -145,6 +133,8 @@ class PlayBar extends Component {
                 {
                     class: 'current-player',
                     title: t('Current Player'), // 😇BUGOUT😇
+                    ref: el => this.menuButtonElement = el, // 😇BUGOUT😇
+                    onClick: this.handleMenuClick, // 😇BUGOUT😇
                 },
                 h('img', {
                     src: `./img/ui/player_${currentPlayer}.svg`,
@@ -188,14 +178,16 @@ class PlayBar extends Component {
                 },
                 h('button', {}, t('Quit'))
             ),
-            /*h('a',
+            /* // BUGOUT ... this was:
+            h('a',
                 {
                     ref: el => this.menuButtonElement = el,
                     class: 'menu',
                     onClick: this.handleMenuClick
                 },
                 h('img', {src: './node_modules/octicons/build/svg/three-bars.svg', height: 22})
-            )*/
+            )
+            */
         )
     }
 }
