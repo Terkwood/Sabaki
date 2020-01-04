@@ -2,11 +2,7 @@ const {h, Component} = require('preact')
 
 const Goban = require('./Goban')
 const PlayBar = require('./bars/PlayBar')
-const EditBar = require('./bars/EditBar')
-const GuessBar = require('./bars/GuessBar')
-const AutoplayBar = require('./bars/AutoplayBar')
 const ScoringBar = require('./bars/ScoringBar')
-const FindBar = require('./bars/FindBar')
 
 const gametree = require('../modules/gametree')
 
@@ -182,24 +178,6 @@ class MainView extends Component {
                     onCurrentPlayerClick: this.handleTogglePlayer
                 }),
 
-                h(EditBar, {
-                    mode,
-                    selectedTool,
-                    onToolButtonClick: this.handleToolButtonClick
-                }),
-
-                h(GuessBar, {
-                    mode,
-                    treePosition
-                }),
-
-                h(AutoplayBar, {
-                    mode,
-                    gameTree,
-                    gameCurrents: gameCurrents[gameIndex],
-                    treePosition
-                }),
-
                 h(ScoringBar, {
                     type: 'scoring',
                     mode,
@@ -218,12 +196,6 @@ class MainView extends Component {
                     areaMap,
                     komi,
                     handicap
-                }),
-
-                h(FindBar, {
-                    mode,
-                    findText,
-                    onButtonClick: this.handleFindButtonClick,
                 })
             )
         )
