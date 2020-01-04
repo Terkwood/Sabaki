@@ -13,20 +13,19 @@ class ScoringBar extends Component {
         let score = scoreBoard && scoreBoard.getScore(areaMap, {komi, handicap})
         let result = score && (method === 'area' ? score.areaScore : score.territoryScore)
 
-        let text = type === 'scoring'
-            ? 'Select dead stones.'
-            : 'Toggle group status.'
-
         return h(Bar, Object.assign({type}, this.props),
             h('div', {class: 'result'},
                 h('button', {onClick: this.handleButtonClick}, t('Details')),
-                h('strong', {class: 'scoringSummary'},
+                h('strong', {},
                     !result ? ''
-                    : result > 0 ? t(p => `B+${p.result} ${text}`, {result})
-                    : result < 0 ? t(p => `W+${p.result} ${text}`, {result: -result})
+                    : result > 0 ? t(p => `B+${p.result}`, {result})
+                    : result < 0 ? t(p => `W+${p.result}`, {result: -result})
                     : t('Draw')
                 ),
-            ), ' '
+            ), ' ',
+            type === 'scoring'
+            ? t('Select dead stones.')
+            : t('Toggle group status.')
         )
     }
 }
