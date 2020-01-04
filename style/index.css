@@ -209,6 +209,10 @@ header {
         transform: translateY(4%);
 }
 
+#popupmenu-overlay .popupmenu {
+    transform: scale(2.0) translateX(100%) translateY(33.3%);
+}
+
 #find button {
         box-sizing: border-box;
         position: absolute;
