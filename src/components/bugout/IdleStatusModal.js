@@ -59,7 +59,7 @@ class IdleStatusModal extends Component {
                 id,
                 isOpen: true,
             },
-            h(Dialog.Header, null, 'System Offline' ),
+            h(Dialog.Header, null, 'Offline' ),
             h(Dialog.Body, null, `BUGOUT has been idle ${formatSince(idleStatus.since)}.`),
         )
     }
