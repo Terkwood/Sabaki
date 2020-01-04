@@ -17,9 +17,12 @@ class PlayBar extends Component {
 
         this.handleCurrentPlayerClick = () => this.props.onCurrentPlayerClick
 
-        this.handlePassClick = () => console.log('PASS')
+        this.handlePassClick = () => {
+            let autoGenmove = setting.get('gtp.auto_genmove')
+            sabaki.makeMove([-1, -1], {sendToEngine: autoGenmove})
+        }
 
-        this.handleQuitClick = () => console.log('QUIT')
+        this.handleQuitClick = () => sabaki.makeResign()
 
         this.handleMenuClick = () => {
             let {left, top} = this.menuButtonElement.getBoundingClientRect()
