@@ -520,11 +520,11 @@ class App extends Component {
     }
 
     undo() {
-        this.checkoutHistory(this.historyPointer - 1)
+        // 😇 BUGOUT trimmed 😇
     }
 
     redo() {
-        this.checkoutHistory(this.historyPointer + 1)
+        // 😇 BUGOUT trimmed 😇
     }
 
     // File Management
