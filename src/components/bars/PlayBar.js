@@ -125,7 +125,7 @@ class PlayBar extends Component {
                     },
                     isEngine[0] && playerBusy[0] && h(TextSpinner),
                     ' ',
-                    playerNames[0] || t('B')
+                    playerNames[0] || t('Black')
                 )
             ),
 
@@ -156,7 +156,7 @@ class PlayBar extends Component {
                         class: classNames('name', {engine: isEngine[1]}),
                         title: isEngine[1] && t('Engine')
                     },
-                    playerNames[1] || t('W'),
+                    playerNames[1] || t('White'),
                     ' ',
                     isEngine[1] && playerBusy[1] && h(TextSpinner)
                 ), ' ',
