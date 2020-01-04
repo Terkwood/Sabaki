@@ -105,7 +105,7 @@ class PlayBar extends Component {
                     class: 'pass-button',
                     onClick: this.handlePassClick
                 },
-                h('button', {}, t('Pass'))
+                h('button', {}, t('PASS'))
             ),
 
             h('span', {class: 'playercontent player_1'},
@@ -176,7 +176,7 @@ class PlayBar extends Component {
                     class: 'quit-button',
                     onClick: this.handleQuitClick
                 },
-                h('button', {}, t('Quit'))
+                h('button', {}, t('QUIT'))
             ),
             /* // BUGOUT ... this was:
             h('a',
