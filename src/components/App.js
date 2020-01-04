@@ -197,14 +197,7 @@ class App extends Component {
         }
 
         // Handle file drag & drop
-
-        document.body.addEventListener('dragover', evt => evt.preventDefault())
-        document.body.addEventListener('drop', evt => {
-            evt.preventDefault()
-
-            if (evt.dataTransfer.files.length === 0) return
-            this.loadFile(evt.dataTransfer.files[0])
-        })
+        // 😇 BUGOUT trimmed 😇
 
         // Handle keys
 
