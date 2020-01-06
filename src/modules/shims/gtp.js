@@ -538,6 +538,8 @@ class GatewayConn {
 
         sabaki.events.on('choose-color-pref', ({ colorPref }) =>    
             this.chooseColorPref(colorPref))
+
+        sabaki.events.on('resign', () => this.quitGame())
     }
 
     async reconnect(gameId, resolveMoveMade, board) {
@@ -699,6 +701,10 @@ class GatewayConn {
             this.handleYourColor( { wait: true } )
             this.webSocket.send(JSON.stringify(requestPayload))
         })
+    }
+
+    async quitGame() {
+        this.webSocket.send('{"type": "QuitGame"}')
     }
 }
 
