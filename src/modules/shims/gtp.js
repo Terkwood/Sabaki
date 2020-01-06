@@ -107,7 +107,9 @@ const ROBUST_WEBSOCKET_TIMEOUT_MS = 300000
 const WEBSOCKET_HEALTH_DELAY_MS = 10000
 const WEBSOCKET_HEALTH_INTERVAL_MS = 100
 
-const opponentMoved = (msg, opponent) => msg.type === "MoveMade" && msg.player === opponent
+const opponentMoved = (msg, opponent) => msg.type === 'MoveMade' && msg.player === opponent
+
+const opponentQuit = msg => msg.type === 'OpponentQuit'
 
 class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, spawnOptions) {
@@ -132,6 +134,8 @@ class WebSocketController extends EventEmitter {
             })
 
         this.gameId = null
+        sabaki.events.on('resign', () => { this.gameId = null })
+
         this.clientId = ClientId.fromStorage()
 
         this.beeping = true
@@ -315,6 +319,9 @@ class WebSocketController extends EventEmitter {
                 if (opponentMoved(msg, opponent)) {
                     this.handleMoveMade(msg, opponent, resolve)
                     this.genMoveInProgress = false
+                } else if (opponentQuit(msg)) {
+                    this.handleOpponentQuit(resolve)
+                    this.genMoveInProgress = false
                 }
 
                 // discard any other messages until we receive confirmation
@@ -343,6 +350,16 @@ class WebSocketController extends EventEmitter {
 
         // In case we need to show that the opponent passed
         sabaki.events.emit('bugout-move-made', msg)
+    }
+
+    handleOpponentQuit(resolve) {
+        this.gameId = null
+        console.log('Opponent Quit the Game')
+
+        // This isn't complete.  Following will trigger an error
+        // in controller / enginesyncer.
+        // See https://github.com/Terkwood/BUGOUT/issues/162
+        resolve({'id': null, 'content': null, 'error': false })
     }
 
     async sendCommand(command, subscriber = () => {}) {
