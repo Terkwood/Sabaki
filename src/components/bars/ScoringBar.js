@@ -1,5 +1,5 @@
 const {h, Component} = require('preact')
-const Bar = require('./Bar')
+const NoCloseBar = require('./NoCloseBar')
 const t = require('../../i18n').context('ScoringBar')
 
 class ScoringBar extends Component {
@@ -13,7 +13,7 @@ class ScoringBar extends Component {
         let score = scoreBoard && scoreBoard.getScore(areaMap, {komi, handicap})
         let result = score && (method === 'area' ? score.areaScore : score.territoryScore)
 
-        return h(Bar, Object.assign({type}, this.props),
+        return h(NoCloseBar, Object.assign({type}, this.props),
             h('div', {class: 'result'},
                 h('button', {onClick: this.handleButtonClick}, t('Details')),
                 h('strong', {},
