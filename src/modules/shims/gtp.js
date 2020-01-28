@@ -354,12 +354,10 @@ class WebSocketController extends EventEmitter {
 
     handleOpponentQuit(resolve) {
         this.gameId = null
-        console.log('Opponent Quit the Game')
-
-        // This isn't complete.  Following will trigger an error
-        // in controller / enginesyncer.
-        // See https://github.com/Terkwood/BUGOUT/issues/162
-        resolve({'id': null, 'content': null, 'error': false })
+        sabaki.events.emit('bugout-opponent-quit')
+        sabaki.makeResign()
+        sabaki.setMode('scoring')
+        resolve({'id':null, 'error':false})
     }
 
     async sendCommand(command, subscriber = () => {}) {

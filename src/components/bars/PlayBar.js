@@ -22,7 +22,10 @@ class PlayBar extends Component {
             sabaki.makeMove([-1, -1], {sendToEngine: autoGenmove})
         }
 
-        this.handleQuitClick = () => sabaki.makeResign()
+        this.handleQuitClick = () => {
+            sabaki.makeResign()
+            sabaki.setMode('scoring')
+        }
 
         this.handleMenuClick = () => {
             let {left, top} = this.menuButtonElement.getBoundingClientRect()
