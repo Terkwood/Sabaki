@@ -6,11 +6,21 @@ class Bar extends Component {
         super(props)
 
         this.state = {
-            hidecontent: props.type !== props.mode
+            hidecontent: props.type !== props.mode,
+            gameOver: false
         }
+
+        // From GTP.js
+        sabaki.events.on('bugout-opponent-quit', this.onGameOver)
+        sabaki.events.on('resign', this.onGameOver)
 
         this.componentWillReceiveProps(props)
         this.onCloseButtonClick = () => sabaki.setMode('play')
+    }
+
+    onGameOver() {
+        console.log("Bar got quit")
+        this.setState({ gameOver: true })
     }
 
     componentWillReceiveProps(nextProps) {
@@ -41,7 +51,7 @@ class Bar extends Component {
             },
 
             children,
-            h('a', {class: 'close', href: '#', onClick: this.onCloseButtonClick})
+            this.state.gameOver ? h('div') : h('a', { class: 'close', href: '#', onClick: this.onCloseButtonClick })
         )
     }
 }
