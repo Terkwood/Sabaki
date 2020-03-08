@@ -981,6 +981,7 @@ class App extends Component {
             let prevPass = node.data[prevColor] != null && node.data[prevColor][0] === ''
 
             if (prevPass) {
+                this.events.emit('bugout-consecutive-pass')
                 enterScoring = true
                 this.setMode('scoring')
             }
