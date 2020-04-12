@@ -43,10 +43,6 @@ function newWindow(path) {
 
     window.webContents.setAudioMuted(!setting.get('sound.enable'))
 
-    window.webContents.on('did-finish-load', () => {
-        if (path) window.webContents.send('load-file', path)
-    })
-
     window.webContents.on('new-window', evt => {
         evt.preventDefault()
     })
