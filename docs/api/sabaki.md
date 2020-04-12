@@ -131,16 +131,6 @@ Resets file name, returns to play mode, and replaces current file with an empty 
 
 If there's a modified file opened, Sabaki will ask the user to save the file first depending whether `suppressAskForSave` is `false`. Set `suppressAskForSave` to `true` to suppress this question.
 
-#### async sabaki.loadFile([filename[, options]])
-
-* `filename` `<String>` *(optional)*
-* `options` `<Object>` *(optional)*
-    * `suppressAskForSave` `<Boolean>` *(optional)* - Default: `false`
-
-Resets file name, returns to play mode, and replaces current file with the file specified in `filename`. If `filename` is not set, Sabaki will show an open file dialog. On the web version, `filename` is ignored and treated as if not set.
-
-If there's a modified file opened, Sabaki will ask the user to save the file first depending whether `suppressAskForSave` is `false`. Set `suppressAskForSave` to `true` to suppress this question.
-
 #### async sabaki.loadContent(content, extension[, options])
 
 * `content` `<String>`
@@ -197,19 +187,6 @@ Depending on the settings, Sabaki may notify the user about ko and suicide, play
 
 Updates game information that the current player has resigned and shows the game info drawer for the user.
 
-#### sabaki.useTool(tool, vertex[, argument])
-
-* `tool` `<String>` - One of `'stone_1'`, `'stone_'-1`, `'cross'`, `'triangle'`, `'square'`, `'circle'`, `'line'`, `'arrow'`, `'label'`, `'number'`
-* `vertex` [`<Vertex>`](vertex.md)
-* `argument`
-
-Uses `tool` to mark the board at `vertex`. If `tool` is `'arrow'` or `'line'`, `argument` has to be set as the second [vertex](vertex.md). Otherwise `argument` is optional. If `tool` is `label`, `argument` can be a string specifying the label text.
-
-### History
-
-#### sabaki.undo()
-#### sabaki.redo()
-
 ### Navigation
 
 #### sabaki.setCurrentTreePosition(tree, treePosition[, options])
@@ -220,50 +197,6 @@ Uses `tool` to mark the board at `vertex`. If `tool` is `'arrow'` or `'line'`, `
     * `clearCache` `<Boolean>` - Default: `false`
 
 Updates the tree and jumps to the given `treePosition`. Make sure the root id of the given `tree` coincides with a tree in the `gameTrees` state.
-
-#### sabaki.goStep(step)
-
-* `step` `<Integer>`
-
-#### sabaki.goToMoveNumber(number)
-
-* `number` `<Integer>`
-
-#### sabaki.goToNextFork()
-#### sabaki.goToPreviousFork()
-#### sabaki.goToComment(step)
-
-* `step` `<Integer>`
-
-#### sabaki.goToBeginning()
-#### sabaki.goToEnd()
-#### sabaki.goToSiblingVariation(step)
-
-* `step` `<Integer>`
-
-#### sabaki.goToMainVariation()
-#### sabaki.goToSiblingGame(step)
-
-* `step` `<Integer>`
-
-### Find Methods
-
-#### async sabaki.findPosition(step, condition)
-
-* `step` `<Integer>`
-* `condition` `<Function>`
-
-#### async sabaki.findHotspot(step)
-
-* `step` `<Integer>`
-* `callback` `<Function>` *(optional)*
-
-#### async sabaki.findMove(step, data)
-
-* `step` `<Integer>`
-* `data` `<Object>`
-    * `vertex` [`<Vertex>`](vertex.md) *(optional)*
-    * `text` `<String>` *(optional)*
 
 ### Node Actions
 
@@ -315,94 +248,3 @@ Returns a [sign](sign.md) corresponding to the player that should be playing at 
 * `tree` [`<GameTree>`](gametree.md)
 * `treePosition` `<TreePosition>`
 * `sign` [`<Sign>`](sign.md) - Cannot be `0`
-
-#### sabaki.getComment(tree, treePosition)
-
-* `tree` [`<GameTree>`](gametree.md)
-* `treePosition` `<TreePosition>`
-
-Returns an object with the following keys:
-
-* `title` `<String>` | `<Null>`
-* `comment` `<String>` | `<Null>`
-* `hotspot` `<Boolean>`
-* `moveAnnotation` `<String>` | `<Null>` - One of `'BM'`, `'DO'`, `'IT'`, and `'TE'`
-* `positionAnnotation` `<String>` | `<Null>` - One of `'UC'`, `'GW'`, `'GB'`, and `'DM'`
-
-This only returns what is encoded in the [game tree](gametree.md), so it won't return automatic titles by Sabaki.
-
-#### sabaki.setComment(tree, treePosition, data)
-
-* `tree` [`<GameTree>`](gametree.md)
-* `treePosition` `<TreePosition>`
-* `data` `<Object>`
-    * `title` `<String>` | `<Null>` *(optional)*
-    * `comment` `<String>` | `<Null>` *(optional)*
-    * `hotspot` `<Boolean>` | `<Null>` *(optional)*
-    * `moveAnnotation` `<String>` | `<Null>` *(optional)* - One of `'BM'`, `'DO'`, `'IT'`, and `'TE'`
-    * `positionAnnotation` `<String>` | `<Null>` *(optional)* - One of `'UC'`, `'GW'`, `'GB'`, and `'DM'`
-
-Don't provide keys in `data` to leave corresponding information unchanged in the game tree. Set corresponding keys in `data` to `null` to remove the data from the game tree.
-
-#### sabaki.copyVariation(tree, treePosition)
-
-* `tree` [`<GameTree>`](gametree.md)
-* `treePosition` `<TreePosition>`
-
-#### sabaki.cutVariation(tree, treePosition)
-
-* `tree` [`<GameTree>`](gametree.md)
-* `treePosition` `<TreePosition>`
-
-#### sabaki.pasteVariation(tree, treePosition)
-
-* `tree` [`<GameTree>`](gametree.md)
-* `treePosition` `<TreePosition>`
-
-#### sabaki.flattenVariation(tree, treePosition)
-
-* `tree` [`<GameTree>`](gametree.md)
-* `treePosition` `<TreePosition>`
-
-#### sabaki.makeMainVariation(tree, treePosition)
-
-* `tree` [`<GameTree>`](gametree.md)
-* `treePosition` `<TreePosition>`
-
-#### sabaki.shiftVariation(tree, treePosition, step)
-
-* `tree` [`<GameTree>`](gametree.md)
-* `treePosition` `<TreePosition>`
-* `step` `<Integer>`
-
-#### sabaki.removeNode(tree, treePosition[, options])
-
-* `tree` [`<GameTree>`](gametree.md)
-* `treePosition` `<TreePosition>`
-* `options` `<Object>` *(optional)*
-    * `suppressConfirmation` `<Boolean>` - Default: `false`
-
-#### sabaki.removeOtherVariations(tree, treePosition[, options])
-
-* `tree` [`<GameTree>`](gametree.md)
-* `treePosition` `<TreePosition>`
-* `options` `<Object>` *(optional)*
-    * `suppressConfirmation` `<Boolean>` - Default: `false`
-
-### Menus
-
-#### sabaki.openNodeMenu(tree, treePosition, options)
-
-* `tree` [`<GameTree>`](gametree.md)
-* `treePosition` `<TreePosition>`
-* `options` `<Object>`
-    * `x` `<Integer>`
-    * `y` `<Integer>`
-
-#### sabaki.openCommentMenu(tree, treePosition, options)
-
-* `tree` [`<GameTree>`](gametree.md)
-* `treePosition` `<TreePosition>`
-* `options` `<Object>`
-    * `x` `<Integer>`
-    * `y` `<Integer>`

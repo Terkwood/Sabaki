@@ -7,7 +7,6 @@ const classNames = require('classnames')
 
 const MainView = require('./MainView')
 const DrawerManager = require('./DrawerManager')
-const InputBox = require('./InputBox')
 
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
 import BoardSizeModal from './bugout/BoardSizeModal'
@@ -104,15 +103,7 @@ class App extends Component {
             analysis: null,
 
             // Drawers
-
-            preferencesTab: 'general',
-
-            // Input Box
-
-            showInputBox: false,
-            inputBoxText: '',
-            onInputBoxSubmit: helper.noop,
-            onInputBoxCancel: helper.noop,
+            preferencesTab: 'general'
         }
 
         this.events = new EventEmitter()
@@ -136,6 +127,8 @@ class App extends Component {
 
         setting.events.on('change', ({key}) => this.updateSettingState(key))
         this.updateSettingState()
+
+        console.log('Welcome to Sabaki - BUGOUT Slim Edition')
     }
 
     componentDidMount() {
@@ -148,10 +141,6 @@ class App extends Component {
         })
 
         this.window.on('focus', () => {
-            if (setting.get('file.show_reload_warning')) {
-                this.askForReload()
-            }
-
             this.buildMenu()
         })
 
@@ -177,9 +166,7 @@ class App extends Component {
 
         document.addEventListener('keydown', evt => {
             if (evt.key === 'Escape') {
-                if (this.state.generatingMoves) {
-                    this.stopGeneratingMoves()
-                } else if (this.state.openDrawer != null) {
+                if (this.state.openDrawer != null) {
                     this.closeDrawer()
                 } else if (this.state.mode !== 'play') {
                     this.setMode('play')
@@ -215,47 +202,11 @@ class App extends Component {
             title += ' — ' + t(p => `Game ${p.gameNumber}`, {
                 gameNumber: gameIndex + 1
             })
-        if (representedFilename && process.platform != 'darwin')
+        if (representedFilename)
             title += ' — ' + this.appName
 
         if (document.title !== title)
             document.title = title
-
-        // Handle full screen & menu bar
-        // TODO BUGOUT Cut
-        if (prevState.fullScreen !== this.state.fullScreen) {
-            this.window.setFullScreen(this.state.fullScreen)
-        }
-
-        // TODO BUGOUT cut
-        if (prevState.showMenuBar !== this.state.showMenuBar) {
-            this.window.setMenuBarVisibility(this.state.showMenuBar)
-            this.window.setAutoHideMenuBar(!this.state.showMenuBar)
-        }
-
-        // Handle sidebar showing/hiding
-
-        if (
-            prevState.showLeftSidebar !== this.state.showLeftSidebar
-            || prevState.showSidebar !== this.state.showSidebar
-        ) {
-            let [width, height] = this.window.getContentSize()
-            let widthDiff = 0
-
-            if (prevState.showSidebar !== this.state.showSidebar) {
-                widthDiff += this.state.sidebarWidth * (this.state.showSidebar ? 1 : -1)
-            }
-
-            if (prevState.showLeftSidebar !== this.state.showLeftSidebar) {
-                widthDiff += this.state.leftSidebarWidth * (this.state.showLeftSidebar ? 1 : -1)
-            }
-
-            if (!this.window.isMaximized() && !this.window.isMinimized() && !this.window.isFullScreen()) {
-                this.window.setContentSize(width + widthDiff, height)
-            }
-
-            window.dispatchEvent(new Event('resize'))
-        }
 
         // Handle zoom factor
 
@@ -267,7 +218,6 @@ class App extends Component {
     updateSettingState(key = null, {buildMenu = true} = {}) {
         let data = {
             'app.zoom_factor': 'zoomFactor',
-            'view.show_menubar': 'showMenuBar',
             'view.show_coordinates': 'showCoordinates',
             'view.show_move_colorization': 'showMoveColorization',
             'view.show_move_numbers': 'showMoveNumbers',
@@ -571,9 +521,6 @@ class App extends Component {
         return true
     }
 
-    askForReload() {
-    }
-
     // Playing
 
     clickVertex(vertex, {button = 0, ctrlKey = false, x = 0, y = 0} = {}) {
@@ -790,7 +737,6 @@ class App extends Component {
             draft.updateProperty(draft.root.id, 'RE', [`${color}+Resign`])
         })
 
-        this.makeMainVariation(newTree, treePosition)
         this.makeMove([-1, -1], {player})
 
         this.events.emit('resign', {player})
@@ -847,56 +793,6 @@ class App extends Component {
     
     // 😇 BUGOUT trimmed 😇
     
-    // Find Methods
-
-    async findPosition(step, condition) {
-        if (isNaN(step)) step = 1
-        else step = step >= 0 ? 1 : -1
-
-        this.setBusy(true)
-        await helper.wait(setting.get('find.delay'))
-
-        let {gameTrees, gameIndex, treePosition} = this.state
-        let tree = gameTrees[gameIndex]
-        let node = tree.get(treePosition)
-
-        function* listNodes() {
-            let iterator = tree.listNodesHorizontally(treePosition, step)
-            iterator.next()
-
-            yield* iterator
-
-            let node = step > 0
-                ? tree.root
-                : [...tree.getSection(tree.getHeight() - 1)].slice(-1)[0]
-
-            yield* tree.listNodesHorizontally(node.id, step)
-        }
-
-        for (node of listNodes()) {
-            if (node.id === treePosition || condition(node)) break
-        }
-
-        this.setCurrentTreePosition(tree, node.id)
-        this.setBusy(false)
-    }
-
-    async findHotspot(step) {
-        await this.findPosition(step, node => node.data.HO != null)
-    }
-
-    async findMove(step, {vertex = null, text = ''}) {
-        if (vertex == null && text.trim() === '') return
-        let point = vertex ? sgf.stringifyVertex(vertex) : null
-
-        await this.findPosition(step, node => {
-            let cond = (prop, value) => node.data[prop] != null
-                && node.data[prop][0].toLowerCase().includes(value.toLowerCase())
-
-            return (!point || ['B', 'W'].some(x => cond(x, point)))
-                && (!text || cond('C', text) || cond('N', text))
-        })
-    }
 
     // Node Actions
 
@@ -941,7 +837,7 @@ class App extends Component {
         }
     }
 
-    // BUGOUT: use me
+    // BUGOUT calls this
     setGameInfo(tree, data) {
         let newTree = tree.mutate(draft => {
             if ('size' in data) {
@@ -1037,442 +933,6 @@ class App extends Component {
         })
 
         this.setCurrentTreePosition(newTree, treePosition)
-    }
-
-    getComment(tree, treePosition) {
-        let {data} = tree.get(treePosition)
-
-        return {
-            title: data.N != null ? data.N[0].trim() : null,
-            comment: data.C != null ? data.C[0] : null,
-            hotspot: data.HO != null,
-            moveAnnotation: data.BM != null ? 'BM'
-                : data.TE != null ? 'TE'
-                : data.DO != null ? 'DO'
-                : data.IT != null ? 'IT'
-                : null,
-            positionAnnotation: data.UC != null ? 'UC'
-                : data.GW != null ? 'GW'
-                : data.DM != null ? 'DM'
-                : data.GB != null ? 'GB'
-                : null
-        }
-    }
-
-    setComment(tree, treePosition, data) {
-        let newTree = tree.mutate(draft => {
-            for (let [key, prop] of [['title', 'N'], ['comment', 'C']]) {
-                if (key in data) {
-                    if (data[key] && data[key] !== '') {
-                        draft.updateProperty(treePosition, prop, [data[key]])
-                    } else {
-                        draft.removeProperty(treePosition, prop)
-                    }
-                }
-            }
-
-            if ('hotspot' in data) {
-                if (data.hotspot) {
-                    draft.updateProperty(treePosition, 'HO', ['1'])
-                } else {
-                    draft.removeProperty(treePosition, 'HO')
-                }
-            }
-
-            let clearProperties = properties => properties.forEach(p => draft.removeProperty(treePosition, p))
-
-            if ('moveAnnotation' in data) {
-                let moveProps = {'BM': '1', 'DO': '', 'IT': '', 'TE': '1'}
-                clearProperties(Object.keys(moveProps))
-
-                if (data.moveAnnotation != null) {
-                    draft.updateProperty(treePosition, data.moveAnnotation, [
-                        moveProps[data.moveAnnotation]
-                    ])
-                }
-            }
-
-            if ('positionAnnotation' in data) {
-                let positionProps = {'UC': '1', 'GW': '1', 'GB': '1', 'DM': '1'}
-                clearProperties(Object.keys(positionProps))
-
-                if (data.positionAnnotation != null) {
-                    draft.updateProperty(treePosition, data.positionAnnotation, [
-                        positionProps[data.positionAnnotation]
-                    ])
-                }
-            }
-        })
-
-        this.setCurrentTreePosition(newTree, treePosition)
-    }
-
-    rotateBoard(anticlockwise) {
-    }
-
-    flipBoard(horizontal) {
-    }
-
-    invertColors() {
-    }
-
-    copyVariation(tree, treePosition) {
-        let node = tree.get(treePosition)
-        let copy = {
-            id: node.id,
-            data: Object.assign({}, node.data),
-            parentId: null,
-            children: node.children
-        }
-
-        let stripProperties = setting.get('edit.copy_variation_strip_props')
-
-        for (let prop of stripProperties) {
-            delete copy.data[prop]
-        }
-
-        this.copyVariationData = copy
-    }
-
-    cutVariation(tree, treePosition) {
-        this.copyVariation(tree, treePosition)
-        this.removeNode(tree, treePosition, {suppressConfirmation: true})
-    }
-
-    pasteVariation(tree, treePosition) {
-        if (this.copyVariationData == null) return
-
-        this.closeDrawer()
-        this.setMode('play')
-
-        let newPosition
-        let copied = this.copyVariationData
-        let newTree = tree.mutate(draft => {
-            let inner = (id, children) => {
-                let childIds = []
-
-                for (let child of children) {
-                    let childId = draft.appendNode(id, child.data)
-                    childIds.push(childId)
-
-                    inner(childId, child.children)
-                }
-
-                return childIds
-            }
-
-            newPosition = inner(treePosition, [copied])[0]
-        })
-
-        this.setCurrentTreePosition(newTree, newPosition)
-    }
-
-    flattenVariation(tree, treePosition) {
-        this.closeDrawer()
-        this.setMode('play')
-
-        let {gameTrees} = this.state
-        let gameIndex = gameTrees.findIndex(t => t.root.id === tree.root.id)
-        if (gameIndex < 0) return
-
-        let board = gametree.getBoard(tree, treePosition)
-        let playerSign = this.getPlayer(tree, treePosition)
-        let inherit = setting.get('edit.flatten_inherit_root_props')
-
-        let newTree = tree.mutate(draft => {
-            draft.makeRoot(treePosition)
-
-            for (let prop of ['AB', 'AW', 'AE', 'B', 'W']) {
-                draft.removeProperty(treePosition, prop)
-            }
-
-            for (let prop of inherit) {
-                draft.updateProperty(treePosition, prop, tree.root.data[prop])
-            }
-
-            for (let x = 0; x < board.width; x++) {
-                for (let y = 0; y < board.height; y++) {
-                    let sign = board.get([x, y])
-                    if (sign == 0) continue
-
-                    draft.addToProperty(treePosition, sign > 0 ? 'AB' : 'AW', sgf.stringifyVertex([x, y]))
-                }
-            }
-        })
-
-        this.setState({gameTrees: gameTrees.map((t, i) => i === gameIndex ? newTree : t)})
-        this.setCurrentTreePosition(newTree, newTree.root.id)
-        this.setPlayer(newTree, treePosition, playerSign)
-    }
-
-    makeMainVariation(tree, treePosition) {
-        this.closeDrawer()
-        this.setMode('play')
-
-        let {gameCurrents, gameTrees} = this.state
-        let gameIndex = gameTrees.findIndex(t => t.root.id === tree.root.id)
-        if (gameIndex < 0) return
-
-        let newTree = tree.mutate(draft => {
-            let id = treePosition
-
-            while (id != null) {
-                draft.shiftNode(id, 'main')
-                id = draft.get(id).parentId
-            }
-        })
-
-        gameCurrents[gameIndex] = {}
-        this.setState({gameCurrents})
-        this.setCurrentTreePosition(newTree, treePosition)
-    }
-
-    shiftVariation(tree, treePosition, step) {
-        this.closeDrawer()
-        this.setMode('play')
-
-        let shiftNode = null
-        for (let node of tree.listNodesVertically(treePosition, -1, {})) {
-            let parent = tree.get(node.parentId)
-
-            if (parent.children.length >= 2) {
-                shiftNode = node
-                break
-            }
-        }
-
-        if (shiftNode == null) return
-
-        let newTree = tree.mutate(draft => {
-            draft.shiftNode(shiftNode.id, step >= 0 ? 'right' : 'left')
-        })
-
-        this.setCurrentTreePosition(newTree, treePosition)
-    }
-
-    removeNode(tree, treePosition, {suppressConfirmation = false} = {}) {}
-
-    removeOtherVariations(tree, treePosition, {suppressConfirmation = false} = {}) {
-        let t = i18n.context('app.node')
-
-        if (
-            suppressConfirmation !== true
-            && setting.get('edit.show_removeothervariations_warning')
-            && dialog.showMessageBox(
-                t('Do you really want to remove all other variations?'),
-                'warning',
-                [t('Remove Variations'), t('Cancel')], 1
-            ) == 1
-        ) return
-
-        this.closeDrawer()
-        this.setMode('play')
-
-        let {gameCurrents, gameTrees} = this.state
-        let gameIndex = gameTrees.findIndex(t => t.root.id === tree.root.id)
-        if (gameIndex < 0) return
-
-        let newTree = tree.mutate(draft => {
-            // Remove all subsequent variations
-
-            for (let node of tree.listNodesVertically(treePosition, 1, gameCurrents[gameIndex])) {
-                if (node.children.length <= 1) continue
-
-                let next = tree.navigate(node.id, 1, gameCurrents[gameIndex])
-
-                for (let child of node.children) {
-                    if (child.id === next.id) continue
-                    draft.removeNode(child.id)
-                }
-            }
-
-            // Remove all precedent variations
-
-            let prevId = treePosition
-
-            for (let node of tree.listNodesVertically(treePosition, -1, {})) {
-                if (node.id !== prevId && node.children.length > 1) {
-                    gameCurrents[gameIndex][node.id] = prevId
-
-                    for (let child of node.children) {
-                        if (child.id === prevId) continue
-                        draft.removeNode(child.id)
-                    }
-                }
-
-                prevId = node.id
-            }
-        })
-
-        this.setState({gameCurrents})
-        this.setCurrentTreePosition(newTree, treePosition)
-    }
-
-    // Menus
-
-    openNodeMenu(tree, treePosition, {x, y} = {}) {
-        if (this.state.mode === 'scoring') return
-
-        let t = i18n.context('menu.edit')
-        let template = [
-            {
-                label: t('&Copy Variation'),
-                click: () => this.copyVariation(tree, treePosition)
-            },
-            {
-                label: t('Cu&t Variation'),
-                click: () => this.cutVariation(tree, treePosition)
-            },
-            {
-                label: t('&Paste Variation'),
-                click: () => this.pasteVariation(tree, treePosition)
-            },
-            {type: 'separator'},
-            {
-                label: t('Make Main &Variation'),
-                click: () => this.makeMainVariation(tree, treePosition)
-            },
-            {
-                label: t('Shift &Left'),
-                click: () => this.shiftVariation(tree, treePosition, -1)
-            },
-            {
-                label: t('Shift Ri&ght'),
-                click: () => this.shiftVariation(tree, treePosition, 1)
-            },
-            {type: 'separator'},
-            {
-                label: t('&Flatten'),
-                click: () => this.flattenVariation(tree, treePosition)
-            },
-            {
-                label: t('&Remove Node'),
-                click: () => this.removeNode(tree, treePosition)
-            },
-            {
-                label: t('Remove &Other Variations'),
-                click: () => this.removeOtherVariations(tree, treePosition)
-            }
-        ]
-
-        helper.popupMenu(template, x, y)
-    }
-
-    openCommentMenu(tree, treePosition, {x, y} = {}) {
-        let t = i18n.context('menu.comment')
-        let node = tree.get(treePosition)
-
-        let template = [
-            {
-                label: t('&Clear Annotations'),
-                click: () => {
-                    this.setComment(tree, treePosition, {positionAnnotation: null, moveAnnotation: null})
-                }
-            },
-            {type: 'separator'},
-            {
-                label: t('Good for &Black'),
-                type: 'checkbox',
-                data: {positionAnnotation: 'GB'}
-            },
-            {
-                label: t('&Unclear Position'),
-                type: 'checkbox',
-                data: {positionAnnotation: 'UC'}
-            },
-            {
-                label: t('&Even Position'),
-                type: 'checkbox',
-                data: {positionAnnotation: 'DM'}
-            },
-            {
-                label: t('Good for &White'),
-                type: 'checkbox',
-                data: {positionAnnotation: 'GW'}
-            }
-        ]
-
-        if (node.data.B != null || node.data.W != null) {
-            template.push(
-                {type: 'separator'},
-                {
-                    label: t('&Good Move'),
-                    type: 'checkbox',
-                    data: {moveAnnotation: 'TE'}
-                },
-                {
-                    label: t('&Interesting Move'),
-                    type: 'checkbox',
-                    data: {moveAnnotation: 'IT'}
-                },
-                {
-                    label: t('&Doubtful Move'),
-                    type: 'checkbox',
-                    data: {moveAnnotation: 'DO'}
-                },
-                {
-                    label: t('B&ad Move'),
-                    type: 'checkbox',
-                    data: {moveAnnotation: 'BM'}
-                }
-            )
-        }
-
-        template.push(
-            {type: 'separator'},
-            {
-                label: t('&Hotspot'),
-                type: 'checkbox',
-                data: {hotspot: true}
-            }
-        )
-
-        for (let item of template) {
-            if (!('data' in item)) continue
-
-            let [key] = Object.keys(item.data)
-            let prop = key === 'hotspot' ? 'HO' : item.data[key]
-
-            item.checked = node.data[prop] != null
-            if (item.checked) item.data[key] = null
-
-            item.click = () => this.setComment(tree, treePosition, item.data)
-        }
-
-        helper.popupMenu(template, x, y)
-    }
-
-    openVariationMenu(sign, variation, {x, y, appendSibling = false, startNodeProperties = {}} = {}) {
-        let t = i18n.context('menu.variation')
-        let {gameTrees, gameIndex, treePosition} = this.state
-        let tree = gameTrees[gameIndex]
-
-        helper.popupMenu([{
-            label: t('&Add Variation'),
-            click: () => {
-                let isRootNode = tree.get(treePosition).parentId == null
-
-                if (appendSibling && isRootNode) {
-                    dialog.showMessageBox(t('The root node cannot have sibling nodes.'), 'warning')
-                    return
-                }
-
-                let [color, opponent] = sign > 0 ? ['B', 'W'] : ['W', 'B']
-
-                let newTree = tree.mutate(draft => {
-                    let parentId = !appendSibling ? treePosition : tree.get(treePosition).parentId
-                    let variationData = variation.map((vertex, i) => Object.assign({
-                        [i % 2 === 0 ? color : opponent]: [sgf.stringifyVertex(vertex)]
-                    }, i === 0 ? startNodeProperties : {}))
-
-                    for (let data of variationData) {
-                        parentId = draft.appendNode(parentId, data)
-                    }
-                })
-
-                this.setCurrentTreePosition(newTree, treePosition)
-            }
-        }], x, y)
     }
 
     // GTP Engines
@@ -1986,14 +1446,7 @@ class App extends Component {
             // ↑ BUGOUT ↑
 
             h(MainView, state),
-            h(DrawerManager, state),
-
-            h(InputBox, {
-                text: state.inputBoxText,
-                show: state.showInputBox,
-                onSubmit: state.onInputBoxSubmit,
-                onCancel: state.onInputBoxCancel
-            })
+            h(DrawerManager, state)
         )
     }
 }
