@@ -344,7 +344,6 @@ class Goban extends Component {
             paintMap,
             heatMap,
             lines,
-            selectedVertices: highlightVertices,
             dimmedVertices: dimmedStones,
 
             onVertexMouseUp: this.handleVertexMouseUp,

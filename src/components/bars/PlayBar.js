@@ -15,8 +15,6 @@ class PlayBar extends Component {
     constructor() {
         super()
 
-        this.handleCurrentPlayerClick = () => this.props.onCurrentPlayerClick
-
         this.handlePassClick = () => {
             let autoGenmove = setting.get('gtp.auto_genmove')
             sabaki.makeMove([-1, -1], {sendToEngine: autoGenmove})
@@ -80,9 +78,7 @@ class PlayBar extends Component {
         playerRanks,
         playerCaptures,
         currentPlayer,
-        showHotspot,
-
-        onCurrentPlayerClick = helper.noop
+        showHotspot
     }) {
         let captureStyle = index => ({opacity: playerCaptures[index] === 0 ? 0 : .7})
         let isEngine = Array(attachedEngines.length).fill(false)

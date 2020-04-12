@@ -10,65 +10,17 @@ class MainView extends Component {
     constructor(props) {
         super(props)
 
-        this.handleTogglePlayer = () => {
-            let {gameTree, treePosition, currentPlayer} = this.props
-            sabaki.setPlayer(gameTree, treePosition, -currentPlayer)
-        }
-
-        this.handleToolButtonClick = evt => {
-            sabaki.setState({selectedTool: evt.tool})
-        }
-
-        this.handleFindButtonClick = evt => sabaki.findMove(evt.step, {
-            vertex: this.props.findVertex,
-            text: this.props.findText
-        })
-
         this.handleGobanVertexClick = this.handleGobanVertexClick.bind(this)
-        this.handleGobanLineDraw = this.handleGobanLineDraw.bind(this)
-    }
-
-    componentDidMount() {
-        // Pressing Ctrl/Cmd should show crosshair cursor on Goban in edit mode
-
-        document.addEventListener('keydown', evt => {
-            if (evt.key !== 'Control' || evt.key !== 'Meta') return
-
-            if (this.props.mode === 'edit') {
-                this.setState({gobanCrosshair: true})
-            }
-        })
-
-        document.addEventListener('keyup', evt => {
-            if (evt.key !== 'Control' || evt.key !== 'Meta') return
-
-            if (this.props.mode === 'edit') {
-                this.setState({gobanCrosshair: false})
-            }
-        })
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.mode !== 'edit') {
-            this.setState({gobanCrosshair: false})
-        }
     }
 
     handleGobanVertexClick(evt) {
         sabaki.clickVertex(evt.vertex, evt)
     }
 
-    handleGobanLineDraw(evt) {
-        let {v1, v2} = evt.line
-        sabaki.useTool(this.props.selectedTool, v1, v2)
-        sabaki.editVertexData = null
-    }
 
     render({
         mode,
-        gameIndex,
         gameTree,
-        gameCurrents,
         treePosition,
         currentPlayer,
         gameInfo,
@@ -82,9 +34,7 @@ class MainView extends Component {
         playVariation,
         analysis,
         areaMap,
-        blockedGuesses,
 
-        highlightVertices,
         showCoordinates,
         showMoveColorization,
         showMoveNumbers,
@@ -92,10 +42,6 @@ class MainView extends Component {
         showSiblings,
         fuzzyStonePlacement,
         animateStonePlacement,
-
-        selectedTool,
-        findText,
-        findVertex,
 
         showLeftSidebar,
         showSidebar,
@@ -112,12 +58,6 @@ class MainView extends Component {
 
         if (['scoring', 'estimator'].includes(mode)) {
             paintMap = areaMap
-        } else if (mode === 'guess') {
-            paintMap = [...Array(board.height)].map(_ => Array(board.width).fill(0))
-
-            for (let [x, y] of blockedGuesses) {
-                paintMap[y][x] = 1
-            }
         }
 
         return h('section',
@@ -136,9 +76,7 @@ class MainView extends Component {
                     gameTree,
                     treePosition,
                     board,
-                    highlightVertices: findVertex && mode === 'find'
-                        ? [findVertex]
-                        : highlightVertices,
+                    highlightVertices: false,
                     analysis: mode === 'play'
                         && analysisTreePosition != null
                         && analysisTreePosition === treePosition
@@ -150,18 +88,16 @@ class MainView extends Component {
                     crosshair: gobanCrosshair,
                     showCoordinates,
                     showMoveColorization,
-                    showMoveNumbers: mode !== 'edit' && showMoveNumbers,
-                    showNextMoves: mode !== 'guess' && showNextMoves,
-                    showSiblings: mode !== 'guess' && showSiblings,
+                    showMoveNumbers,
+                    showNextMoves,
+                    showSiblings,
                     fuzzyStonePlacement,
                     animateStonePlacement,
 
                     playVariation,
-                    drawLineMode: mode === 'edit' && ['arrow', 'line'].includes(selectedTool)
-                        ? selectedTool : null,
+                    drawLineMode: null,
 
-                    onVertexClick: this.handleGobanVertexClick,
-                    onLineDraw: this.handleGobanLineDraw
+                    onVertexClick: this.handleGobanVertexClick
                 })
             ),
 
@@ -174,8 +110,7 @@ class MainView extends Component {
                     playerRanks: gameInfo.playerRanks,
                     playerCaptures: board.captures,
                     currentPlayer,
-                    showHotspot: node.data.HO != null,
-                    onCurrentPlayerClick: this.handleTogglePlayer
+                    showHotspot: node.data.HO != null
                 }),
 
                 h(ScoringBar, {

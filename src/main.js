@@ -1,4 +1,4 @@
-const {app, shell, dialog, ipcMain, BrowserWindow, Menu} = require('electron')
+const {app, ipcMain, BrowserWindow, Menu} = require('electron')
 const {join} = require('path')
 const i18n = require('./i18n')
 const setting = require('./setting')
@@ -87,19 +87,6 @@ function buildMenu(props = {}) {
     }
 
     Menu.setApplicationMenu(Menu.buildFromTemplate(processMenu(template)))
-
-    // Create dock menu
-
-    let dockMenu = Menu.buildFromTemplate([
-        {
-            label: i18n.t('menu.file', 'New &Window'),
-            click: () => newWindow()
-        }
-    ])
-
-    if (process.platform === 'darwin') {
-        app.dock.setMenu(dockMenu)
-    }
 }
 
 ipcMain.on('new-window', (evt, ...args) => newWindow(...args))
@@ -116,14 +103,6 @@ app.on('window-all-closed', () => {
 app.on('ready', () => {
     isReady = true
 
-    if (!openfile && process.argv.length >= 2) {
-        if (!process.argv[0].endsWith('electron.exe') && !process.argv[0].endsWith('electron')) {
-            openfile = process.argv[1]
-        } else if (process.argv.length >= 3) {
-            openfile = process.argv[2]
-        }
-    }
-
     newWindow(openfile)
 })
 
@@ -139,23 +118,4 @@ app.on('open-file', (evt, path) => {
     } else {
         newWindow(path)
     }
-})
-
-process.on('uncaughtException', err => {
-    let t = i18n.context('exception')
-
-    dialog.showErrorBox(
-        t(p => `${p.appName} v${p.version}`, {
-            appName: app.getName(),
-            version: app.getVersion()
-        }),
-        t(p => [
-            `Something weird happened. ${p.appName} will shut itself down.`,
-            `If possible, please report this on ${p.appName}’s repository on GitHub.`
-        ].join(' '), {
-            appName: app.getName()
-        }) + '\n\n' + err.stack
-    )
-
-    process.exit(1)
 })
