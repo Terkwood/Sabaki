@@ -49,18 +49,3 @@ exports.showSaveDialog = function(options, callback) {
     element.click()
     element.remove()
 }
-
-exports.showInputBox = function(message, onSubmit = helper.noop, onCancel = helper.noop) {
-    sabaki.setState({
-        inputBoxText: message,
-        showInputBox: true,
-        onInputBoxSubmit: onSubmit,
-        onInputBoxCancel: onCancel
-    })
-}
-
-exports.closeInputBox = function() {
-    let {onInputBoxCancel = helper.noop} = sabaki.state
-    sabaki.setState({showInputBox: false})
-    onInputBoxCancel()
-}

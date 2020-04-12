@@ -38,13 +38,3 @@ On the web version, please specify the following options:
 * `type` `<String>` - MIME type
 * `name` `<String>` - Name of the file
 * `content` `<String>` - The text content of the file
-
-### dialog.showInputBox(message[, onSubmit[, onCancel]])
-
-* `message` `<String>`
-* `onSubmit` `<Function>` *(optional)*
-    * `evt` `<Object>`
-        * `value` `<String>`
-* `onCancel` `<Function>` *(optional)*
-
-### dialog.closeInputBox()

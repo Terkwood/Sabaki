@@ -7,7 +7,6 @@ const classNames = require('classnames')
 
 const MainView = require('./MainView')
 const DrawerManager = require('./DrawerManager')
-const InputBox = require('./InputBox')
 
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
 import BoardSizeModal from './bugout/BoardSizeModal'
@@ -104,15 +103,7 @@ class App extends Component {
             analysis: null,
 
             // Drawers
-
-            preferencesTab: 'general',
-
-            // Input Box
-
-            showInputBox: false,
-            inputBoxText: '',
-            onInputBoxSubmit: helper.noop,
-            onInputBoxCancel: helper.noop,
+            preferencesTab: 'general'
         }
 
         this.events = new EventEmitter()
@@ -1107,12 +1098,6 @@ class App extends Component {
         this.setCurrentTreePosition(newTree, treePosition)
     }
 
-    rotateBoard(anticlockwise) {
-    }
-
-    flipBoard(horizontal) {
-    }
-
     invertColors() {
     }
 
@@ -1986,14 +1971,7 @@ class App extends Component {
             // ↑ BUGOUT ↑
 
             h(MainView, state),
-            h(DrawerManager, state),
-
-            h(InputBox, {
-                text: state.inputBoxText,
-                show: state.showInputBox,
-                onSubmit: state.onInputBoxSubmit,
-                onCancel: state.onInputBoxCancel
-            })
+            h(DrawerManager, state)
         )
     }
 }
