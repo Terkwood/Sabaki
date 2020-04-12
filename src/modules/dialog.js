@@ -1,16 +1,11 @@
 const {h, render} = require('preact')
-const helper = require('./helper')
+
 const t = require('../i18n').context('dialog')
 
 let hiddenStyle = {
     opacity: 0,
     pointerEvents: 'none'
 }
-
-let fileInput = render(h('input', {
-    type: 'file',
-    style: hiddenStyle
-}), document.body)
 
 exports.showMessageBox = function(message, type = 'info', buttons = [t('OK')], cancelId = 0) {
     if (buttons.length <= 1) {
