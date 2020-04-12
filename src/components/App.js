@@ -128,7 +128,7 @@ class App extends Component {
         setting.events.on('change', ({key}) => this.updateSettingState(key))
         this.updateSettingState()
 
-        console.log('Welcome to Sabaki - BUGOUT Slim Edition')
+        console.log('Welcome to Sabaki - BUGOUT Mini Edition')
     }
 
     componentDidMount() {
@@ -548,44 +548,6 @@ class App extends Component {
                     let color = this.inferredState.currentPlayer > 0 ? 'B' : 'W'
                     if (this.state.multiplayer && this.state.multiplayer.yourColor && this.state.multiplayer.yourColor.event && this.state.multiplayer.yourColor.event.yourColor && color === this.state.multiplayer.yourColor.event.yourColor[0]) {
                         this.makeMove(vertex, {sendToEngine: autoGenmove})
-                    }
-                } else if (
-                    board.markers[vy][vx] != null
-                    && board.markers[vy][vx].type === 'point'
-                    && setting.get('edit.click_currentvertex_to_remove')
-                ) {
-                    this.removeNode(tree, treePosition)
-                }
-            } else if (button === 2) {
-                if (
-                    board.markers[vy][vx] != null
-                    && board.markers[vy][vx].type === 'point'
-                ) {
-                    // Show annotation context menu
-
-                    this.openCommentMenu(tree, treePosition, {x, y})
-                } else if (this.state.analysis != null) {
-                    // Show analysis context menu
-
-                    let data = this.state.analysis.find(x => helper.vertexEquals(x.vertex, vertex))
-
-                    if (data != null) {
-                        let maxVisitsWin = Math.max(...this.state.analysis.map(x => x.visits * x.win))
-                        let strength = Math.round(data.visits * data.win * 8 / maxVisitsWin) + 1
-                        let annotationProp = strength >= 8 ? 'TE'
-                            : strength >= 5 ? 'IT'
-                            : strength >= 3 ? 'DO'
-                            : 'BM'
-                        let annotationValues = {'BM': '1', 'DO': '', 'IT': '', 'TE': '1'}
-                        let winrate = Math.round((data.sign > 0 ? data.win : 100 - data.win) * 100) / 100
-
-                        this.openVariationMenu(data.sign, data.variation, {
-                            x, y,
-                            startNodeProperties: {
-                                [annotationProp]: [annotationValues[annotationProp]],
-                                SBKV: [winrate.toString()]
-                            }
-                        })
                     }
                 }
             }
