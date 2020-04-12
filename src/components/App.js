@@ -33,7 +33,6 @@ const EngineSyncer = require('../modules/enginesyncer')
 const dialog = require('../modules/dialog')
 const fileformats = require('../modules/fileformats')
 const gametree = require('../modules/gametree')
-const gtplogger = require('../modules/gtplogger')
 const helper = require('../modules/helper')
 const setting = remote.require('./setting')
 const sound = require('../modules/sound')
@@ -386,12 +385,10 @@ class App extends Component {
         })
     }
 
-    async newFile({playSound = false, showInfo = false, suppressAskForSave = false} = {}) {
-        if (!suppressAskForSave && !this.askForSave()) return
-
+    async newFile({playSound = false, showInfo = false} = {}) {
         let emptyTree = this.getEmptyGameTree()
 
-        await this.loadGameTrees([emptyTree], {suppressAskForSave: true})
+        await this.loadGameTrees([emptyTree], {})
 
         if (showInfo) this.openDrawer('info')
         if (playSound) sound.playNewGame()
@@ -427,11 +424,7 @@ class App extends Component {
         this.setBusy(false)
     }
 
-    async loadGameTrees(gameTrees, {suppressAskForSave = false, clearHistory = true} = {}) {
-        gtplogger.rotate()
-
-        if (!suppressAskForSave && !this.askForSave()) return
-
+    async loadGameTrees(gameTrees, {clearHistory = true} = {}) {
         this.setBusy(true)
         if (this.state.openDrawer !== 'gamechooser') this.closeDrawer()
         this.setMode('play')
@@ -467,7 +460,7 @@ class App extends Component {
         }
     }
 
-    saveFile(filename = null) {
+    saveFile() {
         dialog.showSaveDialog({
             type: 'application/x-go-sgf',
             name: this.state.representedFilename || 'game.sgf',
@@ -916,14 +909,6 @@ class App extends Component {
             return
         }
 
-        if (engines != null && engines.some(x => x != null)) {
-            // Only load the logger when actually attaching engines (not detaching):
-            // This is necessary since loadGameTrees() rotates to a new log, and
-            // we need to wait for the previous engines to finish logging
-
-            gtplogger.updatePath()
-        }
-
         let quitTimeout = setting.get('gtp.engine_quit_timeout')
 
         for (let i = 0; i < attachedEngines.length; i++) {
@@ -969,13 +954,6 @@ class App extends Component {
                 })
 
                 syncer.controller.on('command-sent', evt => {
-                    gtplogger.write({
-                        type: 'stdin',
-                        message: gtp.Command.toString(evt.command),
-                        sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
-                        engine: engine.name
-                    })
-
                     if (evt.command.name === 'list_commands') {
                         evt.getResponse().then(response =>
                             this.setState(({engineCommands}) => {
@@ -990,37 +968,6 @@ class App extends Component {
                     this.handleCommandSent(Object.assign({syncer}, evt))
                 })
 
-                syncer.controller.on('stderr', ({content}) => {
-                    gtplogger.write({
-                        type: 'stderr',
-                        message: content,
-                        sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
-                        engine: engine.name
-                    })
-                })
-
-                syncer.controller.on('started', () => {
-                    gtplogger.write({
-                        type: 'meta',
-                        message: 'Engine Started',
-                        sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
-                        engine: engine.name
-                    })
-                })
-
-                syncer.controller.on('stopped', () => this.setState(({engineCommands}) => {
-                    gtplogger.write({
-                        type: 'meta',
-                        message: 'Engine Stopped',
-                        sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
-                        engine: engine.name
-                    })
-
-                    let j = this.attachedEngineSyncers.indexOf(syncer)
-                    engineCommands[j] = []
-
-                    return {engineCommands}
-                }))
 
                 syncer.controller.start()
             } catch (err) {
@@ -1039,13 +986,6 @@ class App extends Component {
     suspendEngines() {
         for (let syncer of this.attachedEngineSyncers) {
             if (syncer != null) {
-                gtplogger.write({
-                    type: 'meta',
-                    message: 'Engine Suspending',
-                    sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
-                    engine: syncer.engine.name
-                })
-
                 syncer.controller.kill()
             }
         }
@@ -1070,13 +1010,6 @@ class App extends Component {
             updateEntry({
                 response: Object.assign({}, response),
                 waiting: !end
-            })
-
-            gtplogger.write({
-                type: 'stdout',
-                message: line,
-                sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
-                engine: syncer.engine.name
             })
 
             // Parse analysis info
@@ -1136,13 +1069,6 @@ class App extends Component {
 
         getResponse()
         .catch(_ => {
-            gtplogger.write({
-                type: 'meta',
-                message: 'Connection Failed',
-                sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
-                engine: syncer.engine.name
-            })
-
             updateEntry({
                 response: {internal: true, content: t('connection failed')},
                 waiting: false
