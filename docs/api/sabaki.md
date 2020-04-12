@@ -246,25 +246,6 @@ Updates the tree and jumps to the given `treePosition`. Make sure the root id of
 
 * `step` `<Integer>`
 
-### Find Methods
-
-#### async sabaki.findPosition(step, condition)
-
-* `step` `<Integer>`
-* `condition` `<Function>`
-
-#### async sabaki.findHotspot(step)
-
-* `step` `<Integer>`
-* `callback` `<Function>` *(optional)*
-
-#### async sabaki.findMove(step, data)
-
-* `step` `<Integer>`
-* `data` `<Object>`
-    * `vertex` [`<Vertex>`](vertex.md) *(optional)*
-    * `text` `<String>` *(optional)*
-
 ### Node Actions
 
 #### sabaki.getGameInfo(tree)
