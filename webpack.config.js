@@ -49,16 +49,10 @@ module.exports = (env, argv) => ({
             '../../i18n': path.join(__dirname, 'src/modules/shims/i18n'),
             '../menu': emptyPath,
 
-            './ThemeManager': noopPath,
-            './LeftSidebar': noopPath,
             './GtpConsole': noopPath,
             './TextSpinner': noopPath,
             '../TextSpinner': noopPath,
-            './drawers/AdvancedPropertiesDrawer': noopPath,
-            './drawers/PreferencesDrawer': noopPath,
-            './drawers/CleanMarkupDrawer': noopPath,
-            './bars/AutoplayBar': noopPath,
-            './bars/GuessBar': noopPath
+            './bars/AutoplayBar': noopPath
         }
     },
 
