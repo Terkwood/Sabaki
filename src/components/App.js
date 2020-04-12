@@ -5,11 +5,9 @@ const {app} = remote
 const {h, render, Component} = require('preact')
 const classNames = require('classnames')
 
-const ThemeManager = require('./ThemeManager')
 const MainView = require('./MainView')
 const DrawerManager = require('./DrawerManager')
 const InputBox = require('./InputBox')
-const BusyScreen = require('./BusyScreen')
 const InfoOverlay = require('./InfoOverlay')
 
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
@@ -2467,7 +2465,6 @@ class App extends Component {
             h(OpponentQuitModal),
             // ↑ BUGOUT ↑
 
-            h(ThemeManager),
             h(MainView, state),
             h(DrawerManager, state),
 
@@ -2478,7 +2475,6 @@ class App extends Component {
                 onCancel: state.onInputBoxCancel
             }),
 
-            h(BusyScreen, {show: state.busy > 0}),
             h(InfoOverlay, {text: state.infoOverlayText, show: state.showInfoOverlay})
         )
     }
