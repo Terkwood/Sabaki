@@ -844,66 +844,7 @@ class App extends Component {
 
         this.events.emit('navigate')
     }
-
-    goStep(step) {
-        let {gameTrees, gameIndex, gameCurrents, treePosition} = this.state
-        let tree = gameTrees[gameIndex]
-        let node = tree.navigate(treePosition, step, gameCurrents[gameIndex])
-        if (node != null) this.setCurrentTreePosition(tree, node.id)
-    }
-
-    goToBeginning() {
-        let {gameTrees, gameIndex} = this.state
-        let tree = gameTrees[gameIndex]
-
-        this.setCurrentTreePosition(tree, tree.root.id)
-    }
-
-    goToEnd() {
-        let {gameTrees, gameIndex, gameCurrents} = this.state
-        let tree = gameTrees[gameIndex]
-        let [node] = [...tree.listCurrentNodes(gameCurrents[gameIndex])].slice(-1)
-
-        this.setCurrentTreePosition(tree, node.id)
-    }
-
-    goToSiblingVariation(step) {
-        let {gameTrees, gameIndex, treePosition} = this.state
-        let tree = gameTrees[gameIndex]
-        let section = [...tree.getSection(tree.getLevel(treePosition))]
-        let index = section.findIndex(node => node.id === treePosition)
-        let newIndex = ((step + index) % section.length + section.length) % section.length
-
-        this.setCurrentTreePosition(tree, section[newIndex].id)
-    }
-
-    goToMainVariation() {
-        let {gameTrees, gameIndex, gameCurrents, treePosition} = this.state
-        let tree = gameTrees[gameIndex]
-
-        gameCurrents[gameIndex] = {}
-        this.setState({gameCurrents})
-
-        if (tree.onMainLine(treePosition)) {
-            this.setCurrentTreePosition(tree, treePosition)
-        } else {
-            let id = treePosition
-            while (!tree.onMainLine(id)) {
-                id = tree.get(id).parentId
-            }
-
-            this.setCurrentTreePosition(tree, id)
-        }
-    }
-
-    goToSiblingGame(step) {
-        let {gameTrees, gameIndex} = this.state
-        let newIndex = Math.max(0, Math.min(gameTrees.length - 1, gameIndex + step))
-
-        this.closeDrawer()
-        this.setCurrentTreePosition(gameTrees[newIndex], gameTrees[newIndex].root.id)
-    }
-
+    
     // 😇 BUGOUT trimmed 😇
     
     // Find Methods
