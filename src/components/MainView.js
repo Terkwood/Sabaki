@@ -89,6 +89,8 @@ class MainView extends Component {
                     showCoordinates,
                     showMoveColorization,
                     showMoveNumbers,
+                    showNextMoves,
+                    showSiblings,
                     fuzzyStonePlacement,
                     animateStonePlacement,
 
