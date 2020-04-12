@@ -88,10 +88,6 @@ class App extends Component {
             animateStonePlacement: null,
 
             // Sidebar
-
-            consoleLog: [],
-            showConsole: setting.get('view.show_leftsidebar'),
-            leftSidebarWidth: setting.get('view.leftsidebar_width'),
             showGameGraph: false, // 😇BUGOUT😇
             showCommentBox: false, // 😇BUGOUT😇
             sidebarWidth: 120, // 😇BUGOUT😇
@@ -367,30 +363,6 @@ class App extends Component {
         this.setState(s => ({busy: Math.max(s.busy + diff, 0)}))
     }
 
-    showInfoOverlay(text) {
-        this.setState({
-            infoOverlayText: text,
-            showInfoOverlay: true
-        })
-    }
-
-    hideInfoOverlay() {
-        this.setState({showInfoOverlay: false})
-    }
-
-    flashInfoOverlay(text, duration = null) {
-        if (duration == null) duration = setting.get('infooverlay.duration')
-
-        this.showInfoOverlay(text)
-
-        clearTimeout(this.hideInfoOverlayId)
-        this.hideInfoOverlayId = setTimeout(() => this.hideInfoOverlay(), duration)
-    }
-
-    clearConsole() {
-        this.setState({consoleLog: []})
-    }
-
     // History Management
 
     recordHistory({prevGameIndex, prevTreePosition} = {}) {
@@ -541,7 +513,6 @@ class App extends Component {
 
         if (gameTrees.length > 0) {
             this.detachEngines()
-            this.clearConsole()
 
             this.setState({
                 representedFilename: null,
@@ -2024,15 +1995,6 @@ class App extends Component {
                         sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
                         engine: engine.name
                     })
-
-                    this.setState(({consoleLog}) => ({
-                        consoleLog: [...consoleLog, {
-                            sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
-                            name: engine.name,
-                            command: null,
-                            response: {content, internal: true}
-                        }]
-                    }))
                 })
 
                 syncer.controller.on('started', () => {
@@ -2098,18 +2060,9 @@ class App extends Component {
         let t = i18n.context('app.engine')
         let {treePosition} = this.state
         let entry = {sign, name: syncer.engine.name, command, waiting: true}
-        let maxLength = setting.get('console.max_history_count')
-
-        this.setState(({consoleLog}) => {
-            let newLog = consoleLog.slice(Math.max(consoleLog.length - maxLength + 1, 0))
-            newLog.push(entry)
-
-            return {consoleLog: newLog}
-        })
-
+        
         let updateEntry = update => {
             Object.assign(entry, update)
-            this.setState(({consoleLog}) => ({consoleLog}))
         }
 
         subscribe(({line, response, end}) => {
@@ -2392,8 +2345,6 @@ class App extends Component {
 
         this.inferredState = {
             gameTree: tree,
-            showSidebar: state.showGameGraph || state.showCommentBox,
-            showLeftSidebar: state.showConsole,
             gameInfo: this.getGameInfo(tree),
             currentPlayer: this.getPlayer(tree, treePosition),
             scoreBoard,
