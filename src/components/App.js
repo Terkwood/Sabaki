@@ -127,6 +127,8 @@ class App extends Component {
 
         setting.events.on('change', ({key}) => this.updateSettingState(key))
         this.updateSettingState()
+
+        console.log('Welcome to Sabaki - BUGOUT Slim Edition')
     }
 
     componentDidMount() {
@@ -139,10 +141,6 @@ class App extends Component {
         })
 
         this.window.on('focus', () => {
-            if (setting.get('file.show_reload_warning')) {
-                this.askForReload()
-            }
-
             this.buildMenu()
         })
 
@@ -168,9 +166,7 @@ class App extends Component {
 
         document.addEventListener('keydown', evt => {
             if (evt.key === 'Escape') {
-                if (this.state.generatingMoves) {
-                    this.stopGeneratingMoves()
-                } else if (this.state.openDrawer != null) {
+                if (this.state.openDrawer != null) {
                     this.closeDrawer()
                 } else if (this.state.mode !== 'play') {
                     this.setMode('play')
@@ -206,47 +202,11 @@ class App extends Component {
             title += ' — ' + t(p => `Game ${p.gameNumber}`, {
                 gameNumber: gameIndex + 1
             })
-        if (representedFilename && process.platform != 'darwin')
+        if (representedFilename)
             title += ' — ' + this.appName
 
         if (document.title !== title)
             document.title = title
-
-        // Handle full screen & menu bar
-        // TODO BUGOUT Cut
-        if (prevState.fullScreen !== this.state.fullScreen) {
-            this.window.setFullScreen(this.state.fullScreen)
-        }
-
-        // TODO BUGOUT cut
-        if (prevState.showMenuBar !== this.state.showMenuBar) {
-            this.window.setMenuBarVisibility(this.state.showMenuBar)
-            this.window.setAutoHideMenuBar(!this.state.showMenuBar)
-        }
-
-        // Handle sidebar showing/hiding
-
-        if (
-            prevState.showLeftSidebar !== this.state.showLeftSidebar
-            || prevState.showSidebar !== this.state.showSidebar
-        ) {
-            let [width, height] = this.window.getContentSize()
-            let widthDiff = 0
-
-            if (prevState.showSidebar !== this.state.showSidebar) {
-                widthDiff += this.state.sidebarWidth * (this.state.showSidebar ? 1 : -1)
-            }
-
-            if (prevState.showLeftSidebar !== this.state.showLeftSidebar) {
-                widthDiff += this.state.leftSidebarWidth * (this.state.showLeftSidebar ? 1 : -1)
-            }
-
-            if (!this.window.isMaximized() && !this.window.isMinimized() && !this.window.isFullScreen()) {
-                this.window.setContentSize(width + widthDiff, height)
-            }
-
-            window.dispatchEvent(new Event('resize'))
-        }
 
         // Handle zoom factor
 
@@ -258,7 +218,6 @@ class App extends Component {
     updateSettingState(key = null, {buildMenu = true} = {}) {
         let data = {
             'app.zoom_factor': 'zoomFactor',
-            'view.show_menubar': 'showMenuBar',
             'view.show_coordinates': 'showCoordinates',
             'view.show_move_colorization': 'showMoveColorization',
             'view.show_move_numbers': 'showMoveNumbers',
@@ -560,9 +519,6 @@ class App extends Component {
         }
 
         return true
-    }
-
-    askForReload() {
     }
 
     // Playing
