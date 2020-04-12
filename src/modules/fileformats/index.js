@@ -3,10 +3,8 @@ const {extname} = require('path')
 const t = require('../../i18n').context('fileformats')
 
 let sgf = require('./sgf')
-let ngf = require('./ngf')
-let gib = require('./gib')
 
-let modules = {sgf, ngf, gib}
+let modules = {sgf}
 
 exports = module.exports = Object.assign({}, modules)
 
