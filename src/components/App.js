@@ -159,10 +159,6 @@ class App extends Component {
             this.events.emit('ready')
         })
 
-        ipcRenderer.on('load-file', (evt, ...args) => {
-            setTimeout(() => this.loadFile(...args), setting.get('app.loadgame_delay'))
-        })
-
         this.window.on('focus', () => {
             if (setting.get('file.show_reload_warning')) {
                 this.askForReload()
@@ -502,67 +498,6 @@ class App extends Component {
 
         if (showInfo) this.openDrawer('info')
         if (playSound) sound.playNewGame()
-    }
-
-    async loadFile(file = null, {suppressAskForSave = false, clearHistory = true} = {}) {
-        if (!suppressAskForSave && !this.askForSave()) return
-
-        let t = i18n.context('app.file')
-
-        if (!file) {
-            dialog.showOpenDialog({
-                properties: ['openFile'],
-                filters: [
-                    ...fileformats.meta,
-                    {name: t('All Files'), extensions: ['*']}
-                ]
-            }, ({result}) => {
-                if (result) file = result[0]
-                if (file) this.loadFile(file, {suppressAskForSave: true, clearHistory})
-            })
-
-            return
-        }
-
-        this.setBusy(true)
-
-        let {extname} = require('path')
-        let extension = extname(file.name).slice(1)
-        let content = await new Promise((resolve, reject) =>
-            fs.readFile(file, (err, content) => err ? reject(err) : resolve(content))
-        )
-
-        let gameTrees = []
-        let success = true
-        let lastProgress = -1
-
-        try {
-            let fileFormatModule = fileformats.getModuleByExtension(extension)
-
-            gameTrees = fileFormatModule.parse(content, evt => {
-                if (evt.progress - lastProgress < 0.1) return
-                this.window.setProgressBar(evt.progress)
-                lastProgress = evt.progress
-            }, true)
-
-            if (gameTrees.length == 0) throw true
-        } catch (err) {
-            dialog.showMessageBox(t('This file is unreadable.'), 'warning')
-            success = false
-        }
-
-        if (success) {
-            await this.loadGameTrees(gameTrees, {suppressAskForSave: true, clearHistory})
-
-            this.setState({representedFilename: file.name})
-            this.fileHash = this.generateFileHash()
-
-            if (setting.get('game.goto_end_after_loading')) {
-                this.goToEnd()
-            }
-        }
-
-        this.setBusy(false)
     }
 
     async loadContent(content, extension, options = {}) {
