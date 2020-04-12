@@ -12,10 +12,6 @@ class Goban extends Component {
         this.handleVertexMouseUp = this.handleVertexMouseUp.bind(this)
         this.handleVertexMouseDown = this.handleVertexMouseDown.bind(this)
         this.handleVertexMouseMove = this.handleVertexMouseMove.bind(this)
-        this.handleVertexMouseEnter = this.handleVertexMouseEnter.bind(this)
-        this.handleVertexMouseLeave = this.handleVertexMouseLeave.bind(this)
-
-        this.componentWillReceiveProps()
     }
 
     componentDidMount() {
@@ -54,19 +50,6 @@ class Goban extends Component {
         }, 0)
     }
 
-    componentWillReceiveProps(nextProps = {}) {
-        if (nextProps.playVariation !== this.props.playVariation) {
-            if (nextProps.playVariation != null) {
-                let {sign, variation, sibling} = nextProps.playVariation
-
-                this.stopPlayingVariation()
-                this.playVariation(sign, variation, sibling)
-            } else {
-                this.stopPlayingVariation()
-            }
-        }
-    }
-
     handleVertexMouseDown(evt, vertex) {
         this.mouseDown = true
         this.startVertex = vertex
@@ -75,7 +58,7 @@ class Goban extends Component {
     handleVertexMouseUp(evt, vertex) {
         if (!this.mouseDown) return
 
-        let {onVertexClick = helper.noop, onLineDraw = helper.noop} = this.props
+        let {onVertexClick = helper.noop} = this.props
 
         this.mouseDown = false
         evt.vertex = vertex
@@ -83,7 +66,6 @@ class Goban extends Component {
         if (evt.x == null) evt.x = evt.clientX
         if (evt.y == null) evt.y = evt.clientY
 
-        this.stopPlayingVariation()
         onVertexClick(evt)
         
         this.setState({clicked: true})
@@ -109,10 +91,7 @@ class Goban extends Component {
 
         crosshair = false,
         showCoordinates = false,
-        showMoveColorization = true,
         showMoveNumbers = false,
-        showNextMoves = true,
-        showSiblings = true,
         fuzzyStonePlacement = true,
         animateStonePlacement = true,
 
@@ -185,17 +164,12 @@ class Goban extends Component {
 
             signMap,
             markerMap,
-            ghostStoneMap,
-            paintMap,
-            heatMap,
             lines,
             dimmedVertices: dimmedStones,
 
             onVertexMouseUp: this.handleVertexMouseUp,
             onVertexMouseDown: this.handleVertexMouseDown,
-            onVertexMouseMove: this.handleVertexMouseMove,
-            onVertexMouseEnter: this.handleVertexMouseEnter,
-            onVertexMouseLeave: this.handleVertexMouseLeave
+            onVertexMouseMove: this.handleVertexMouseMove
         })
     }
 }

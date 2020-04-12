@@ -21,7 +21,6 @@ import WaitForYourColorModal from './bugout/WaitForYourColorModal'
 import YourColorChosenModal from './bugout/YourColorChosenModal'
 
 const deadstones = require('@sabaki/deadstones')
-const gtp = require('@sabaki/gtp')
 const sgf = require('@sabaki/sgf')
 const influence = require('@sabaki/influence')
 
@@ -37,6 +36,8 @@ const helper = require('../modules/helper')
 const setting = remote.require('./setting')
 const sound = require('../modules/sound')
 const bugout = require('../modules/multiplayer/bugout')
+
+const EDITION = 'Friendly'
 
 class App extends Component {
     constructor() {
@@ -126,7 +127,7 @@ class App extends Component {
         setting.events.on('change', ({key}) => this.updateSettingState(key))
         this.updateSettingState()
 
-        console.log('Welcome to Sabaki - BUGOUT Mini Edition')
+        console.log(`Welcome to Sabaki - BUGOUT ${EDITION} Edition`)
     }
 
     componentDidMount() {
