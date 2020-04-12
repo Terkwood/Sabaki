@@ -36,7 +36,6 @@ const gametree = require('../modules/gametree')
 const helper = require('../modules/helper')
 const setting = remote.require('./setting')
 const sound = require('../modules/sound')
-const treetransformer = require('../modules/treetransformer')
 const bugout = require('../modules/multiplayer/bugout')
 
 class App extends Component {

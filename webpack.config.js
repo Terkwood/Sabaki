@@ -42,8 +42,6 @@ module.exports = (env, argv) => ({
             'rimraf': noopPath,
             'argv-split': path.join(__dirname, 'src/modules/shims/argv-split'), // BUGOUT
             '@sabaki/gtp': path.join(__dirname, 'src/modules/shims/gtp'),  // BUGOUT
-            '../modules/gtplogger': path.join(__dirname, 'src/modules/shims/gtplogger'),
-            '../modules/treetransformer': emptyPath,
             './i18n': path.join(__dirname, 'src/modules/shims/i18n'),
             '../i18n': path.join(__dirname, 'src/modules/shims/i18n'),
             '../../i18n': path.join(__dirname, 'src/modules/shims/i18n'),
