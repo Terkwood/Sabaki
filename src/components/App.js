@@ -8,7 +8,6 @@ const classNames = require('classnames')
 const MainView = require('./MainView')
 const DrawerManager = require('./DrawerManager')
 const InputBox = require('./InputBox')
-const InfoOverlay = require('./InfoOverlay')
 
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
 import BoardSizeModal from './bugout/BoardSizeModal'
@@ -88,10 +87,6 @@ class App extends Component {
             animateStonePlacement: null,
 
             // Sidebar
-
-            consoleLog: [],
-            showConsole: setting.get('view.show_leftsidebar'),
-            leftSidebarWidth: setting.get('view.leftsidebar_width'),
             showGameGraph: false, // 😇BUGOUT😇
             showCommentBox: false, // 😇BUGOUT😇
             sidebarWidth: 120, // 😇BUGOUT😇
@@ -118,11 +113,6 @@ class App extends Component {
             inputBoxText: '',
             onInputBoxSubmit: helper.noop,
             onInputBoxCancel: helper.noop,
-
-            // Info Overlay
-
-            infoOverlayText: '',
-            showInfoOverlay: false
         }
 
         this.events = new EventEmitter()
@@ -232,14 +222,13 @@ class App extends Component {
             document.title = title
 
         // Handle full screen & menu bar
-
+        // TODO BUGOUT Cut
         if (prevState.fullScreen !== this.state.fullScreen) {
-            if (this.state.fullScreen) this.flashInfoOverlay(t('Press Esc to exit full screen mode'))
             this.window.setFullScreen(this.state.fullScreen)
         }
 
+        // TODO BUGOUT cut
         if (prevState.showMenuBar !== this.state.showMenuBar) {
-            if (!this.state.showMenuBar) this.flashInfoOverlay(t('Press Alt to show menu bar'))
             this.window.setMenuBarVisibility(this.state.showMenuBar)
             this.window.setAutoHideMenuBar(!this.state.showMenuBar)
         }
@@ -365,30 +354,6 @@ class App extends Component {
     setBusy(busy) {
         let diff = busy ? 1 : -1;
         this.setState(s => ({busy: Math.max(s.busy + diff, 0)}))
-    }
-
-    showInfoOverlay(text) {
-        this.setState({
-            infoOverlayText: text,
-            showInfoOverlay: true
-        })
-    }
-
-    hideInfoOverlay() {
-        this.setState({showInfoOverlay: false})
-    }
-
-    flashInfoOverlay(text, duration = null) {
-        if (duration == null) duration = setting.get('infooverlay.duration')
-
-        this.showInfoOverlay(text)
-
-        clearTimeout(this.hideInfoOverlayId)
-        this.hideInfoOverlayId = setTimeout(() => this.hideInfoOverlay(), duration)
-    }
-
-    clearConsole() {
-        this.setState({consoleLog: []})
     }
 
     // History Management
@@ -541,7 +506,6 @@ class App extends Component {
 
         if (gameTrees.length > 0) {
             this.detachEngines()
-            this.clearConsole()
 
             this.setState({
                 representedFilename: null,
@@ -2024,15 +1988,6 @@ class App extends Component {
                         sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
                         engine: engine.name
                     })
-
-                    this.setState(({consoleLog}) => ({
-                        consoleLog: [...consoleLog, {
-                            sign: this.attachedEngineSyncers.indexOf(syncer) === 0 ? 1 : -1,
-                            name: engine.name,
-                            command: null,
-                            response: {content, internal: true}
-                        }]
-                    }))
                 })
 
                 syncer.controller.on('started', () => {
@@ -2087,7 +2042,6 @@ class App extends Component {
         }
 
         this.stopGeneratingMoves()
-        this.hideInfoOverlay()
         this.setBusy(false)
     }
 
@@ -2098,18 +2052,9 @@ class App extends Component {
         let t = i18n.context('app.engine')
         let {treePosition} = this.state
         let entry = {sign, name: syncer.engine.name, command, waiting: true}
-        let maxLength = setting.get('console.max_history_count')
-
-        this.setState(({consoleLog}) => {
-            let newLog = consoleLog.slice(Math.max(consoleLog.length - maxLength + 1, 0))
-            newLog.push(entry)
-
-            return {consoleLog: newLog}
-        })
-
+        
         let updateEntry = update => {
             Object.assign(entry, update)
-            this.setState(({consoleLog}) => ({consoleLog}))
         }
 
         subscribe(({line, response, end}) => {
@@ -2238,7 +2183,6 @@ class App extends Component {
         this.closeDrawer()
 
         if (!firstMove && !this.state.generatingMoves) {
-            this.hideInfoOverlay()
             return
         } else if (firstMove) {
             this.setState({generatingMoves: true})
@@ -2271,14 +2215,9 @@ class App extends Component {
             await this.syncEngines({showErrorDialog: true})
         } catch (err) {
             this.stopGeneratingMoves()
-            this.hideInfoOverlay()
             this.setBusy(false)
 
             return
-        }
-
-        if (firstMove && followUp && otherSyncer != null) {
-            this.flashInfoOverlay(t('Press Esc to stop playing'))
         }
 
         let {commands} = this.attachedEngineSyncers[playerIndex]
@@ -2311,7 +2250,6 @@ class App extends Component {
 
         if (responseContent == null) {
             this.stopGeneratingMoves()
-            this.hideInfoOverlay()
             this.setBusy(false)
 
             return
@@ -2324,7 +2262,6 @@ class App extends Component {
                 }))
 
                 this.stopGeneratingMoves()
-                this.hideInfoOverlay()
                 this.makeResign()
                 this.setBusy(false)
 
@@ -2348,7 +2285,6 @@ class App extends Component {
             this.generateMove({passPlayer: pass ? sign : null, firstMove: false, followUp})
         } else {
             this.stopGeneratingMoves()
-            this.hideInfoOverlay()
         }
 
         this.setBusy(false)
@@ -2359,7 +2295,6 @@ class App extends Component {
 
         let t = i18n.context('app.engine')
 
-        this.showInfoOverlay(t('Please wait…'))
         this.setState({generatingMoves: false})
     }
 
@@ -2392,8 +2327,6 @@ class App extends Component {
 
         this.inferredState = {
             gameTree: tree,
-            showSidebar: state.showGameGraph || state.showCommentBox,
-            showLeftSidebar: state.showConsole,
             gameInfo: this.getGameInfo(tree),
             currentPlayer: this.getPlayer(tree, treePosition),
             scoreBoard,
@@ -2473,9 +2406,7 @@ class App extends Component {
                 show: state.showInputBox,
                 onSubmit: state.onInputBoxSubmit,
                 onCancel: state.onInputBoxCancel
-            }),
-
-            h(InfoOverlay, {text: state.infoOverlayText, show: state.showInfoOverlay})
+            })
         )
     }
 }

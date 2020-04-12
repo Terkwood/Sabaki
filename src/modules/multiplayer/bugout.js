@@ -191,7 +191,6 @@ const load = () => {
                 })
                 
                 app.detachEngines()
-                app.clearConsole()
 
                 app.bugout.attach((a, b) => {
                     app.attachEngines(a, b)

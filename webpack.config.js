@@ -49,7 +49,6 @@ module.exports = (env, argv) => ({
             '../../i18n': path.join(__dirname, 'src/modules/shims/i18n'),
             '../menu': emptyPath,
 
-            './GtpConsole': noopPath,
             './TextSpinner': noopPath,
             '../TextSpinner': noopPath,
             './bars/AutoplayBar': noopPath
