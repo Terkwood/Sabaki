@@ -2,7 +2,6 @@ const {app, shell, dialog, ipcMain, BrowserWindow, Menu} = require('electron')
 const {join} = require('path')
 const i18n = require('./i18n')
 const setting = require('./setting')
-const updater = require('./updater')
 
 let windows = []
 let openfile = null
@@ -73,7 +72,7 @@ function buildMenu(props = {}) {
 
                 item.click = () => ({
                     newWindow,
-                    checkForUpdates: () => checkForUpdates({showFailDialogs: true})
+                    checkForUpdates: () => ()
                 })[key]()
 
                 delete item.clickMain
@@ -103,60 +102,8 @@ function buildMenu(props = {}) {
     }
 }
 
-async function checkForUpdates({showFailDialogs = false} = {}) {
-    try {
-        let t = i18n.context('updater')
-        let info = await updater.check(`SabakiHQ/${app.getName()}`)
-
-        if (info.hasUpdates) {
-            dialog.showMessageBox({
-                type: 'info',
-                buttons: [
-                    t('Download Update'),
-                    t('View Changelog'),
-                    t('Not Now')
-                ],
-                title: app.getName(),
-                message: t(p => `${p.appName} v${p.version} is available now.`, {
-                    appName: app.getName(),
-                    version: info.latestVersion
-                }),
-                noLink: true,
-                cancelId: 2
-            }, response => {
-                if (response === 2) return
-
-                shell.openExternal(
-                    response === 0
-                    ? info.downloadUrl || info.url
-                    : info.url
-                )
-            })
-        } else if (showFailDialogs) {
-            dialog.showMessageBox({
-                type: 'info',
-                buttons: [t('OK')],
-                title: t('No updates available'),
-                message: t(p => `Sabaki v${p.version} is the latest version.`, {
-                    version: app.getVersion()
-                })
-            }, () => {})
-        }
-    } catch (err) {
-        if (showFailDialogs) {
-            dialog.showMessageBox({
-                type: 'warning',
-                buttons: [t('OK')],
-                title: app.getName(),
-                message: t('An error occurred while checking for updates.')
-            })
-        }
-    }
-}
-
 ipcMain.on('new-window', (evt, ...args) => newWindow(...args))
 ipcMain.on('build-menu', (evt, ...args) => buildMenu(...args))
-ipcMain.on('check-for-updates', (evt, ...args) => checkForUpdates(...args))
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
@@ -178,10 +125,6 @@ app.on('ready', () => {
     }
 
     newWindow(openfile)
-
-    if (setting.get('app.startup_check_updates')) {
-        setTimeout(() => checkForUpdates(), setting.get('app.startup_check_updates_delay'))
-    }
 })
 
 app.on('activate', (evt, hasVisibleWindows) => {
