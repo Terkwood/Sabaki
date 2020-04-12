@@ -8,7 +8,6 @@ const classNames = require('classnames')
 const MainView = require('./MainView')
 const DrawerManager = require('./DrawerManager')
 const InputBox = require('./InputBox')
-const InfoOverlay = require('./InfoOverlay')
 
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
 import BoardSizeModal from './bugout/BoardSizeModal'
@@ -114,11 +113,6 @@ class App extends Component {
             inputBoxText: '',
             onInputBoxSubmit: helper.noop,
             onInputBoxCancel: helper.noop,
-
-            // Info Overlay
-
-            infoOverlayText: '',
-            showInfoOverlay: false
         }
 
         this.events = new EventEmitter()
@@ -228,14 +222,13 @@ class App extends Component {
             document.title = title
 
         // Handle full screen & menu bar
-
+        // TODO BUGOUT Cut
         if (prevState.fullScreen !== this.state.fullScreen) {
-            if (this.state.fullScreen) this.flashInfoOverlay(t('Press Esc to exit full screen mode'))
             this.window.setFullScreen(this.state.fullScreen)
         }
 
+        // TODO BUGOUT cut
         if (prevState.showMenuBar !== this.state.showMenuBar) {
-            if (!this.state.showMenuBar) this.flashInfoOverlay(t('Press Alt to show menu bar'))
             this.window.setMenuBarVisibility(this.state.showMenuBar)
             this.window.setAutoHideMenuBar(!this.state.showMenuBar)
         }
@@ -2049,7 +2042,6 @@ class App extends Component {
         }
 
         this.stopGeneratingMoves()
-        this.hideInfoOverlay()
         this.setBusy(false)
     }
 
@@ -2191,7 +2183,6 @@ class App extends Component {
         this.closeDrawer()
 
         if (!firstMove && !this.state.generatingMoves) {
-            this.hideInfoOverlay()
             return
         } else if (firstMove) {
             this.setState({generatingMoves: true})
@@ -2224,14 +2215,9 @@ class App extends Component {
             await this.syncEngines({showErrorDialog: true})
         } catch (err) {
             this.stopGeneratingMoves()
-            this.hideInfoOverlay()
             this.setBusy(false)
 
             return
-        }
-
-        if (firstMove && followUp && otherSyncer != null) {
-            this.flashInfoOverlay(t('Press Esc to stop playing'))
         }
 
         let {commands} = this.attachedEngineSyncers[playerIndex]
@@ -2264,7 +2250,6 @@ class App extends Component {
 
         if (responseContent == null) {
             this.stopGeneratingMoves()
-            this.hideInfoOverlay()
             this.setBusy(false)
 
             return
@@ -2277,7 +2262,6 @@ class App extends Component {
                 }))
 
                 this.stopGeneratingMoves()
-                this.hideInfoOverlay()
                 this.makeResign()
                 this.setBusy(false)
 
@@ -2301,7 +2285,6 @@ class App extends Component {
             this.generateMove({passPlayer: pass ? sign : null, firstMove: false, followUp})
         } else {
             this.stopGeneratingMoves()
-            this.hideInfoOverlay()
         }
 
         this.setBusy(false)
@@ -2312,7 +2295,6 @@ class App extends Component {
 
         let t = i18n.context('app.engine')
 
-        this.showInfoOverlay(t('Please wait…'))
         this.setState({generatingMoves: false})
     }
 
@@ -2424,9 +2406,7 @@ class App extends Component {
                 show: state.showInputBox,
                 onSubmit: state.onInputBoxSubmit,
                 onCancel: state.onInputBoxCancel
-            }),
-
-            h(InfoOverlay, {text: state.infoOverlayText, show: state.showInfoOverlay})
+            })
         )
     }
 }
