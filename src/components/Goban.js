@@ -2,11 +2,8 @@ const {h, Component} = require('preact')
 const classNames = require('classnames')
 const sgf = require('@sabaki/sgf')
 const {BoundedGoban} = require('@sabaki/shudan')
-const {remote} = require('electron')
 
-const gametree = require('../modules/gametree')
 const helper = require('../modules/helper')
-const setting = remote.require('./setting')
 
 class Goban extends Component {
     constructor(props) {
@@ -24,10 +21,6 @@ class Goban extends Component {
     componentDidMount() {
         document.addEventListener('mouseup', () => {
             this.mouseDown = false
-
-            if (this.state.temporaryLine) {
-                this.setState({temporaryLine: null})
-            }
         })
 
         // Resize board when window is resizing
@@ -86,87 +79,25 @@ class Goban extends Component {
 
         this.mouseDown = false
         evt.vertex = vertex
-        evt.line = this.state.temporaryLine
 
         if (evt.x == null) evt.x = evt.clientX
         if (evt.y == null) evt.y = evt.clientY
 
-        if (evt.line) {
-            onLineDraw(evt)
-        } else {
-            this.stopPlayingVariation()
-            onVertexClick(evt)
-        }
-
+        this.stopPlayingVariation()
+        onVertexClick(evt)
+        
         this.setState({clicked: true})
         setTimeout(() => this.setState({clicked: false}), 200)
     }
 
     handleVertexMouseMove(evt, vertex) {
-        let {drawLineMode, onVertexMouseMove = helper.noop} = this.props
+        let {onVertexMouseMove = helper.noop} = this.props
 
         onVertexMouseMove(Object.assign(evt, {
             mouseDown: this.mouseDown,
             startVertex: this.startVertex,
             vertex
         }))
-
-        if (!!drawLineMode && evt.mouseDown && evt.button === 0) {
-            let temporaryLine = {v1: evt.startVertex, v2: evt.vertex}
-
-            if (!helper.equals(temporaryLine, this.state.temporaryLine)) {
-                this.setState({temporaryLine})
-            }
-        }
-    }
-
-    handleVertexMouseEnter(evt, vertex) {
-        if (this.props.analysis == null) return
-
-        let {sign, variation} = this.props.analysis.find(x => helper.vertexEquals(x.vertex, vertex)) || {}
-        if (variation == null) return
-
-        this.playVariation(sign, variation)
-    }
-
-    handleVertexMouseLeave(evt, vertex) {
-        this.stopPlayingVariation()
-    }
-
-    playVariation(sign, variation, sibling = false) {
-        if (setting.get('board.variation_instant_replay')) {
-            this.variationIntervalId = true
-
-            this.setState({
-                variation,
-                variationSign: sign,
-                variationSibling: sibling,
-                variationIndex: variation.length
-            })
-        } else {
-            clearInterval(this.variationIntervalId)
-
-            this.variationIntervalId = setInterval(() => {
-                this.setState(({variationIndex = -1}) => ({
-                    variation,
-                    variationSign: sign,
-                    variationSibling: sibling,
-                    variationIndex: variationIndex + 1
-                }))
-            }, setting.get('board.variation_replay_interval'))
-        }
-    }
-
-    stopPlayingVariation() {
-        if (this.variationIntervalId == null) return
-
-        clearInterval(this.variationIntervalId)
-        this.variationIntervalId = null
-
-        this.setState({
-            variation: null,
-            variationIndex: -1
-        })
     }
 
     render({
@@ -174,8 +105,6 @@ class Goban extends Component {
         treePosition,
         board,
         paintMap,
-        analysis,
-        highlightVertices = [],
         dimmedStones = [],
 
         crosshair = false,
@@ -194,19 +123,13 @@ class Goban extends Component {
         maxWidth = 100,
         maxHeight = 100,
         clicked = false,
-        temporaryLine = null,
-
-        variation = null,
-        variationSign = 1,
-        variationSibling = false,
-        variationIndex = -1
+        temporaryLine = null
     }) {
         let signMap = board.arrangement
         let markerMap = board.markers
 
         // Calculate lines
 
-        let drawTemporaryLine = !!drawLineMode && !!temporaryLine
         let lines = board.lines.filter(({v1, v2, type}) => {
             if (
                 drawTemporaryLine
@@ -223,37 +146,7 @@ class Goban extends Component {
             return true
         })
 
-        if (drawTemporaryLine) lines.push({
-            v1: temporaryLine.v1,
-            v2: temporaryLine.v2,
-            type: drawLineMode
-        })
 
-        // Calculate ghost stones
-
-        let ghostStoneMap = null
-
-        if (showNextMoves || showSiblings) {
-            ghostStoneMap = board.arrangement.map(row => row.map(_ => null))
-
-            if (showSiblings) {
-                for (let v in board.siblingsInfo) {
-                    let [x, y] = v.split(',').map(x => +x)
-                    let {sign} = board.siblingsInfo[v]
-
-                    ghostStoneMap[y][x] = {sign, faint: showNextMoves}
-                }
-            }
-
-            if (showNextMoves) {
-                for (let v in board.childrenInfo) {
-                    let [x, y] = v.split(',').map(x => +x)
-                    let {sign, type} = board.childrenInfo[v]
-
-                    ghostStoneMap[y][x] = {sign, type: showMoveColorization ? type : null}
-                }
-            }
-        }
 
         // Draw move numbers
 
@@ -277,54 +170,6 @@ class Goban extends Component {
             }
         }
 
-        // Draw variation
-
-        let drawHeatMap = true
-
-        if (variation != null) {
-            markerMap = board.markers.map(x => [...x])
-
-            if (variationSibling) {
-                let prevPosition = gameTree.navigate(treePosition, -1, {})
-
-                if (prevPosition != null) {
-                    board = gametree.getBoard(gameTree, prevPosition.id)
-                    signMap = board.arrangement
-                }
-            }
-
-            let variationBoard = variation
-                .slice(0, variationIndex + 1)
-                .reduce((board, [x, y], i) => {
-                    markerMap[y][x] = {type: 'label', label: (i + 1).toString()}
-                    return board.makeMove(i % 2 === 0 ? variationSign : -variationSign, [x, y])
-                }, board)
-
-            drawHeatMap = false
-            signMap = variationBoard.arrangement
-        }
-
-        // Draw heatmap
-
-        let heatMap = null
-
-        if (drawHeatMap && analysis != null) {
-            let maxVisitsWin = Math.max(...analysis.map(x => x.visits * x.win))
-            heatMap = board.arrangement.map(row => row.map(_ => null))
-
-            for (let {vertex: [x, y], visits, win} of analysis) {
-                let strength = Math.round(visits * win * 8 / maxVisitsWin) + 1
-                win = strength <= 3 ? Math.round(win) : Math.round(win * 10) / 10
-
-                heatMap[y][x] = {
-                    strength,
-                    text: visits < 10 ? '' : [
-                        win + (Math.floor(win) === win ? '%' : ''),
-                        visits < 1000 ? visits : Math.round(visits / 100) / 10 + 'k'
-                    ].join('\n')
-                }
-            }
-        }
 
         return h(BoundedGoban, {
             id: 'goban',
