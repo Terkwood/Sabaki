@@ -50,12 +50,6 @@ class ContentDisplay extends Component {
             if (linkElement.classList.contains('comment-external')) {
                 evt.preventDefault()
                 shell.openExternal(linkElement.href)
-            } else if (linkElement.classList.contains('comment-movenumber')) {
-                evt.preventDefault()
-                let moveNumber = +linkElement.dataset.movenumber
-
-                sabaki.goToMainVariation()
-                sabaki.goToMoveNumber(moveNumber)
             }
         }
 
