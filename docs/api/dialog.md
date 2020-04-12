@@ -19,14 +19,6 @@ const {dialog} = sabaki.modules
 
 On the web version `type` is ignored; Sabaki uses `confirm` when `buttons.length > 1`, otherwise `prompt`.
 
-### dialog.showOpenDialog(options[, callback])
-
-* `options` `<Object>` - See [Electron docs](https://electron.atom.io/docs/api/dialog/#dialogshowopendialogbrowserwindow-options-callback)
-* `callback` `<Function>` *(optional)*
-    * `result` `<String[]>` - A list of file paths the user selected
-
-On the web version, `result` is an array of [`File`](https://developer.mozilla.org/de/docs/Web/API/File) objects.
-
 ### dialog.showSaveDialog(options[, callback])
 
 * `options` `<Object>` - See [Electron docs](https://electron.atom.io/docs/api/dialog/#dialogshowsavedialogbrowserwindow-options-callback)

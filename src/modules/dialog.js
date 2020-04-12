@@ -21,21 +21,6 @@ exports.showMessageBox = function(message, type = 'info', buttons = [t('OK')], c
     }
 }
 
-exports.showOpenDialog = function(options, callback) {
-    let clone = fileInput.cloneNode()
-    fileInput.parentNode.replaceChild(clone, fileInput)
-    fileInput = clone
-
-    fileInput.multiple = options.properties.includes('multiSelections')
-    fileInput.value = ''
-
-    fileInput.addEventListener('change', evt => {
-        callback({result: evt.currentTarget.files})
-    })
-
-    fileInput.click()
-}
-
 exports.showSaveDialog = function(options, callback) {
     let {type, name, content} = options
     let href = `data:${type};charset=utf-8,${encodeURIComponent(content)}`
