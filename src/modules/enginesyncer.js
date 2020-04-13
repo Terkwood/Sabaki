@@ -6,7 +6,6 @@ const argvsplit = require('argv-split')
 const gametree = require('./gametree')
 const helper = require('./helper')
 const Board = require('./board')
-const { EntryMethod } = require('./multiplayer/bugout') 
 
 const alpha = 'ABCDEFGHJKLMNOPQRSTUVWXYZ'
 const defaultStateJSON = JSON.stringify({
