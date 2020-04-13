@@ -10,8 +10,8 @@ const DrawerManager = require('./DrawerManager')
 
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
 import BoardSizeModal from './bugout/BoardSizeModal'
-import ColorChoiceModal from './bugout/ColorChoiceModal'
 import GameLobbyModal from './bugout/GameLobbyModal'
+import HumanColorPrefModal from './bugout/HumanColorPrefModal'
 import IdleStatusModal from './bugout/IdleStatusModal'
 import OpponentPassedModal from './bugout/OpponentPassedModal'
 import OpponentQuitModal from './bugout/OpponentQuitModal'
@@ -37,7 +37,7 @@ const setting = remote.require('./setting')
 const sound = require('../modules/sound')
 const bugout = require('../modules/multiplayer/bugout')
 
-const EDITION = 'Doorways'
+const EDITION = 'Pastel Wrench'
 
 class App extends Component {
     constructor() {
@@ -1210,7 +1210,7 @@ class App extends Component {
                 data: state.multiplayer && state.multiplayer.waitForOpponentModal,
                 reconnectDialog: state.multiplayer && state.multiplayer.reconnectDialog
             }),
-            h(ColorChoiceModal, {
+            h(HumanColorPrefModal, {
                 data: state.multiplayer,
                 idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status,
                 chooseColorPref: colorPref => { 
