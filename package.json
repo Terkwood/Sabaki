@@ -70,8 +70,8 @@
   },
   "devDependencies": {
     "http-server": "^0.12.1",
-    "webpack": "^4.30.0",
-    "webpack-cli": "^3.3.2"
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
   },
   "scripts": {
     "test": "",
