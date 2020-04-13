@@ -18,21 +18,6 @@
     "appId": "de.yichuanshen.sabaki",
     "copyright": "Copyright © 2015-2019 Yichuan Shen",
     "compression": "normal",
-    "linux": {
-      "target": "AppImage",
-      "category": "Game"
-    },
-    "mac": {
-      "category": "public.app-category.board-games",
-      "target": [
-        "7z"
-      ]
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": true,
-      "allowToChangeInstallationDirectory": true
-    },
     "fileAssociations": [
       {
         "ext": "sgf",
