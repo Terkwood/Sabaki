@@ -37,7 +37,7 @@ const setting = remote.require('./setting')
 const sound = require('../modules/sound')
 const bugout = require('../modules/multiplayer/bugout')
 
-const EDITION = 'Bread'
+const EDITION = 'Roses'
 
 class App extends Component {
     constructor() {
@@ -344,14 +344,6 @@ class App extends Component {
         this.setCurrentTreePosition(gameTree, entry.treePosition, {clearCache: true})
     }
 
-    undo() {
-        // 😇 BUGOUT trimmed 😇
-    }
-
-    redo() {
-        // 😇 BUGOUT trimmed 😇
-    }
-
     // File Management
 
     getEmptyGameTree() {
@@ -516,20 +508,16 @@ class App extends Component {
 
     // Playing
 
-    clickVertex(vertex, {button = 0, ctrlKey = false, x = 0, y = 0} = {}) {
+    clickVertex(vertex, {button = 0} = {}) {
         this.closeDrawer()
 
-        let t = i18n.context('app.play')
         let {gameTrees, gameIndex, gameCurrents, treePosition} = this.state
         let tree = gameTrees[gameIndex]
         let board = gametree.getBoard(tree, treePosition)
-        let node = tree.get(treePosition)
 
         if (typeof vertex == 'string') {
             vertex = board.coord2vertex(vertex)
         }
-
-        let [vx, vy] = vertex
 
         if (['play', 'autoplay'].includes(this.state.mode)) {
             if (button === 0) {
@@ -682,15 +670,11 @@ class App extends Component {
     }
 
     makeResign({player = null} = {}) {
-        let {gameTrees, gameIndex, treePosition} = this.state
+        let {gameTrees, gameIndex} = this.state
         let {currentPlayer} = this.inferredState
         if (player == null) player = currentPlayer
         let color = player > 0 ? 'W' : 'B'
         let tree = gameTrees[gameIndex]
-
-        let newTree = tree.mutate(draft => {
-            draft.updateProperty(draft.root.id, 'RE', [`${color}+Resign`])
-        })
 
         this.makeMove([-1, -1], {player})
 
@@ -716,17 +700,6 @@ class App extends Component {
 
             currents[n.parentId] = n.id
             n = tree.get(n.parentId)
-        }
-
-        if (this.state.analysisTreePosition != null && id !== this.state.analysisTreePosition) {
-            // Continuous analysis
-
-            clearTimeout(this.navigateAnalysisId)
-
-            this.stopAnalysis({removeAnalysisData: false})
-            this.navigateAnalysisId = setTimeout(() => {
-                this.startAnalysis({showWarning: false})
-            }, setting.get('game.navigation_analysis_delay'))
         }
 
         let prevGameIndex = this.state.gameIndex
@@ -999,72 +972,17 @@ class App extends Component {
         if (sign > 1) sign = 0
 
         let t = i18n.context('app.engine')
-        let {treePosition} = this.state
         let entry = {sign, name: syncer.engine.name, command, waiting: true}
         
         let updateEntry = update => {
             Object.assign(entry, update)
         }
 
-        subscribe(({line, response, end}) => {
+        subscribe(({response, end}) => {
             updateEntry({
                 response: Object.assign({}, response),
                 waiting: !end
             })
-
-            // Parse analysis info
-
-            if (line.slice(0, 5) === 'info ' && this.state.treePosition === treePosition) {
-                let tree = this.state.gameTrees[this.state.gameIndex]
-                let sign = this.getPlayer(tree, treePosition)
-                let board = gametree.getBoard(tree, treePosition)
-                let analysis = line
-                    .split(/\s*info\s+/).slice(1)
-                    .map(x => x.trim())
-                    .map(x => {
-                        let matchPV = x.match(/(pass|[A-Za-z]\d+)(\s+(pass|[A-Za-z]\d+))*\s*$/)
-                        if (matchPV == null)
-                            return null
-                        let matchPass = matchPV[0].match(/pass/)
-                        if (matchPass == null) {
-                            return [x.slice(0, matchPV.index), matchPV[0].split(/\s+/)]
-                        } else {
-                            return [x.slice(0, matchPV.index), matchPV[0].slice(0, matchPass.index).split(/\s+/)]
-                        }
-                    })
-                    .filter(x => x != null)
-                    .map(([x, y]) => [
-                        x.trim().split(/\s+/).slice(0, -1),
-                        y.filter(x => x.length >= 2)
-                    ])
-                    .map(([tokens, pv]) => {
-                        let keys = tokens.filter((_, i) => i % 2 === 0)
-                        let values = tokens.filter((_, i) => i % 2 === 1)
-
-                        keys.push('pv')
-                        values.push(pv)
-
-                        return keys.reduce((acc, x, i) => (acc[x] = values[i], acc), {})
-                    })
-                    .filter(({move}) => move.match(/^[A-Za-z]\d+$/))
-                    .map(({move, visits, winrate, pv}) => ({
-                        sign,
-                        vertex: board.coord2vertex(move),
-                        visits: +visits,
-                        win: +winrate / 100,
-                        variation: pv.map(x => board.coord2vertex(x))
-                    }))
-
-                let winrate = Math.max(...analysis.map(({win}) => win))
-                if (sign < 0) winrate = 100 - winrate
-
-                let newTree = tree.mutate(draft => {
-                    draft.updateProperty(treePosition, 'SBKV', [(Math.round(winrate * 100) / 100).toString()])
-                })
-
-                this.setState({analysis})
-                this.setCurrentTreePosition(newTree, treePosition)
-            }
         })
 
         getResponse()
@@ -1106,12 +1024,6 @@ class App extends Component {
         }
 
         this.engineBusySyncing = false
-    }
-
-    async startAnalysis({showWarning = true} = {}) {
-    }
-
-    stopAnalysis() {
     }
 
     async generateMove({firstMove = true, followUp = false} = {}) {
