@@ -27,6 +27,7 @@ const EntryMethod = {
     FIND_PUBLIC: 1,
     CREATE_PRIVATE: 2,
     JOIN_PRIVATE: 3,
+    PLAY_BOT: 4,
 }
 
 const IdleStatus = {

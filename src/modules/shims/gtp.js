@@ -147,6 +147,8 @@ class WebSocketController extends EventEmitter {
         let { joinPrivateGame, entryMethod, handleWaitForOpponent, handleYourColor } = spawnOptions.multiplayer
         this.joinPrivateGame = joinPrivateGame
         this.entryMethod = entryMethod
+        
+        console.log('WS Controller Entry Method: '+ JSON.stringify(this.entryMethod))
 
         setTimeout(() => setInterval(() => {
             emitReadyState(this.webSocket, sabaki.events)

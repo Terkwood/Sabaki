@@ -37,7 +37,7 @@ const setting = remote.require('./setting')
 const sound = require('../modules/sound')
 const bugout = require('../modules/multiplayer/bugout')
 
-const EDITION = 'Roses'
+const EDITION = 'Doorways'
 
 class App extends Component {
     constructor() {
