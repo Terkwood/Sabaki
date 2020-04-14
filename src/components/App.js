@@ -16,6 +16,7 @@ import IdleStatusModal from './bugout/IdleStatusModal'
 import OpponentPassedModal from './bugout/OpponentPassedModal'
 import OpponentQuitModal from './bugout/OpponentQuitModal'
 import ReconnectModal from './bugout/ReconnectModal'
+import WaitForBotModal from './bugout/WaitForBotModal'
 import WaitForOpponentModal from './bugout/WaitForOpponentModal'
 import WaitForYourColorModal from './bugout/WaitForYourColorModal'
 import YourColorChosenModal from './bugout/YourColorChosenModal'
@@ -37,7 +38,7 @@ const setting = remote.require('./setting')
 const sound = require('../modules/sound')
 const bugout = require('../modules/multiplayer/bugout')
 
-const EDITION = 'Garden Clippings'
+const EDITION = 'One Window'
 
 class App extends Component {
     constructor() {
@@ -1243,6 +1244,7 @@ class App extends Component {
             h(IdleStatusModal, { data: state.multiplayer }),
             h(OpponentPassedModal),
             h(OpponentQuitModal),
+            h(WaitForBotModal),
             // ↑ BUGOUT ↑
 
             h(MainView, state),
