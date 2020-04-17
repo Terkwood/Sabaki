@@ -642,7 +642,7 @@ class GatewayConn {
         return new Promise((resolve, reject) => {
             let requestPayload = {
                 'type':'CreatePrivateGame',
-                'boardSize': boardSize
+                boardSize
             }
 
             this.webSocket.addEventListener('message', event => {
