@@ -676,7 +676,7 @@ class GatewayConn {
         return new Promise((resolve, reject) => {
             let requestPayload = {
                 'type':'JoinPrivateGame',
-                'gameId': gameId
+                gameId
             }
 
             this.webSocket.addEventListener('message', event => {
@@ -707,7 +707,7 @@ class GatewayConn {
         return new Promise((resolve, reject) => {
             let requestPayload = {
                 'type':'ChooseColorPref',
-                'colorPref': colorPref // TODO noquote
+                colorPref
             }
 
             // Let this listener stack
