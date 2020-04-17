@@ -1,4 +1,4 @@
-const EDITION = 'Please Foot'
+const EDITION = 'Please Stoat'
 
 const EventEmitter = require('events')
 const {ipcRenderer, remote} = require('electron')
@@ -11,12 +11,12 @@ const DrawerManager = require('./DrawerManager')
 
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
 import BoardSizeModal from './bugout/BoardSizeModal'
-import BotColorPrefModal from './bugout/BotColorPrefModal'
 import GameLobbyModal from './bugout/GameLobbyModal'
 import HumanColorPrefModal from './bugout/HumanColorPrefModal'
 import IdleStatusModal from './bugout/IdleStatusModal'
 import OpponentPassedModal from './bugout/OpponentPassedModal'
 import OpponentQuitModal from './bugout/OpponentQuitModal'
+import PlayBotColorSelectionModal from './bugout/PlayBotColorSelectionModal'
 import ReconnectModal from './bugout/ReconnectModal'
 import WaitForBotModal from './bugout/WaitForBotModal'
 import WaitForOpponentModal from './bugout/WaitForOpponentModal'
@@ -1205,7 +1205,7 @@ class App extends Component {
                 data: state.multiplayer,
                 idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status
             }),
-            h(BotColorPrefModal, {
+            h(PlayBotColorSelectionModal, {
                 data: state.multiplayer
             }),
             h(BoardSizeModal, {

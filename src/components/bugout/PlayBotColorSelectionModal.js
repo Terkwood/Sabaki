@@ -5,13 +5,13 @@ import Dialog from 'preact-material-components/Dialog'
 
 const { ColorPref, EntryMethod } = require('../../modules/multiplayer/bugout')
 
-class BotColorPrefModal extends Component {
+class PlayBotColorSelectionModal extends Component {
     constructor() {
         super()
         this.state = { showDialog: false, turnedOnOnce: false }
     }
 
-    render({ id = 'bot-color-pref-modal', data }) {
+    render({ id = 'play-bot-color-selection', data }) {
         if (data == undefined) {
             return h('div', { id })
         }
@@ -41,7 +41,7 @@ class BotColorPrefModal extends Component {
                         accept: true, 
                         onClick: () => {
                             this.setState({ showDialog: false, turnedOnOnce: true })
-                            sabaki.events.emit('choose-color-bot', { color: ColorPref.BLACK })
+                            sabaki.events.emit('play-bot-color-selected', { humanColor: ColorPref.BLACK })
                         }
                     }, 
                     'Black')
@@ -52,7 +52,7 @@ class BotColorPrefModal extends Component {
                         cancel: true,
                         onClick: () => {
                             this.setState({ showDialog: false, turnedOnOnce: true })
-                            sabaki.events.emit('choose-color-bot', { color: ColorPref.WHITE })
+                            sabaki.events.emit('play-bot-color-selected', { humanColor: ColorPref.WHITE })
                         }
                     }, 'White'))
         )
@@ -60,4 +60,4 @@ class BotColorPrefModal extends Component {
 }
 
 
-export default BotColorPrefModal
+export default PlayBotColorSelectionModal
