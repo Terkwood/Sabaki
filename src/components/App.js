@@ -38,7 +38,7 @@ const setting = remote.require('./setting')
 const sound = require('../modules/sound')
 const bugout = require('../modules/multiplayer/bugout')
 
-const EDITION = 'One Window'
+const EDITION = 'Broom and Pan'
 
 class App extends Component {
     constructor() {
@@ -1213,16 +1213,7 @@ class App extends Component {
             }),
             h(HumanColorPrefModal, {
                 data: state.multiplayer,
-                idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status,
-                chooseColorPref: colorPref => { 
-                    this.setState({
-                        multiplayer: {
-                            ...this.state.multiplayer,
-                            colorPref
-                        }
-                    })
-                    this.events.emit('choose-color-pref', { colorPref })
-                }
+                idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status
             }),
             h(BoardSizeModal, {
                 data: state.multiplayer,

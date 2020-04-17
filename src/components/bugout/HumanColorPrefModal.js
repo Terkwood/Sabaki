@@ -42,10 +42,10 @@ class HumanColorPrefModal extends Component {
                         accept: true, 
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            chooseColorPref( ColorPref.BLACK )
+                            sabaki.events.emit('choose-color-pref', { colorPref: ColorPref.BLACK })
                         }
                     }, 
-                    "Black")
+                    'Black')
                 ),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
@@ -53,18 +53,18 @@ class HumanColorPrefModal extends Component {
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            chooseColorPref( ColorPref.WHITE )
+                            sabaki.events.emit('choose-color-pref', { colorPref: ColorPref.WHITE })
                         }
-                    }, "White")),
+                    }, 'White')),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
                     { 
                         cancel: true,
                         onClick: () => {
                             this.setState({showDialog: false, turnedOnOnce: true })
-                            chooseColorPref( ColorPref.ANY )
+                            sabaki.events.emit('choose-color-pref', { colorPref: ColorPref.ANY })
                         }
-                    }, "Either"))
+                    }, 'Either'))
         )
     }
 }

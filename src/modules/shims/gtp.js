@@ -707,7 +707,7 @@ class GatewayConn {
         return new Promise((resolve, reject) => {
             let requestPayload = {
                 'type':'ChooseColorPref',
-                'colorPref': colorPref
+                'colorPref': colorPref // TODO noquote
             }
 
             // Let this listener stack
