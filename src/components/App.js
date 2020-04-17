@@ -1,4 +1,5 @@
-const fs = require('fs')
+const EDITION = 'Please Foot'
+
 const EventEmitter = require('events')
 const {ipcRenderer, remote} = require('electron')
 const {app} = remote
@@ -10,6 +11,7 @@ const DrawerManager = require('./DrawerManager')
 
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
 import BoardSizeModal from './bugout/BoardSizeModal'
+import BotColorPrefModal from './bugout/BotColorPrefModal'
 import GameLobbyModal from './bugout/GameLobbyModal'
 import HumanColorPrefModal from './bugout/HumanColorPrefModal'
 import IdleStatusModal from './bugout/IdleStatusModal'
@@ -37,8 +39,6 @@ const helper = require('../modules/helper')
 const setting = remote.require('./setting')
 const sound = require('../modules/sound')
 const bugout = require('../modules/multiplayer/bugout')
-
-const EDITION = 'Broom and Pan'
 
 class App extends Component {
     constructor() {
@@ -155,13 +155,6 @@ class App extends Component {
             }, 1000)
         })
 
-        // Handle mouse wheel
-        // 😇 BUGOUT trimmed 😇
-
-
-        // Handle file drag & drop
-        // 😇 BUGOUT trimmed 😇
-
         // Handle keys
 
         document.addEventListener('keydown', evt => {
@@ -173,11 +166,8 @@ class App extends Component {
                 } else if (this.state.fullScreen) {
                     this.setState({fullScreen: false})
                 }
-            } // 😇 BUGOUT trimmed 😇
+            }
         })
-
-        // Handle other keyboard shortcuts
-        // 😇 BUGOUT trimmed 😇
 
         // Handle window closing
 
@@ -1214,6 +1204,9 @@ class App extends Component {
             h(HumanColorPrefModal, {
                 data: state.multiplayer,
                 idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status
+            }),
+            h(BotColorPrefModal, {
+                data: state.multiplayer
             }),
             h(BoardSizeModal, {
                 data: state.multiplayer,
