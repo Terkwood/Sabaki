@@ -1,4 +1,5 @@
-const fs = require('fs')
+const EDITION = 'Please Stoat'
+
 const EventEmitter = require('events')
 const {ipcRenderer, remote} = require('electron')
 const {app} = remote
@@ -15,6 +16,7 @@ import HumanColorPrefModal from './bugout/HumanColorPrefModal'
 import IdleStatusModal from './bugout/IdleStatusModal'
 import OpponentPassedModal from './bugout/OpponentPassedModal'
 import OpponentQuitModal from './bugout/OpponentQuitModal'
+import PlayBotColorSelectionModal from './bugout/PlayBotColorSelectionModal'
 import ReconnectModal from './bugout/ReconnectModal'
 import WaitForBotModal from './bugout/WaitForBotModal'
 import WaitForOpponentModal from './bugout/WaitForOpponentModal'
@@ -37,8 +39,6 @@ const helper = require('../modules/helper')
 const setting = remote.require('./setting')
 const sound = require('../modules/sound')
 const bugout = require('../modules/multiplayer/bugout')
-
-const EDITION = 'Broom and Pan'
 
 class App extends Component {
     constructor() {
@@ -155,13 +155,6 @@ class App extends Component {
             }, 1000)
         })
 
-        // Handle mouse wheel
-        // 😇 BUGOUT trimmed 😇
-
-
-        // Handle file drag & drop
-        // 😇 BUGOUT trimmed 😇
-
         // Handle keys
 
         document.addEventListener('keydown', evt => {
@@ -173,11 +166,8 @@ class App extends Component {
                 } else if (this.state.fullScreen) {
                     this.setState({fullScreen: false})
                 }
-            } // 😇 BUGOUT trimmed 😇
+            }
         })
-
-        // Handle other keyboard shortcuts
-        // 😇 BUGOUT trimmed 😇
 
         // Handle window closing
 
@@ -1214,6 +1204,9 @@ class App extends Component {
             h(HumanColorPrefModal, {
                 data: state.multiplayer,
                 idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status
+            }),
+            h(PlayBotColorSelectionModal, {
+                data: state.multiplayer
             }),
             h(BoardSizeModal, {
                 data: state.multiplayer,

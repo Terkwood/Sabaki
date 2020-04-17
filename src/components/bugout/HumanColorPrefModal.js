@@ -11,7 +11,7 @@ class HumanColorPrefModal extends Component {
         this.state = { showDialog: false, turnedOnOnce: false }
     }
 
-    render({ id = "human-color-pref-modal", data, idleStatus, chooseColorPref }) {
+    render({ id = "human-color-pref-modal", data, idleStatus }) {
        
         if (data == undefined) {
             return h('div', { id })
