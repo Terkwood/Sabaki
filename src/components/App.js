@@ -1,4 +1,4 @@
-const EDITION = 'Please Stoat'
+const EDITION = 'Toast'
 
 const EventEmitter = require('events')
 const {ipcRenderer, remote} = require('electron')

@@ -5,6 +5,8 @@ import Dialog from 'preact-material-components/Dialog'
 
 const { BoardSize, EntryMethod } = require('../../modules/multiplayer/bugout')
 
+const ALLOWED_ENTRY_METHODS = [ EntryMethod.CREATE_PRIVATE, EntryMethod.PLAY_BOT ]
+
 class BoardSizeModal extends Component {
     constructor() {
         super()
@@ -21,7 +23,8 @@ class BoardSizeModal extends Component {
 
         let { showDialog, turnedOnOnce } = this.state
 
-        let turnOn = entryMethod !== undefined && entryMethod == EntryMethod.CREATE_PRIVATE
+        let turnOn = entryMethod !== undefined &&
+            ALLOWED_ENTRY_METHODS.includes(entryMethod)
 
         let hide = !((turnOn && !turnedOnOnce) || showDialog)
 
