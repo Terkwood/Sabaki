@@ -3,12 +3,14 @@ const { h, Component } = require('preact')
 // 🦹🏻‍ Bundle Bloat Protector
 import Dialog from 'preact-material-components/Dialog'
 
-const { IdleStatus } = require('../../modules/multiplayer/bugout')
+const { EntryMethod, IdleStatus } = require('../../modules/multiplayer/bugout')
 
 const formatSince = since => {
     let secs = Math.floor((Date.now() - Date.parse(since)) / 1000)
     return `${secs}s`
 }
+
+const IGNORED_ENTRY_METHODS = [ EntryMethod.PLAY_BOT ]
 
 class IdleStatusModal extends Component {
     constructor() {
@@ -25,7 +27,11 @@ class IdleStatusModal extends Component {
             return empty
         }
 
-        let { idleStatus } = data
+        let { idleStatus, entryMethod } = data
+
+        if (IGNORED_ENTRY_METHODS.includes(entryMethod)) {
+            return empty
+        }
 
         if (undefined == idleStatus || undefined == idleStatus.status) {
             return h(Dialog,

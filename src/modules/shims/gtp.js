@@ -187,8 +187,8 @@ class WebSocketController extends EventEmitter {
                 // against the AI doesn't require the kafka
                 // backend, so there's no need to wait for
                 // that part of the system to start up.
-                if (this.entryMethod === EntryMethod.PLAY_BOT) {
-                    console.log('BOT ENTRY')
+                if (!this.gameId && this.entryMethod === EntryMethod.PLAY_BOT) {
+                    this.setupBotGame()
                 } else {
                     // Until https://github.com/Terkwood/BUGOUT/issues/174
                     // is completed, we need to wait for the system to
@@ -197,6 +197,16 @@ class WebSocketController extends EventEmitter {
                 }
             })
         }) 
+    }
+
+    // TODO catch human color from dialog event
+    // TODO implement gatewayConn attachBot
+    setupBotGame() {
+        this.deferredPlayBot = () => this.gatewayConn
+            .attachBot(this.boardSize, this.humanColor)
+            .then((reply, err) => {
+                console.log('NOW WAT')
+            })
     }
 
     onBugoutOnline(_wrc, _werr) {
@@ -605,6 +615,12 @@ class GatewayConn {
             } catch (err) {
                 reject(err)
             }
+        })
+    }
+
+    async attachBot(boardSize, humanColor) {
+        return new Promise((resolve, reject) => {
+            console.log('called attachBot in gatewayconn')
         })
     }
 
