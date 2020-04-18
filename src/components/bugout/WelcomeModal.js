@@ -46,7 +46,7 @@ class WelcomeModal extends Component {
                 isOpen: true,
             },
             h(Dialog.Header, null, "Go🔹Baduk🔸Weiqi"),
-            h(Dialog.Body, null, "We recommend playing against KataGo, a leading AI running on our power-efficient dev board."),
+            h(Dialog.Body, null, "We recommend playing against KataGo, a leading AI running on a power-efficient device."),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
                     { 
