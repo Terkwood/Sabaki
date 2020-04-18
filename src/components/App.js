@@ -1,4 +1,4 @@
-const EDITION = 'Toast'
+const EDITION = 'Sun'
 
 const EventEmitter = require('events')
 const {ipcRenderer, remote} = require('electron')
@@ -11,7 +11,7 @@ const DrawerManager = require('./DrawerManager')
 
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
 import BoardSizeModal from './bugout/BoardSizeModal'
-import GameLobbyModal from './bugout/GameLobbyModal'
+import GameLobbyModal from './bugout/WelcomeModal'
 import HumanColorPrefModal from './bugout/HumanColorPrefModal'
 import IdleStatusModal from './bugout/IdleStatusModal'
 import OpponentPassedModal from './bugout/OpponentPassedModal'
