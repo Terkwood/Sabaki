@@ -115,7 +115,11 @@ class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, spawnOptions) {
         super()
 
-        this.board = new Board(DEFAULT_BOARD_SIZE,DEFAULT_BOARD_SIZE) // See https://github.com/Terkwood/BUGOUT/issues/103
+        this.board = new Board(DEFAULT_BOARD_SIZE, DEFAULT_BOARD_SIZE)
+        
+        sabaki.events.on('play-bot-color-selected',
+            ({ humanColor }) => { this.humanColor = humanColor })
+
         sabaki.events.on(
             'choose-board-size',
             ({ boardSize }) => {
@@ -199,13 +203,15 @@ class WebSocketController extends EventEmitter {
         }) 
     }
 
-    // TODO catch human color from dialog event
-    // TODO implement gatewayConn attachBot
     setupBotGame() {
         this.deferredPlayBot = () => this.gatewayConn
             .attachBot(this.boardSize, this.humanColor)
             .then((reply, err) => {
-                console.log('NOW WAT')
+                if (!err && reply.type === 'BotAttached') {
+                    this.gameId = reply.gameId
+                } else {
+                    throwFatal()
+                }
             })
     }
 
