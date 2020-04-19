@@ -632,14 +632,38 @@ class GatewayConn {
         return new Promise((resolve, reject) => {
             let player = otherPlayer(humanColor)
 
-            console.log('BOT PLAYER ' + player)
-
             let requestPayload = {
                 'type': 'AttachBot',
                 boardSize,
                 player
             }
-            console.log('TODO :call attachBot in gatewayconn')
+
+            this.webSocket.addEventListener('message', event => {
+                try {
+                    let msg = JSON.parse(event.data)
+
+                    if (msg.type === 'BotAttached') {
+                        console.log('bot attached: ' + event.data)
+                        
+                        sabaki.events.emit('bugout-wait-for-bot', {
+                            isModalRelevant: true,
+                            isBotAttached: true,
+                            isBotPlaying: msg.player === 'BLACK'
+                        })
+
+                        resolve(msg)
+                    }
+                    // discard any other messages
+                } catch (err) {
+                    console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                    reject()
+                }
+            })
+
+            sabaki.events.emit('bugout-wait-for-bot', {
+                isModalRelevant: true, isBotAttached: false
+            })
+            this.webSocket.send(JSON.stringify(requestPayload))
         })
     }
 

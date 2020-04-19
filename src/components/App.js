@@ -1,4 +1,4 @@
-const EDITION = 'Shine'
+const EDITION = 'Prime'
 
 const EventEmitter = require('events')
 const {ipcRenderer, remote} = require('electron')
@@ -511,6 +511,7 @@ class App extends Component {
         }
 
         if (['play', 'autoplay'].includes(this.state.mode)) {
+            console.log('hey')
             if (button === 0) {
                 if (board.get(vertex) === 0) {
                     let autoGenmove = setting.get('gtp.auto_genmove')
@@ -519,6 +520,7 @@ class App extends Component {
                     // and sending some additional move as the opponent
                     let color = this.inferredState.currentPlayer > 0 ? 'B' : 'W'
                     if (this.state.multiplayer && this.state.multiplayer.yourColor && this.state.multiplayer.yourColor.event && this.state.multiplayer.yourColor.event.yourColor && color === this.state.multiplayer.yourColor.event.yourColor[0]) {
+                        console.log('hay')
                         this.makeMove(vertex, {sendToEngine: autoGenmove})
                     }
                 }
