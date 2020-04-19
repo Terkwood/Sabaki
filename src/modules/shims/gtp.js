@@ -119,9 +119,7 @@ class WebSocketController extends EventEmitter {
         
         sabaki.events.on('play-bot-color-selected',
             ({ humanColor }) => {
-                console.log('pb event')
                 if (this.deferredPlayBot) {
-                    console.log(`invoke dpb ${this.boardSize}, ${humanColor}`)
                     this.deferredPlayBot(humanColor)
                 }
             })
