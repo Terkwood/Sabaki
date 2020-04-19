@@ -649,7 +649,13 @@ class GatewayConn {
                             isModalRelevant: true,
                             isBotAttached: true,
                             isBotPlaying: msg.player === 'BLACK'
-                        })
+                        })  // TODO you'll have to emit another one of
+                            // TODO these IFF bot is initially playing:
+                            // TODO  YOU WILL NEED TO SET isBotPlaying FALSE  
+                            //           B-) B-) B-) B-) B-) B-) B-)
+
+                        // App.js wants to know about this as well
+                        sabaki.events.emit('bugout-bot-attached', msg)
 
                         resolve(msg)
                     }
