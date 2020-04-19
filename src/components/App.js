@@ -12,8 +12,8 @@ const DrawerManager = require('./DrawerManager')
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
 import BoardSizeModal from './bugout/BoardSizeModal'
 import GameLobbyModal from './bugout/WelcomeModal'
-import HumanColorPrefModal from './bugout/HumanColorPrefModal'
 import IdleStatusModal from './bugout/IdleStatusModal'
+import MultiplayerColorPrefModal from './bugout/MultiplayerColorPrefModal'
 import OpponentPassedModal from './bugout/OpponentPassedModal'
 import OpponentQuitModal from './bugout/OpponentQuitModal'
 import PlayBotColorSelectionModal from './bugout/PlayBotColorSelectionModal'
@@ -1201,7 +1201,7 @@ class App extends Component {
                 data: state.multiplayer && state.multiplayer.waitForOpponentModal,
                 reconnectDialog: state.multiplayer && state.multiplayer.reconnectDialog
             }),
-            h(HumanColorPrefModal, {
+            h(MultiplayerColorPrefModal, {
                 data: state.multiplayer,
                 idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status
             }),

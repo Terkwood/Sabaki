@@ -5,7 +5,7 @@ import Dialog from 'preact-material-components/Dialog'
 
 const { ColorPref, EntryMethod, IdleStatus } = require('../../modules/multiplayer/bugout')
 
-class HumanColorPrefModal extends Component {
+class MultiplayerColorPrefModal extends Component {
     constructor() {
         super()
         this.state = { showDialog: false, turnedOnOnce: false }
@@ -70,4 +70,4 @@ class HumanColorPrefModal extends Component {
 }
 
 
-export default HumanColorPrefModal
+export default MultiplayerColorPrefModal
