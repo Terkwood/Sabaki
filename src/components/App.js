@@ -521,7 +521,6 @@ class App extends Component {
         }
 
         if (['play', 'autoplay'].includes(this.state.mode)) {
-            console.log('hey')
             if (button === 0) {
                 if (board.get(vertex) === 0) {
                     let autoGenmove = setting.get('gtp.auto_genmove')
@@ -535,9 +534,10 @@ class App extends Component {
                     console.log('color ' + color)
                     console.log('botColor ' + this.state.multiplayer.botColor)
                     let botColorSatisfied = this.state.multiplayer.botColor && this.state.multiplayer.botColor[0] !== color
+                    console.log('bc satisfied ' + botColorSatisfied)
                     if (this.state.multiplayer && (multiplayerColorSatisfied || botColorSatisfied)) {
                         console.log('hay')
-                        this.makeMove(vertex, {sendToEngine: autoGenmove})
+                        this.makeMove(vertex, { sendToEngine: autoGenmove })
                     }
                 }
             }
