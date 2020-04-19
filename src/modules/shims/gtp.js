@@ -118,7 +118,11 @@ class WebSocketController extends EventEmitter {
         this.board = new Board(DEFAULT_BOARD_SIZE, DEFAULT_BOARD_SIZE)
         
         sabaki.events.on('play-bot-color-selected',
-            ({ humanColor }) => { this.humanColor = humanColor })
+            ({ humanColor }) => {
+                if (this.deferredPlayBot) {
+                    this.deferredPlayBot(humanColor)
+                }
+            })
 
         sabaki.events.on(
             'choose-board-size',
@@ -204,8 +208,8 @@ class WebSocketController extends EventEmitter {
     }
 
     setupBotGame() {
-        this.deferredPlayBot = () => this.gatewayConn
-            .attachBot(this.boardSize, this.humanColor)
+        this.deferredPlayBot = (humanColor) => this.gatewayConn
+            .attachBot(this.boardSize, humanColor)
             .then((reply, err) => {
                 if (!err && reply.type === 'BotAttached') {
                     this.gameId = reply.gameId
@@ -626,7 +630,16 @@ class GatewayConn {
 
     async attachBot(boardSize, humanColor) {
         return new Promise((resolve, reject) => {
-            console.log('called attachBot in gatewayconn')
+            let player = otherPlayer(humanColor)
+
+            console.log('BOT PLAYER ' + player)
+
+            let requestPayload = {
+                'type': 'AttachBot',
+                boardSize,
+                player
+            }
+            console.log('TODO :call attachBot in gatewayconn')
         })
     }
 
