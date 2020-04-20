@@ -643,8 +643,6 @@ class GatewayConn {
                     let msg = JSON.parse(event.data)
 
                     if (msg.type === 'BotAttached') {
-                        console.log('bot attached: ' + event.data)
-                        
                         sabaki.events.emit('bugout-wait-for-bot', {
                             isModalRelevant: true,
                             isBotAttached: true,
