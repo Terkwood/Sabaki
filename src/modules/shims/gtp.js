@@ -435,7 +435,9 @@ class WebSocketController extends EventEmitter {
                     }
                 })
 
-                this.webSocket.send(JSON.stringify(makeMove))
+                let payload = JSON.stringify(makeMove)
+                console.log(`Send MakeMove ${payload}`)
+                this.webSocket.send(payload)
             } else if (command.name === 'genmove') {
 
                 let opponent = letterToPlayer(command.args[0])
@@ -611,6 +613,7 @@ class GatewayConn {
                         if (resolveMoveMade && msg.type == "MoveMade") {
                             let sabakiCoord = board.vertex2coord([msg.coord.x, msg.coord.y])
                             
+                            console.log(`MoveMade coord ${JSON.stringify(sabakiCoord)}`)
                             resolveMoveMade({"id":null,"content":sabakiCoord,"error":false})
                         }
 
