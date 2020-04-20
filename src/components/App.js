@@ -531,12 +531,8 @@ class App extends Component {
 
                     let multiplayerColorSatisfied = this.state.multiplayer.yourColor && this.state.multiplayer.yourColor.event && this.state.multiplayer.yourColor.event.yourColor && color === this.state.multiplayer.yourColor.event.yourColor[0]
                     
-                    console.log('color ' + color)
-                    console.log('botColor ' + this.state.multiplayer.botColor)
                     let botColorSatisfied = this.state.multiplayer.botColor && this.state.multiplayer.botColor[0] !== color
-                    console.log('bc satisfied ' + botColorSatisfied)
                     if (this.state.multiplayer && (multiplayerColorSatisfied || botColorSatisfied)) {
-                        console.log('hay')
                         this.makeMove(vertex, { sendToEngine: autoGenmove })
                     }
                 }
