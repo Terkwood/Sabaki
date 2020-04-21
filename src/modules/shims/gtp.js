@@ -358,9 +358,11 @@ class WebSocketController extends EventEmitter {
                 if (opponentMoved(msg, opponent)) {
                     this.handleMoveMade(msg, opponent, resolve)
                     this.genMoveInProgress = false
+                    sabaki.events.emit('gen-move-completed', { done: true })
                 } else if (opponentQuit(msg)) {
                     this.handleOpponentQuit(resolve)
                     this.genMoveInProgress = false
+                    sabaki.events.emit('gen-move-completed', { done: true })
                 }
 
                 // discard any other messages until we receive confirmation
@@ -450,9 +452,6 @@ class WebSocketController extends EventEmitter {
                 
                 this.listenForMove(opponent, resolve)
                 this.genMoveInProgress = true
-
-                // TODO move me
-                sabaki.events.emit('first-gen-move', { done: true })
             } else {
                 resolve({id: null, err: false})
              }
@@ -662,7 +661,7 @@ class GatewayConn {
                         })
 
                         if (isBotPlaying) {
-                            sabaki.events.once('first-gen-move', () => {
+                            sabaki.events.once('gen-move-completed', () => {
                                 // Turn off the modal forever
                                 console.log('got gen move modal event')
                                 sabaki.events.emit('bugout-wait-for-bot', {
