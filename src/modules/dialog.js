@@ -9,7 +9,6 @@ let hiddenStyle = {
 
 exports.showMessageBox = function(message, type = 'info', buttons = [t('OK')], cancelId = 0) {
     if (buttons.length <= 1) {
-        console.log('UHOH')
         alert(message)
         return 0
     } else {

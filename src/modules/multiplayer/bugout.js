@@ -214,17 +214,13 @@ const load = () => {
                         })
 
                         app.events.once('your-color', ({ yourColor }) => {
-                            console.log('yr')
                             if (yourColor === Player.WHITE) {
-                                console.log('yr color white')
                                 app.generateMove({ firstMove: true })
                             }
                         })
 
                         app.events.on('play-bot-color-selected', ({ humanColor }) => {
-                            console.log('gotty')
                             if (humanColor[0].toUpperCase() === "W") {
-                                console.log('play bot, human white')
                                 app.generateMove({ firstMove: true })
                             }
                         })

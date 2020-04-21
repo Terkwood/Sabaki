@@ -1,4 +1,4 @@
-const EDITION = 'Rebake'
+const EDITION = 'Al'
 
 const EventEmitter = require('events')
 const {ipcRenderer, remote} = require('electron')
@@ -533,7 +533,6 @@ class App extends Component {
                     
                     let botColorSatisfied = this.state.multiplayer.botColor && this.state.multiplayer.botColor[0] !== color
                     if (this.state.multiplayer && (multiplayerColorSatisfied || botColorSatisfied)) {
-                        console.log('eh')
                         this.makeMove(vertex, { sendToEngine: autoGenmove })
                     }
                 }
@@ -591,7 +590,6 @@ class App extends Component {
 
                 ko = prevBoard.getPositionHash() === hash
 
-                console.log('KO')
                 if (ko && dialog.showMessageBox(
                     t([
                         'You are about to play a move which repeats a previous board position.',
@@ -615,7 +613,6 @@ class App extends Component {
             && vertexNeighbors.filter(v => board.get(v) == 0).length == 0
 
             if (suicide && setting.get('game.show_suicide_warning')) {
-                console.log('SUICIDE')
                 if (dialog.showMessageBox(
                     t([
                         'You are about to play a suicide move.',
@@ -1025,7 +1022,6 @@ class App extends Component {
             this.engineBusySyncing = false
 
             if (showErrorDialog) {
-                console.log('ERR DIALOG...' + JSON.stringify(err))
                 dialog.showMessageBox(t(err.message), 'warning')
             } else {
                 throw err
@@ -1113,7 +1109,6 @@ class App extends Component {
             pass = false
 
             if (responseContent.toLowerCase() === 'resign') {
-                console.log('RESIGN')
                 dialog.showMessageBox(t(p => `${p.engineName} has resigned.`, {
                     engineName: playerSyncer.engine.name
                 }))

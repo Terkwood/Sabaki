@@ -305,7 +305,6 @@ class WebSocketController extends EventEmitter {
             this.removeMessageListener()
             this.messageListener = listener
             this.webSocket.addEventListener('message', listener)
-            console.log('message listener updated')
         }
     }
 
@@ -349,13 +348,11 @@ class WebSocketController extends EventEmitter {
     }
 
     listenForMove(opponent, resolve) {
-        console.log('pliz listen')
         this.resolveMoveMade = resolve
 
         // We only want this listener online so we don't double-count turns
         this.updateMessageListener(event => {
             try {
-                console.log('listen event')
                 let msg = JSON.parse(event.data)
                
                 if (opponentMoved(msg, opponent)) {
@@ -373,7 +370,6 @@ class WebSocketController extends EventEmitter {
                 resolve({"id": null, "content": "", "error": true})
             }
         })
-        console.log('updated11 ' + JSON.stringify(opponent) + ' ' + JSON.stringify(resolve) )
     }
 
     handleMoveMade(msg, opponent, resolve) {
@@ -457,7 +453,6 @@ class WebSocketController extends EventEmitter {
 
                 // TODO move me
                 sabaki.events.emit('first-gen-move', { done: true })
-                console.log('GEN MOVE')
             } else {
                 resolve({id: null, err: false})
              }
