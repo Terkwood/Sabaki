@@ -411,7 +411,6 @@ class WebSocketController extends EventEmitter {
             }
 
             if (command.name == 'play') {
-                console.log('NOW DEAR')
                 let player = letterToPlayer(command.args[0])
                 this.opponent = otherPlayer(player)
 
@@ -663,7 +662,6 @@ class GatewayConn {
                         if (isBotPlaying) {
                             sabaki.events.once('gen-move-completed', () => {
                                 // Turn off the modal forever
-                                console.log('got gen move modal event')
                                 sabaki.events.emit('bugout-wait-for-bot', {
                                     isModalRelevant: false
                                 })
