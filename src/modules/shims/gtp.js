@@ -443,7 +443,6 @@ class WebSocketController extends EventEmitter {
                 })
 
                 let payload = JSON.stringify(makeMove)
-                console.log(`Send MakeMove ${payload}`)
                 this.webSocket.send(payload)
             } else if (command.name === 'genmove') {
                 let opponent = letterToPlayer(command.args[0])
