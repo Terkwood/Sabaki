@@ -6,7 +6,7 @@ const RobustWebSocket = require('robust-websocket')
 const uuidv4 = require('uuid/v4')
 
 const ClientId = require('../multiplayer/clientid')
-const { IdleStatus, EntryMethod, emitReadyState } = require('../multiplayer/bugout')
+const { IdleStatus, EntryMethod, emitReadyState, Player } = require('../multiplayer/bugout')
 
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
 const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
@@ -213,6 +213,11 @@ class WebSocketController extends EventEmitter {
             .then((reply, err) => {
                 if (!err && reply.type === 'BotAttached') {
                     this.gameId = reply.gameId
+
+                    let yourColor = humanColor.toUpperCase()[0] === "B" ? 
+                        Player.BLACK : Player.WHITE
+
+                    sabaki.events.emit('your-color', { yourColor })
                 } else {
                     throwFatal()
                 }

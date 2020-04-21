@@ -214,6 +214,7 @@ const load = () => {
                         })
 
                         app.events.once('your-color', ({ yourColor }) => {
+                            console.log('got it')
                             if (yourColor === Player.WHITE) {
                                 app.generateMove({ firstMove: true })
                             }
