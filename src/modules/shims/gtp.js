@@ -305,6 +305,7 @@ class WebSocketController extends EventEmitter {
             this.removeMessageListener()
             this.messageListener = listener
             this.webSocket.addEventListener('message', listener)
+            console.log('message listener updated')
         }
     }
 
@@ -348,11 +349,13 @@ class WebSocketController extends EventEmitter {
     }
 
     listenForMove(opponent, resolve) {
+        console.log('pliz listen')
         this.resolveMoveMade = resolve
 
         // We only want this listener online so we don't double-count turns
         this.updateMessageListener(event => {
             try {
+                console.log('listen event')
                 let msg = JSON.parse(event.data)
                
                 if (opponentMoved(msg, opponent)) {
@@ -370,6 +373,7 @@ class WebSocketController extends EventEmitter {
                 resolve({"id": null, "content": "", "error": true})
             }
         })
+        console.log('updated11 ' + JSON.stringify(opponent) + ' ' + JSON.stringify(resolve) )
     }
 
     handleMoveMade(msg, opponent, resolve) {
@@ -409,6 +413,7 @@ class WebSocketController extends EventEmitter {
             }
 
             if (command.name == 'play') {
+                console.log('NOW DEAR')
                 let player = letterToPlayer(command.args[0])
                 this.opponent = otherPlayer(player)
 
@@ -444,13 +449,15 @@ class WebSocketController extends EventEmitter {
                 console.log(`Send MakeMove ${payload}`)
                 this.webSocket.send(payload)
             } else if (command.name === 'genmove') {
-
                 let opponent = letterToPlayer(command.args[0])
                 this.opponent = opponent
                 
                 this.listenForMove(opponent, resolve)
                 this.genMoveInProgress = true
-             
+
+                // TODO move me
+                sabaki.events.emit('first-gen-move', { done: true })
+                console.log('GEN MOVE')
             } else {
                 resolve({id: null, err: false})
              }
@@ -651,14 +658,23 @@ class GatewayConn {
                     let msg = JSON.parse(event.data)
 
                     if (msg.type === 'BotAttached') {
+                        let isBotPlaying = msg.player === 'BLACK'
+
                         sabaki.events.emit('bugout-wait-for-bot', {
                             isModalRelevant: true,
                             isBotAttached: true,
-                            isBotPlaying: msg.player === 'BLACK'
-                        })  // TODO you'll have to emit another one of
-                            // TODO these IFF bot is initially playing:
-                            // TODO  YOU WILL NEED TO SET isBotPlaying FALSE  
-                            //           B-) B-) B-) B-) B-) B-) B-)
+                            isBotPlaying
+                        })
+
+                        if (isBotPlaying) {
+                            sabaki.events.once('first-gen-move', () => {
+                                // Turn off the modal forever
+                                console.log('got gen move modal event')
+                                sabaki.events.emit('bugout-wait-for-bot', {
+                                    isModalRelevant: false
+                                })
+                            })
+                        }                        
 
                         // App.js wants to know about this as well
                         sabaki.events.emit('bugout-bot-attached', msg)
