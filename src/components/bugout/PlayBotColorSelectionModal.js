@@ -41,7 +41,9 @@ class PlayBotColorSelectionModal extends Component {
                         accept: true, 
                         onClick: () => {
                             this.setState({ showDialog: false, turnedOnOnce: true })
-                            sabaki.events.emit('play-bot-color-selected', { humanColor: ColorPref.BLACK })
+                            sabaki.events.emit('play-bot-color-selected', {
+                                'humanColor': ColorPref.BLACK
+                            })
                         }
                     }, 
                     'Black')
@@ -52,7 +54,9 @@ class PlayBotColorSelectionModal extends Component {
                         cancel: true,
                         onClick: () => {
                             this.setState({ showDialog: false, turnedOnOnce: true })
-                            sabaki.events.emit('play-bot-color-selected', { humanColor: ColorPref.WHITE })
+                            sabaki.events.emit('play-bot-color-selected', {
+                                humanColor: ColorPref.WHITE
+                            })
                         }
                     }, 'White'))
         )

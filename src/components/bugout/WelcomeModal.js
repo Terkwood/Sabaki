@@ -5,13 +5,13 @@ import Dialog from 'preact-material-components/Dialog'
 
 const { BoardSize, EntryMethod, IdleStatus } = require('../../modules/multiplayer/bugout')
 
-class GameLobbyModal extends Component {
+class WelcomeModal extends Component {
     constructor() {
         super()
         this.state = { showDialog: true }
     }
 
-    render({ id = 'game-lobby-modal', joinPrivateGame = false, idleStatus, update, appEvents }) {
+    render({ id = 'welcome-modal', joinPrivateGame = false, idleStatus, update, appEvents }) {
         let empty = h('div', { id })
 
         if (idleStatus && idleStatus !== IdleStatus.ONLINE) {
@@ -26,8 +26,8 @@ class GameLobbyModal extends Component {
                 },
                 h(Dialog.Header, null, "Join Game"),
                 h(Dialog.Body, null, "🐛 Welcome to BUGOUT! You're joining a  game created by your friend."),
-                h(Dialog.Footer, null, 
-                    h(Dialog.FooterButton, 
+                h(Dialog.Footer, null,
+                    h(Dialog.FooterButton,
                         { 
                             accept: true, 
                             onClick: () => {
@@ -45,32 +45,43 @@ class GameLobbyModal extends Component {
                 id,
                 isOpen: true,
             },
-            h(Dialog.Header, null, "Choose Venue"),
-            h(Dialog.Body, null, "QUICK GAME: join the next available player, 19x19 board only. CREATE GAME: invite via URL, choose board size."),
+            h(Dialog.Header, null, "Go🔹Baduk🔸Weiqi"),
+            h(Dialog.Body, null, "We recommend playing against KataGo, a leading AI running on a power-efficient device."),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
                     { 
-                        accept: true, 
+                        accept: true,
                         onClick: () => {
-                            this.setState({showDialog: false})
-                            update(EntryMethod.FIND_PUBLIC)
-                            let boardSize = BoardSize.NINETEEN
-                            appEvents.emit('choose-board-size', boardSize)
+                            this.setState({ showDialog: false })
+                            update(EntryMethod.PLAY_BOT)
                         }
-                    }, 
-                    "Quick Game")
-                ),
+                    },
+                    "🤖 Play KataGo AI 🤖")),
             h(Dialog.Footer, null, 
                 h(Dialog.FooterButton, 
                     { 
                         cancel: true,
                         onClick: () => {
-                            this.setState({showDialog: false})
+                            this.setState({ showDialog: false })
                             update(EntryMethod.CREATE_PRIVATE)
                         }
-                    }, "Create Game"))
+                    },
+                    "Multiplayer (Share URL)")),
+            h(Dialog.Footer, null, 
+                h(Dialog.FooterButton, 
+                    { 
+                        cancel: true, 
+                        onClick: () => {
+                            this.setState({ showDialog: false })
+                            update(EntryMethod.FIND_PUBLIC)
+                            let boardSize = BoardSize.NINETEEN
+                            appEvents.emit('choose-board-size', boardSize)
+                        }
+                    }, 
+                    "Multiplayer (Wait for 19x19)")
+                )
         ) : empty
     }
 }
 
-export default GameLobbyModal
+export default WelcomeModal

@@ -6,7 +6,7 @@ const RobustWebSocket = require('robust-websocket')
 const uuidv4 = require('uuid/v4')
 
 const ClientId = require('../multiplayer/clientid')
-const { IdleStatus, EntryMethod, emitReadyState } = require('../multiplayer/bugout')
+const { IdleStatus, EntryMethod, emitReadyState, Player } = require('../multiplayer/bugout')
 
 const GATEWAY_HOST_LOCAL = "ws://localhost:3012/gateway"
 const GATEWAY_HOST_REMOTE = "wss://your.host.here:443/gateway"
@@ -115,7 +115,15 @@ class WebSocketController extends EventEmitter {
     constructor(webSocketAddress, spawnOptions) {
         super()
 
-        this.board = new Board(DEFAULT_BOARD_SIZE,DEFAULT_BOARD_SIZE) // See https://github.com/Terkwood/BUGOUT/issues/103
+        this.board = new Board(DEFAULT_BOARD_SIZE, DEFAULT_BOARD_SIZE)
+        
+        sabaki.events.on('play-bot-color-selected',
+            ({ humanColor }) => {
+                if (this.deferredPlayBot) {
+                    this.deferredPlayBot(humanColor)
+                }
+            })
+
         sabaki.events.on(
             'choose-board-size',
             ({ boardSize }) => {
@@ -187,8 +195,8 @@ class WebSocketController extends EventEmitter {
                 // against the AI doesn't require the kafka
                 // backend, so there's no need to wait for
                 // that part of the system to start up.
-                if (this.entryMethod === EntryMethod.PLAY_BOT) {
-                    console.log('BOT ENTRY')
+                if (!this.gameId && this.entryMethod === EntryMethod.PLAY_BOT) {
+                    this.setupBotGame()
                 } else {
                     // Until https://github.com/Terkwood/BUGOUT/issues/174
                     // is completed, we need to wait for the system to
@@ -197,6 +205,23 @@ class WebSocketController extends EventEmitter {
                 }
             })
         }) 
+    }
+
+    setupBotGame() {
+        this.deferredPlayBot = (humanColor) => this.gatewayConn
+            .attachBot(this.boardSize, humanColor)
+            .then((reply, err) => {
+                if (!err && reply.type === 'BotAttached') {
+                    this.gameId = reply.gameId
+
+                    let yourColor = humanColor.toUpperCase()[0] === "B" ? 
+                        Player.BLACK : Player.WHITE
+
+                    sabaki.events.emit('your-color', { yourColor })
+                } else {
+                    throwFatal()
+                }
+            })
     }
 
     onBugoutOnline(_wrc, _werr) {
@@ -333,9 +358,11 @@ class WebSocketController extends EventEmitter {
                 if (opponentMoved(msg, opponent)) {
                     this.handleMoveMade(msg, opponent, resolve)
                     this.genMoveInProgress = false
+                    sabaki.events.emit('gen-move-completed', { done: true })
                 } else if (opponentQuit(msg)) {
                     this.handleOpponentQuit(resolve)
                     this.genMoveInProgress = false
+                    sabaki.events.emit('gen-move-completed', { done: true })
                 }
 
                 // discard any other messages until we receive confirmation
@@ -415,15 +442,14 @@ class WebSocketController extends EventEmitter {
                     }
                 })
 
-                this.webSocket.send(JSON.stringify(makeMove))
+                let payload = JSON.stringify(makeMove)
+                this.webSocket.send(payload)
             } else if (command.name === 'genmove') {
-
                 let opponent = letterToPlayer(command.args[0])
                 this.opponent = opponent
                 
                 this.listenForMove(opponent, resolve)
                 this.genMoveInProgress = true
-             
             } else {
                 resolve({id: null, err: false})
              }
@@ -605,6 +631,57 @@ class GatewayConn {
             } catch (err) {
                 reject(err)
             }
+        })
+    }
+
+    async attachBot(boardSize, humanColor) {
+        return new Promise((resolve, reject) => {
+            let player = otherPlayer(humanColor)
+
+            let requestPayload = {
+                'type': 'AttachBot',
+                boardSize,
+                player
+            }
+
+            this.webSocket.addEventListener('message', event => {
+                try {
+                    let msg = JSON.parse(event.data)
+
+                    if (msg.type === 'BotAttached') {
+                        let isBotPlaying = msg.player === 'BLACK'
+
+                        sabaki.events.emit('bugout-wait-for-bot', {
+                            isModalRelevant: true,
+                            isBotAttached: true,
+                            isBotPlaying
+                        })
+
+                        if (isBotPlaying) {
+                            sabaki.events.once('gen-move-completed', () => {
+                                // Turn off the modal forever
+                                sabaki.events.emit('bugout-wait-for-bot', {
+                                    isModalRelevant: false
+                                })
+                            })
+                        }                        
+
+                        // App.js wants to know about this as well
+                        sabaki.events.emit('bugout-bot-attached', msg)
+
+                        resolve(msg)
+                    }
+                    // discard any other messages
+                } catch (err) {
+                    console.log(`Error processing websocket message: ${JSON.stringify(err)}`)
+                    reject()
+                }
+            })
+
+            sabaki.events.emit('bugout-wait-for-bot', {
+                isModalRelevant: true, isBotAttached: false
+            })
+            this.webSocket.send(JSON.stringify(requestPayload))
         })
     }
 

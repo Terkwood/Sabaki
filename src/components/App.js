@@ -1,4 +1,4 @@
-const EDITION = 'Toast'
+const EDITION = 'Aal'
 
 const EventEmitter = require('events')
 const {ipcRenderer, remote} = require('electron')
@@ -11,9 +11,9 @@ const DrawerManager = require('./DrawerManager')
 
 // BUGOUT 🦹🏻‍ Bundle Bloat Protector
 import BoardSizeModal from './bugout/BoardSizeModal'
-import GameLobbyModal from './bugout/GameLobbyModal'
-import HumanColorPrefModal from './bugout/HumanColorPrefModal'
+import GameLobbyModal from './bugout/WelcomeModal'
 import IdleStatusModal from './bugout/IdleStatusModal'
+import MultiplayerColorPrefModal from './bugout/MultiplayerColorPrefModal'
 import OpponentPassedModal from './bugout/OpponentPassedModal'
 import OpponentQuitModal from './bugout/OpponentQuitModal'
 import PlayBotColorSelectionModal from './bugout/PlayBotColorSelectionModal'
@@ -127,6 +127,16 @@ class App extends Component {
 
         setting.events.on('change', ({key}) => this.updateSettingState(key))
         this.updateSettingState()
+
+        // from GatewayConn
+        this.events.on('bugout-bot-attached', ({ player }) =>
+            this.setState({
+                multiplayer: {
+                    ...this.state.multiplayer,
+                    botColor: player
+                }
+            })
+        )
 
         console.log(`Welcome to Sabaki - BUGOUT ${EDITION} Edition`)
     }
@@ -518,8 +528,12 @@ class App extends Component {
                     // and not accidentally bouncing the finger
                     // and sending some additional move as the opponent
                     let color = this.inferredState.currentPlayer > 0 ? 'B' : 'W'
-                    if (this.state.multiplayer && this.state.multiplayer.yourColor && this.state.multiplayer.yourColor.event && this.state.multiplayer.yourColor.event.yourColor && color === this.state.multiplayer.yourColor.event.yourColor[0]) {
-                        this.makeMove(vertex, {sendToEngine: autoGenmove})
+
+                    let multiplayerColorSatisfied = this.state.multiplayer.yourColor && this.state.multiplayer.yourColor.event && this.state.multiplayer.yourColor.event.yourColor && color === this.state.multiplayer.yourColor.event.yourColor[0]
+                    
+                    let botColorSatisfied = this.state.multiplayer.botColor && this.state.multiplayer.botColor[0] !== color
+                    if (this.state.multiplayer && (multiplayerColorSatisfied || botColorSatisfied)) {
+                        this.makeMove(vertex, { sendToEngine: autoGenmove })
                     }
                 }
             }
@@ -1050,7 +1064,7 @@ class App extends Component {
         this.setBusy(true)
 
         try {
-            await this.syncEngines({showErrorDialog: true})
+            await this.syncEngines({showErrorDialog: false})
         } catch (err) {
             this.stopGeneratingMoves()
             this.setBusy(false)
@@ -1201,7 +1215,7 @@ class App extends Component {
                 data: state.multiplayer && state.multiplayer.waitForOpponentModal,
                 reconnectDialog: state.multiplayer && state.multiplayer.reconnectDialog
             }),
-            h(HumanColorPrefModal, {
+            h(MultiplayerColorPrefModal, {
                 data: state.multiplayer,
                 idleStatus: state.multiplayer && state.multiplayer.idleStatus && state.multiplayer.idleStatus.status
             }),

@@ -219,6 +219,12 @@ const load = () => {
                             }
                         })
 
+                        app.events.on('play-bot-color-selected', ({ humanColor }) => {
+                            if (humanColor[0].toUpperCase() === "W") {
+                                app.generateMove({ firstMove: true })
+                            }
+                        })
+
                         registerReconnectEvents(app)
                         registerBoardSizeEvents(app)
                     }
