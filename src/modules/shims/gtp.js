@@ -617,7 +617,6 @@ class GatewayConn {
                         if (resolveMoveMade && msg.type == "MoveMade") {
                             let sabakiCoord = board.vertex2coord([msg.coord.x, msg.coord.y])
                             
-                            console.log(`MoveMade coord ${JSON.stringify(sabakiCoord)}`)
                             resolveMoveMade({"id":null,"content":sabakiCoord,"error":false})
                         }
 
