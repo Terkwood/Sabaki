@@ -1,6 +1,6 @@
 # This Project Has Moved
 
-This project is now part of the [BUGOUT monorepo](https://github.com/Terkwood/BUGOUT/browser).  Thank you to the authors and Sabaki community for making it available.  We're happily making use of it as part of our multiplayer & AI system.
+This project is now part of the [BUGOUT monorepo](https://github.com/Terkwood/BUGOUT).  Thank you to the authors and Sabaki community for making it available.  We're happily making use of it as part of our multiplayer & AI system.
 
 This project is not affiliated with Sabaki.
 
