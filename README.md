@@ -1,3 +1,9 @@
+# This Project Has Moved
+
+This project is now part of the [BUGOUT monorepo](https://github.com/Terkwood/BUGOUT/browser).  Thank you to the authors and Sabaki community for making it available.  We're happily making use of it as part of our multiplayer & AI system.
+
+This project is not affiliated with Sabaki.
+
 # Sabaki [![Build Status](https://travis-ci.org/SabakiHQ/Sabaki.svg?branch=master)](https://travis-ci.org/SabakiHQ/Sabaki) [![Donate](https://img.shields.io/badge/donate-paypal-blue.svg)](https://www.paypal.me/yishn/5)
 
 <img src="logo.png" width="156" height="156">
